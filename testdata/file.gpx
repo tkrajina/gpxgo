@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="eTrex 10" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">
+  <metadata>
+    <link href="http://www.garmin.com">
+      <text>Garmin International</text>
+    </link>
+    <time>2012-03-17T15:44:18Z</time>
+  </metadata>
+  <wpt lat="37.085751" lon="-121.170420">
+    <ele>195.440933</ele>
+    <time>2012-03-21T21:24:43Z</time>
+    <name>001</name>
+    <sym>Flag, Blue</sym>
+  </wpt>
+  <wpt lat="37.085751" lon="-121.170420">
+    <ele>195.438324</ele>
+    <time>2012-03-21T21:24:44Z</time>
+    <name>002</name>
+    <sym>Flag, Blue</sym>
+  </wpt>
+  <trk>
+    <name>17-MRZ-12 16:44:12</name>
+    <extensions>
+      <gpxx:TrackExtension>
+        <gpxx:DisplayColor>Cyan</gpxx:DisplayColor>
+      </gpxx:TrackExtension>
+    </extensions>
+    <trkseg>
+      <trkpt lat="52.5113534275" lon="13.4571944922">
+        <ele>59.26</ele>
+        <time>2012-03-17T12:46:19Z</time>
+        <extensions>
+          <gpxtpx:TrackPointExtension>
+            <gpxtpx:cad>0</gpxtpx:cad>
+          </gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+      <trkpt lat="52.5113568641" lon="13.4571697656">
+        <ele>65.51</ele>
+        <time>2012-03-17T12:46:44Z</time>
+        <extensions>
+          <gpxtpx:TrackPointExtension>
+            <gpxtpx:cad>0</gpxtpx:cad>
+          </gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+      <trkpt lat="52.5117103290" lon="13.4569416940">
+        <ele>65.99</ele>
+        <time>2012-03-17T12:47:01Z</time>
+        <extensions>
+          <gpxtpx:TrackPointExtension>
+            <gpxtpx:cad>0</gpxtpx:cad>
+          </gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+      <trkpt lat="52.5117189623" lon="13.4567520116">
+        <ele>63.58</ele>
+        <time>2012-03-17T12:47:23Z</time>
+        <extensions>
+          <gpxtpx:TrackPointExtension>
+            <gpxtpx:cad>0</gpxtpx:cad>
+          </gpxtpx:TrackPointExtension>
+        </extensions>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
