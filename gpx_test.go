@@ -1,41 +1,25 @@
 package gpx
 
 import (
-	"encoding/xml"
-	"fmt"
-	"io/ioutil"
-	"math"
-	"os"
+	"log"
 	"testing"
 	"time"
 )
 
-var g GPX
+var g Gpx
 
 func init() {
-	fmt.Println("gpx test init")
+	log.Println("gpx test init")
+}
 
-	gpxFile, err := os.Open("testdata/file.gpx")
+func TestParse(t *testing.T) {
+	var err error
+	g, err = Parse("testdata/file.gpx")
 
 	if err != nil {
-		fmt.Println("Error opening file: ", err)
-		return
+		t.Errorf("Error parsing GPX file: ", err)
 	}
-	defer gpxFile.Close()
 
-	b, _ := ioutil.ReadAll(gpxFile)
-
-	xml.Unmarshal(b, &g)
-}
-
-func TestToRad(t *testing.T) {
-	radVal := ToRad(360)
-	if radVal != math.Pi*2 {
-		t.Errorf("Test failed: %f", radVal)
-	}
-}
-
-func TestGpxParsing(t *testing.T) {
 	// t.Log("Test parser")
 	timestampA := g.Metadata.Timestamp
 	timestampE := "2012-03-17T15:44:18Z"
@@ -48,10 +32,16 @@ func TestGpxParsing(t *testing.T) {
 	if trknameA != trknameE {
 		t.Errorf("Trackname expected: %s, actual: %s", trknameE, trknameA)
 	}
+
+	numPointsA := len(g.Tracks[0].Segments[0].Points)
+	numPointsE := 4
+	if numPointsE != numPointsA {
+		t.Errorf("Number of tracks expected: %d, actual: %d", numPointsE, numPointsA)
+	}
 }
 
 func TestLength2D(t *testing.T) {
-	lengthA := g.Tracks[0].Trkseg[0].Length2D()
+	lengthA := g.Tracks[0].Segments[0].Length2D()
 	lengthE := 56.77577732775905
 
 	if lengthA != lengthE {
@@ -60,7 +50,7 @@ func TestLength2D(t *testing.T) {
 }
 
 func TestLength3D(t *testing.T) {
-	lengthA := g.Tracks[0].Trkseg[0].Length3D()
+	lengthA := g.Tracks[0].Segments[0].Length3D()
 	lengthE := 61.76815317436073
 
 	if lengthA != lengthE {
@@ -78,7 +68,7 @@ func TestGetTime(t *testing.T) {
 }
 
 func TestPtTime(t *testing.T) {
-	timeA := g.Tracks[0].Trkseg[0].Trkpts[0].Time()
+	timeA := g.Tracks[0].Segments[0].Points[0].Time()
 	//2012-03-17T12:46:19Z
 	timeE := time.Date(2012, 3, 17, 12, 46, 19, 0, time.UTC)
 
@@ -88,7 +78,7 @@ func TestPtTime(t *testing.T) {
 }
 
 func TestTimeBounds(t *testing.T) {
-	timeBoundsA := g.Tracks[0].Trkseg[0].TimeBounds()
+	timeBoundsA := g.Tracks[0].Segments[0].TimeBounds()
 	timeBoundsE := TimeBounds{
 		StartTime: time.Date(2012, 3, 17, 12, 46, 19, 0, time.UTC),
 		EndTime:   time.Date(2012, 3, 17, 12, 47, 23, 0, time.UTC),
@@ -100,8 +90,8 @@ func TestTimeBounds(t *testing.T) {
 }
 
 func TestBounds(t *testing.T) {
-	boundsA := g.Tracks[0].Trkseg[0].Bounds()
-	boundsE := Bounds{
+	boundsA := g.Tracks[0].Segments[0].Bounds()
+	boundsE := GpxBounds{
 		MaxLat: 52.5117189623, MinLat: 52.5113534275,
 		MaxLon: 13.4571944922, MinLon: 13.4567520116,
 	}
@@ -112,7 +102,7 @@ func TestBounds(t *testing.T) {
 }
 
 func TestSpeed(t *testing.T) {
-	speedA := g.Tracks[0].Trkseg[0].Speed(2)
+	speedA := g.Tracks[0].Segments[0].Speed(2)
 	speedE := 1.5386074011963367
 
 	if speedE != speedA {
@@ -121,7 +111,7 @@ func TestSpeed(t *testing.T) {
 }
 
 func TestDuration(t *testing.T) {
-	durA := g.Tracks[0].Trkseg[0].Duration()
+	durA := g.Tracks[0].Segments[0].Duration()
 	durE := 64.0
 
 	if durE != durA {
@@ -130,12 +120,10 @@ func TestDuration(t *testing.T) {
 }
 
 func TestUphillDownHill(t *testing.T) {
-	updoA := g.Tracks[0].Trkseg[0].UphillDownhill()
+	updoA := g.Tracks[0].Segments[0].UphillDownhill()
 	updoE := UphillDownhill{
 		Uphill:   5.863000000000007,
 		Downhill: 1.5430000000000064}
-
-	fmt.Println(updoE.Uphill, updoE.Downhill, updoA.Uphill, updoA.Downhill)
 
 	if updoE.Uphill != updoA.Uphill || updoE.Downhill != updoA.Downhill {
 		t.Errorf("UphillDownhill expected: %f, %f, actual: %f, %f",

@@ -27,8 +27,8 @@ func HaversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	return d
 }
 
-func length(locs []GPXTrackpoint, threeD bool) float64 {
-	var previousLoc GPXTrackpoint
+func length(locs []GpxWpt, threeD bool) float64 {
+	var previousLoc GpxWpt
 	var res float64
 	for k, v := range locs {
 		if k > 0 {
@@ -45,11 +45,11 @@ func length(locs []GPXTrackpoint, threeD bool) float64 {
 	return res
 }
 
-func Length2D(locs []GPXTrackpoint) float64 {
+func Length2D(locs []GpxWpt) float64 {
 	return length(locs, false)
 }
 
-func Length3D(locs []GPXTrackpoint) float64 {
+func Length3D(locs []GpxWpt) float64 {
 	return length(locs, true)
 }
 
@@ -121,7 +121,7 @@ func Distance3D(lat1, lon1, ele1, lat2, lon2, ele2 float64, haversine bool) floa
 	return distance(lat1, lon1, ele1, lat2, lon2, ele2, true, haversine)
 }
 
-func ElevationAngle(loc1, loc2 GPXTrackpoint, radians bool) float64 {
+func ElevationAngle(loc1, loc2 GpxWpt, radians bool) float64 {
 	// TODO
 	return 0.0
 }
