@@ -184,11 +184,36 @@ func (b *GpxBounds) String() string {
 }
 
 //==========================================================
+func (g *Gpx) Length2D() float64 {
+	var length2d float64
+	for _, trk := range g.Tracks {
+		length2d += trk.Length2D()
+	}
+	return length2d
+}
+
+func (g *Gpx) Length3D() float64 {
+	var length3d float64
+	for _, trk := range g.Tracks {
+		length3d += trk.Length3D()
+	}
+	return length3d
+}
+
+//==========================================================
 
 func (trk *GpxTrk) Length2D() float64 {
 	var l float64
 	for _, seg := range trk.Segments {
 		d := seg.Length2D()
+		l += d
+	}
+	return l
+}
+func (trk *GpxTrk) Length3D() float64 {
+	var l float64
+	for _, seg := range trk.Segments {
+		d := seg.Length3D()
 		l += d
 	}
 	return l

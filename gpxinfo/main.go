@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/ptrv/go-gpx"
+	"path/filepath"
 )
 
 func main() {
@@ -15,14 +16,27 @@ func main() {
 		return
 	}
 
-	g, err := gpx.Parse(args[0])
+	gpxFileArg := args[0]
+	gpxFile, err := gpx.Parse(gpxFileArg)
 
 	if err != nil {
 		fmt.Println("Error opening gpx file: ", err)
 		return
 	}
 
-	fmt.Println(g.Metadata.Timestamp)
+	gpxPath, _ := filepath.Abs(gpxFileArg)
+	fmt.Println("File: ", gpxPath)
+
+	fmt.Println("\tGPX name: ", gpxFile.Metadata.Name)
+	fmt.Println("\tGPX desctiption: ", gpxFile.Metadata.Desc)
+	fmt.Println("\tAuthor: ", gpxFile.Metadata.Author.Name)
+	fmt.Println("\tEmail: ", gpxFile.Metadata.Author.Email)
+
+	len2d := gpxFile.Length2D()
+	len3d := gpxFile.Length3D()
+	fmt.Println("Length 2D: ", len2d)
+	fmt.Println("Length 3D: ", len3d)
+
 	// for _, trk := range g.Tracks {
 	// 	fmt.Printf("%s\n", trk.Name)
 	// 	for _, trkseg := range trk.Trkseg {
