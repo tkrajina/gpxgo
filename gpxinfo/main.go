@@ -37,6 +37,8 @@ func main() {
 	fmt.Println("Length 2D: ", len2d)
 	fmt.Println("Length 3D: ", len3d)
 
+	fmt.Printf("Bounds: %+v", gpxFile.Bounds())
+
 	// for _, trk := range g.Tracks {
 	// 	fmt.Printf("%s\n", trk.Name)
 	// 	for _, trkseg := range trk.Trkseg {

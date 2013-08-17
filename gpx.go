@@ -200,6 +200,44 @@ func (g *Gpx) Length3D() float64 {
 	return length3d
 }
 
+func (g *Gpx) TimeBounds() TimeBounds {
+	var tbGpx TimeBounds
+	for i, trk := range g.Tracks {
+		tbTrk := trk.TimeBounds()
+		if i == 0 {
+			tbGpx = trk.TimeBounds()
+		} else {
+			tbGpx.EndTime = tbTrk.EndTime
+		}
+	}
+	return tbGpx
+}
+
+func (g *Gpx) Bounds() GpxBounds {
+	// vals := make([]interface{}, len(g.Tracks))
+	// for i, v := range g.Tracks {
+	// 	vals[i] = v
+	// }
+	// return getBounds(vals)
+	maxLat := -math.MaxFloat64
+	minLat := math.MaxFloat64
+	maxLon := -math.MaxFloat64
+	minLon := math.MaxFloat64
+
+	for _, trk := range g.Tracks {
+		trkBounds := trk.Bounds()
+		maxLat = math.Max(trkBounds.MaxLat, maxLat)
+		minLat = math.Min(trkBounds.MinLat, minLat)
+		maxLon = math.Max(trkBounds.MaxLon, maxLon)
+		minLon = math.Min(trkBounds.MinLon, minLon)
+	}
+
+	return GpxBounds{
+		MaxLat: maxLat, MinLat: minLat,
+		MaxLon: maxLon, MinLon: minLon,
+	}
+}
+
 //==========================================================
 
 func (trk *GpxTrk) Length2D() float64 {
@@ -219,6 +257,48 @@ func (trk *GpxTrk) Length3D() float64 {
 	return l
 }
 
+func (trk *GpxTrk) TimeBounds() TimeBounds {
+	var tbTrk TimeBounds
+
+	for i, seg := range trk.Segments {
+		tbSeg := seg.TimeBounds()
+		if i == 0 {
+			tbTrk = tbSeg
+		} else {
+			tbTrk.EndTime = tbSeg.EndTime
+		}
+	}
+	return tbTrk
+}
+
+func (trk *GpxTrk) Bounds() GpxBounds {
+	// vals := make([]interface{}, len(trk.Segments))
+	// for i, v := range trk.Segments {
+	// 	vals[i] = v
+	// }
+	// return getBounds(vals)
+
+	maxLat := -math.MaxFloat64
+	minLat := math.MaxFloat64
+	maxLon := -math.MaxFloat64
+	minLon := math.MaxFloat64
+
+	for _, seg := range trk.Segments {
+		segBounds := seg.Bounds()
+		maxLat = math.Max(segBounds.MaxLat, maxLat)
+		minLat = math.Min(segBounds.MinLat, minLat)
+		maxLon = math.Max(segBounds.MaxLon, maxLon)
+		minLon = math.Min(segBounds.MinLon, minLon)
+
+	}
+
+	return GpxBounds{
+		MaxLat: maxLat, MinLat: minLat,
+		MaxLon: maxLon, MinLon: minLon,
+	}
+}
+
+//==========================================================
 func (seg *GpxTrkseg) Length2D() float64 {
 	return Length2D(seg.Points)
 }
