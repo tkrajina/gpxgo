@@ -12,6 +12,7 @@ import (
 //==========================================================
 
 const TIMELAYOUT = "2006-01-02T15:04:05Z"
+const DEFAULT_STOPPED_SPEED_THRESHOLD = 1
 
 //==========================================================
 type GpxTrkseg struct {
@@ -126,6 +127,19 @@ type TimeBounds struct {
 type UphillDownhill struct {
 	Uphill   float64
 	Downhill float64
+}
+
+type MovingData struct {
+	MovingTime      float64
+	StoppedTime     float64
+	MovingDistance  float64
+	StoppedDistance float64
+	MaxSpeed        float64
+}
+
+type SpeedsAndDistances struct {
+	Speed    float64
+	Distance float64
 }
 
 //==========================================================
@@ -434,6 +448,92 @@ func (seg *GpxTrkseg) UphillDownhill() UphillDownhill {
 	uphill, downhill := CalcUphillDownhill(elevations)
 
 	return UphillDownhill{Uphill: uphill, Downhill: downhill}
+}
+
+// Split segment at point index pt. Point pt remains in first part
+func (seg *GpxTrkseg) Split(pt int) (GpxTrkseg, GpxTrkseg) {
+	pts1 := seg.Points[:pt+1]
+	pts2 := seg.Points[pt+1:]
+
+	return GpxTrkseg{Points: pts1}, GpxTrkseg{Points: pts2}
+}
+
+func (seg *GpxTrkseg) Join(seg2 GpxTrkseg) {
+	seg.Points = append(seg.Points, seg2.Points...)
+}
+
+func (seg *GpxTrkseg) LocationAt(t time.Time) GpxWpt {
+	lenPts := len(seg.Points)
+	if lenPts == 0 {
+		return GpxWpt{}
+	}
+	firstT := seg.Points[0]
+	lastT := seg.Points[lenPts-1]
+	if firstT.Time().Equal(lastT.Time()) || firstT.Time().After(lastT.Time()) {
+		return GpxWpt{}
+	}
+
+	for _, pt := range seg.Points {
+		if t.Before(pt.Time()) {
+			return pt
+		}
+	}
+
+	return GpxWpt{}
+}
+
+func (seg *GpxTrkseg) MovingData() MovingData {
+	var (
+		movingTime      float64
+		stoppedTime     float64
+		movingDistance  float64
+		stoppedDistance float64
+	)
+
+	speedsDistances := make([]SpeedsAndDistances, 0)
+	// speeds := make([]float64, 0)
+	// dists := make([]float64, 0)
+
+	for i := 1; i < len(seg.Points); i++ {
+		prev := seg.Points[i-1]
+		pt := seg.Points[i]
+
+		dist := pt.Distance3D(prev)
+
+		timedelta := pt.Time().Sub(prev.Time())
+		seconds := timedelta.Seconds()
+		speedKmh := 0.0
+
+		if seconds > 0 {
+			speedKmh = (dist / 1000.0) / (math.Pow(timedelta.Seconds()/60, 2))
+		}
+
+		if speedKmh <= DEFAULT_STOPPED_SPEED_THRESHOLD {
+			stoppedTime += timedelta.Seconds()
+			stoppedDistance += dist
+		} else {
+			movingTime += timedelta.Seconds()
+			movingDistance += dist
+
+			sd := SpeedsAndDistances{dist / timedelta.Seconds(), dist}
+			speedsDistances = append(speedsDistances, sd)
+			// speeds = append(speeds, dist/timedelta.Seconds())
+			// dists = append(dists, dist)
+		}
+	}
+
+	var maxSpeed float64
+	if len(speedsDistances) > 0 {
+		maxSpeed = CalcMaxSpeed(speedsDistances)
+	}
+
+	return MovingData{
+		movingTime,
+		stoppedTime,
+		movingDistance,
+		stoppedDistance,
+		maxSpeed,
+	}
 }
 
 //==========================================================

@@ -1,7 +1,9 @@
 package gpx
 
 import (
+	"log"
 	"math"
+	"sort"
 )
 
 const oneDegree = 1000.0 * 10000.8 / 90.0
@@ -53,9 +55,47 @@ func Length3D(locs []GpxWpt) float64 {
 	return length(locs, true)
 }
 
-func CalcMaxSpeed(speeds, dists []float64) float64 {
-	// TODO
-	return 0.0
+func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
+	lenArrs := len(speedsDistances)
+
+	if len(speedsDistances) < 20 {
+		log.Println("Segment too small to compute speed, size: ", lenArrs)
+		return 0.0
+	}
+
+	var sum_dists float64
+	for _, d := range speedsDistances {
+		sum_dists += d.Distance
+	}
+	average_dist := sum_dists / float64(lenArrs)
+
+	var variance float64
+	for i := 0; i < len(speedsDistances); i++ {
+		variance += math.Pow(speedsDistances[i].Distance-average_dist, 2)
+	}
+	stdDeviation := math.Sqrt(variance)
+
+	// ignore items with distance too long
+	filteredSD := make([]SpeedsAndDistances, 0)
+	for i := 0; i < len(speedsDistances); i++ {
+		dist := math.Abs(speedsDistances[i].Distance - average_dist)
+		if dist <= stdDeviation*1.5 {
+			filteredSD = append(filteredSD, speedsDistances[i])
+		}
+	}
+
+	speeds := make([]float64, len(filteredSD))
+	for i, sd := range filteredSD {
+		speeds[i] = sd.Speed
+	}
+
+	speedsSorted := sort.Float64Slice(speeds)
+
+	maxIdx := int(float64(len(speedsSorted)) * 0.95)
+	if maxIdx >= len(speedsSorted) {
+		maxIdx = len(speedsSorted) - 1
+	}
+	return speedsSorted[maxIdx]
 }
 
 func CalcUphillDownhill(elevations []float64) (float64, float64) {
