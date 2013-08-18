@@ -142,7 +142,13 @@ type SpeedsAndDistances struct {
 	Distance float64
 }
 
+type LocationsResultPair struct {
+	SegmentNo int
+	PointNo   int
+}
+
 //==========================================================
+
 func Parse(gpxPath string) (Gpx, error) {
 	gpxFile, err := os.Open(gpxPath)
 
@@ -187,14 +193,34 @@ func (tb *TimeBounds) String() string {
 }
 
 func (b *GpxBounds) Equals(b2 GpxBounds) bool {
-	if b.MinLon == b2.MinLon && b.MaxLat == b2.MaxLat && b.MinLon == b2.MinLon && b.MaxLon == b.MaxLon {
+	if b.MinLon == b2.MinLon && b.MaxLat == b2.MaxLat &&
+		b.MinLon == b2.MinLon && b.MaxLon == b.MaxLon {
 		return true
 	}
 	return false
 }
 
 func (b *GpxBounds) String() string {
-	return fmt.Sprintf("%+v, %+v, %+v, %+v", b.MinLat, b.MaxLat, b.MinLat, b.MaxLon)
+	return fmt.Sprintf("%+v, %+v, %+v, %+v",
+		b.MinLat, b.MaxLat, b.MinLat, b.MaxLon)
+}
+
+func (md *MovingData) Equals(md2 MovingData) bool {
+	if md.MovingTime == md2.MovingTime &&
+		md.MovingDistance == md2.MovingDistance &&
+		md.StoppedTime == md2.StoppedTime &&
+		md.StoppedDistance == md2.StoppedDistance &&
+		md.MaxSpeed == md.MaxSpeed {
+		return true
+	}
+	return false
+}
+
+func (ud *UphillDownhill) Equals(ud2 UphillDownhill) bool {
+	if ud.Uphill == ud2.Uphill && ud.Downhill == ud2.Downhill {
+		return true
+	}
+	return false
 }
 
 //==========================================================
@@ -250,6 +276,93 @@ func (g *Gpx) Bounds() GpxBounds {
 		MaxLat: maxLat, MinLat: minLat,
 		MaxLon: maxLon, MinLon: minLon,
 	}
+}
+
+func (g *Gpx) MovingData() MovingData {
+	var (
+		movingTime      float64
+		stoppedTime     float64
+		movingDistance  float64
+		stoppedDistance float64
+		maxSpeed        float64
+	)
+
+	for _, trk := range g.Tracks {
+		md := trk.MovingData()
+		movingTime += md.MovingTime
+		stoppedTime += md.StoppedTime
+		movingDistance += md.MovingDistance
+		stoppedDistance += md.StoppedDistance
+
+		if md.MaxSpeed > maxSpeed {
+			maxSpeed = md.MaxSpeed
+		}
+	}
+	return MovingData{
+		MovingTime:      movingTime,
+		MovingDistance:  movingDistance,
+		StoppedTime:     stoppedTime,
+		StoppedDistance: stoppedDistance,
+		MaxSpeed:        maxSpeed,
+	}
+
+}
+
+func (g *Gpx) Split(trackNo, segNo, pointNo int) {
+	if trackNo >= len(g.Tracks) {
+		return
+	}
+
+	track := g.Tracks[trackNo]
+
+	track.Split(segNo, pointNo)
+}
+
+func (g *Gpx) Duration() float64 {
+	if len(g.Tracks) == 0 {
+		return 0.0
+	}
+	var result float64
+	for _, trk := range g.Tracks {
+		result += trk.Duration()
+	}
+
+	return result
+}
+
+func (g *Gpx) UphillDownhill() UphillDownhill {
+	if len(g.Tracks) == 0 {
+		return UphillDownhill{}
+	}
+
+	var (
+		uphill   float64
+		downhill float64
+	)
+
+	for _, trk := range g.Tracks {
+		updo := trk.UphillDownhill()
+
+		uphill += updo.Uphill
+		downhill += updo.Downhill
+	}
+
+	return UphillDownhill{
+		Uphill:   uphill,
+		Downhill: downhill,
+	}
+}
+
+func (g *Gpx) LocationAt(t time.Time) []LocationsResultPair {
+	results := make([]LocationsResultPair, 0)
+
+	for _, trk := range g.Tracks {
+		locs := trk.LocationAt(t)
+		if len(locs) > 0 {
+			results = append(results, locs...)
+		}
+	}
+	return results
 }
 
 //==========================================================
@@ -310,6 +423,125 @@ func (trk *GpxTrk) Bounds() GpxBounds {
 		MaxLat: maxLat, MinLat: minLat,
 		MaxLon: maxLon, MinLon: minLon,
 	}
+}
+
+func (trk *GpxTrk) Split(segNo, ptNo int) {
+	newSegs := make([]GpxTrkseg, 0)
+
+	for i := 0; i < len(trk.Segments); i++ {
+		seg := trk.Segments[i]
+
+		if i == segNo {
+			seg1, seg2 := seg.Split(ptNo)
+			newSegs = append(newSegs, seg1, seg2)
+		} else {
+			newSegs = append(newSegs, seg)
+		}
+	}
+	trk.Segments = newSegs
+}
+
+func (trk *GpxTrk) Join(segNo, segNo2 int) {
+	if segNo2 >= len(trk.Segments) {
+		return
+	}
+
+	newSegs := make([]GpxTrkseg, 0)
+
+	for i := 0; i < len(trk.Segments); i++ {
+		seg := trk.Segments[i]
+		if i == segNo {
+			secondSeg := trk.Segments[segNo2]
+			seg.Join(secondSeg)
+			newSegs = append(newSegs, seg)
+		} else if i == segNo2 {
+			// do nothing, its already joined
+		} else {
+			newSegs = append(newSegs, seg)
+		}
+	}
+	trk.Segments = newSegs
+}
+func (trk *GpxTrk) JoinNext(segNo int) {
+	trk.Join(segNo, segNo+1)
+}
+
+func (trk *GpxTrk) MovingData() MovingData {
+
+	var (
+		movingTime      float64
+		stoppedTime     float64
+		movingDistance  float64
+		stoppedDistance float64
+		maxSpeed        float64
+	)
+
+	for _, seg := range trk.Segments {
+		md := seg.MovingData()
+		movingTime += md.MovingTime
+		stoppedTime += md.StoppedTime
+		movingDistance += md.MovingDistance
+		stoppedDistance += md.StoppedDistance
+
+		if md.MaxSpeed > maxSpeed {
+			maxSpeed = md.MaxSpeed
+		}
+	}
+	return MovingData{
+		MovingTime:      movingTime,
+		MovingDistance:  movingDistance,
+		StoppedTime:     stoppedTime,
+		StoppedDistance: stoppedDistance,
+		MaxSpeed:        maxSpeed,
+	}
+}
+
+func (trk *GpxTrk) Duration() float64 {
+	if len(trk.Segments) == 0 {
+		return 0.0
+	}
+
+	var result float64
+	for _, seg := range trk.Segments {
+		result += seg.Duration()
+	}
+	return result
+}
+
+func (trk *GpxTrk) UphillDownhill() UphillDownhill {
+	if len(trk.Segments) == 0 {
+		return UphillDownhill{}
+	}
+
+	var (
+		uphill   float64
+		downhill float64
+	)
+
+	for _, seg := range trk.Segments {
+		updo := seg.UphillDownhill()
+
+		uphill += updo.Uphill
+		downhill += updo.Downhill
+	}
+
+	return UphillDownhill{
+		Uphill:   uphill,
+		Downhill: downhill,
+	}
+}
+
+func (trk *GpxTrk) LocationAt(t time.Time) []LocationsResultPair {
+	results := make([]LocationsResultPair, 0)
+
+	for i := 0; i < len(trk.Segments); i++ {
+		seg := trk.Segments[i]
+		loc := seg.LocationAt(t)
+		if loc != -1 {
+			results = append(results, LocationsResultPair{i, loc})
+		}
+	}
+	return results
 }
 
 //==========================================================

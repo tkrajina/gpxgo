@@ -125,8 +125,33 @@ func TestUphillDownHillSeg(t *testing.T) {
 		Uphill:   5.863000000000007,
 		Downhill: 1.5430000000000064}
 
-	if updoE.Uphill != updoA.Uphill || updoE.Downhill != updoA.Downhill {
-		t.Errorf("UphillDownhill expected: %f, %f, actual: %f, %f",
-			updoE.Uphill, updoE.Downhill, updoA.Uphill, updoA.Downhill)
+	if !updoE.Equals(updoA) {
+		t.Errorf("UphillDownhill expected: %+v, actual: %+v", updoE, updoA)
+	}
+}
+
+func TestMovingData(t *testing.T) {
+	movDataA := g.MovingData()
+	movDataE := MovingData{
+		MovingTime:      39.0,
+		StoppedTime:     25.0,
+		MovingDistance:  55.28705571308896,
+		StoppedDistance: 6.481097461271765,
+		MaxSpeed:        0.0,
+	}
+
+	if !movDataE.Equals(movDataA) {
+		t.Errorf("Moving data expected: %+v, actual: %+v", movDataE, movDataA)
+	}
+}
+
+func TestUphillDownhill(t *testing.T) {
+	updoA := g.UphillDownhill()
+	updoE := UphillDownhill{
+		Uphill:   5.863000000000007,
+		Downhill: 1.5430000000000064}
+
+	if !updoE.Equals(updoA) {
+		t.Errorf("UphillDownhill expected: %+v, actual: %+v", updoE, updoA)
 	}
 }
