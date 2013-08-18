@@ -12,7 +12,7 @@ import (
 //==========================================================
 
 const TIMELAYOUT = "2006-01-02T15:04:05Z"
-const DEFAULT_STOPPED_SPEED_THRESHOLD = 1
+const DEFAULT_STOPPED_SPEED_THRESHOLD = 1.0
 
 //==========================================================
 type GpxTrkseg struct {
@@ -491,8 +491,6 @@ func (seg *GpxTrkseg) MovingData() MovingData {
 	)
 
 	speedsDistances := make([]SpeedsAndDistances, 0)
-	// speeds := make([]float64, 0)
-	// dists := make([]float64, 0)
 
 	for i := 1; i < len(seg.Points); i++ {
 		prev := seg.Points[i-1]
@@ -502,10 +500,10 @@ func (seg *GpxTrkseg) MovingData() MovingData {
 
 		timedelta := pt.Time().Sub(prev.Time())
 		seconds := timedelta.Seconds()
-		speedKmh := 0.0
+		var speedKmh float64
 
 		if seconds > 0 {
-			speedKmh = (dist / 1000.0) / (math.Pow(timedelta.Seconds()/60, 2))
+			speedKmh = (dist / 1000.0) / (timedelta.Seconds() / math.Pow(60, 2))
 		}
 
 		if speedKmh <= DEFAULT_STOPPED_SPEED_THRESHOLD {
@@ -517,8 +515,6 @@ func (seg *GpxTrkseg) MovingData() MovingData {
 
 			sd := SpeedsAndDistances{dist / timedelta.Seconds(), dist}
 			speedsDistances = append(speedsDistances, sd)
-			// speeds = append(speeds, dist/timedelta.Seconds())
-			// dists = append(dists, dist)
 		}
 	}
 
