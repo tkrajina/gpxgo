@@ -810,4 +810,34 @@ func (pt *GpxWpt) Distance3D(pt2 GpxWpt) float64 {
 	return Distance3D(pt.Lat, pt.Lon, pt.Ele, pt2.Lat, pt2.Lon, pt2.Ele, false)
 }
 
+func (pt *GpxWpt) MaxDilutionOfPrecision() float64 {
+	return math.Max(pt.Hdop, math.Max(pt.Vdop, pt.Pdop))
+}
+
+//==========================================================
+
+func (rte *GpxRte) Length() float64 {
+	return Length2D(rte.RoutePoints)
+}
+
+func (rte *GpxRte) Center() (float64, float64) {
+	lenRtePts := len(rte.RoutePoints)
+	if lenRtePts == 0 {
+		return 0.0, 0.0
+	}
+
+	var (
+		sumLat float64
+		sumLon float64
+	)
+
+	for _, pt := range rte.RoutePoints {
+		sumLat += pt.Lat
+		sumLon += pt.Lon
+	}
+
+	n := float64(lenRtePts)
+	return sumLat / n, sumLon / n
+}
+
 //==========================================================
