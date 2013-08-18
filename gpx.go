@@ -462,24 +462,25 @@ func (seg *GpxTrkseg) Join(seg2 GpxTrkseg) {
 	seg.Points = append(seg.Points, seg2.Points...)
 }
 
-func (seg *GpxTrkseg) LocationAt(t time.Time) GpxWpt {
+func (seg *GpxTrkseg) LocationAt(t time.Time) int {
 	lenPts := len(seg.Points)
 	if lenPts == 0 {
-		return GpxWpt{}
+		return -1
 	}
 	firstT := seg.Points[0]
 	lastT := seg.Points[lenPts-1]
 	if firstT.Time().Equal(lastT.Time()) || firstT.Time().After(lastT.Time()) {
-		return GpxWpt{}
+		return -1
 	}
 
-	for _, pt := range seg.Points {
+	for i := 0; i < len(seg.Points); i++ {
+		pt := seg.Points[i]
 		if t.Before(pt.Time()) {
-			return pt
+			return i
 		}
 	}
 
-	return GpxWpt{}
+	return -1
 }
 
 func (seg *GpxTrkseg) MovingData() MovingData {
