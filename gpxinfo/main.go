@@ -34,19 +34,24 @@ func main() {
 
 	len2d := gpxFile.Length2D()
 	len3d := gpxFile.Length3D()
-	fmt.Println("Length 2D: ", len2d)
-	fmt.Println("Length 3D: ", len3d)
+	fmt.Println("\tLength 2D: ", len2d/1000.0)
+	fmt.Println("\tLength 3D: ", len3d/1000.0)
 
-	fmt.Printf("Bounds: %+v", gpxFile.Bounds())
+	fmt.Printf("\tBounds: %+v\n", gpxFile.Bounds())
 
-	// for _, trk := range g.Tracks {
-	// 	fmt.Printf("%s\n", trk.Name)
-	// 	for _, trkseg := range trk.Trkseg {
-	// 		for _, trkpt := range trkseg.Trkpts {
-	// 			fmt.Printf("%f, %f, %f, %s\n", trkpt.Lat, trkpt.Lon, trkpt.Ele, trkpt.Timestamp)
-	// 		}
-	// 		fmt.Println("Length2D: ", trkseg.Length2D())
-	// 	}
-	// }
+	md := gpxFile.MovingData()
+	fmt.Println("\tMoving time: ", md.MovingTime)
+	fmt.Println("\tStopped time: ", md.StoppedTime)
 
+	fmt.Printf("\tMax speed: %fm/s = %fkm/h\n", md.MaxSpeed, md.MaxSpeed*60*60/1000.0)
+
+	updo := gpxFile.UphillDownhill()
+	fmt.Println("\tTotal uphill: ", updo.Uphill)
+	fmt.Println("\tTotal downhill: ", updo.Downhill)
+
+	timeBounds := gpxFile.TimeBounds()
+	fmt.Println("\tStarted: ", timeBounds.StartTime)
+	fmt.Println("\tEnded: ", timeBounds.EndTime)
+
+	fmt.Println()
 }

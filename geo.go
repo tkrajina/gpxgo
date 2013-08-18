@@ -1,7 +1,6 @@
 package gpx
 
 import (
-	"log"
 	"math"
 	"sort"
 )
@@ -59,7 +58,7 @@ func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 	lenArrs := len(speedsDistances)
 
 	if len(speedsDistances) < 20 {
-		log.Println("Segment too small to compute speed, size: ", lenArrs)
+		//log.Println("Segment too small to compute speed, size: ", lenArrs)
 		return 0.0
 	}
 
