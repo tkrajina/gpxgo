@@ -5,6 +5,7 @@
 package gpx
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -20,17 +21,19 @@ const DEFAULT_STOPPED_SPEED_THRESHOLD = 1.0
 
 //==========================================================
 type GpxTrkseg struct {
-	Points []GpxWpt `xml:"trkpt"`
+	XMLName xml.Name `xml:"trkseg"`
+	Points  []GpxWpt `xml:"trkpt"`
 }
 
 type GpxTrk struct {
-	Name     string      `xml:"name"`
-	Cmt      string      `xml:"cmt"`
-	Desc     string      `xml:"desc"`
-	Src      string      `xml:"src"`
+	XMLName  xml.Name    `xml:"trk"`
+	Name     string      `xml:"name,omitempty"`
+	Cmt      string      `xml:"cmt,omitempty"`
+	Desc     string      `xml:"desc,omitempty"`
+	Src      string      `xml:"src,omitempty"`
 	Links    []GpxLink   `xml:"link"`
-	Number   int         `xml:"number"`
-	Type     string      `xml:"type"`
+	Number   int         `xml:"number,omitempty"`
+	Type     string      `xml:"type,omitempty"`
 	Segments []GpxTrkseg `xml:"trkseg"`
 }
 
@@ -38,87 +41,97 @@ type GpxWpt struct {
 	Lat float64 `xml:"lat,attr"`
 	Lon float64 `xml:"lon,attr"`
 	// Position info
-	Ele         float64 `xml:"ele"`
-	Timestamp   string  `xml:"time"`
-	MagVar      string  `xml:"magvar"`
-	GeoIdHeight string  `xml:"geoidheight"`
+	Ele         float64 `xml:"ele,omitempty"`
+	Timestamp   string  `xml:"time,omitempty"`
+	MagVar      string  `xml:"magvar,omitempty"`
+	GeoIdHeight string  `xml:"geoidheight,omitempty"`
 	// Description info
-	Name  string    `xml:"name"`
-	Cmt   string    `xml:"cmt"`
-	Desc  string    `xml:"desc"`
-	Src   string    `xml:"src"`
+	Name  string    `xml:"name,omitempty"`
+	Cmt   string    `xml:"cmt,omitempty"`
+	Desc  string    `xml:"desc,omitempty"`
+	Src   string    `xml:"src,omitempty"`
 	Links []GpxLink `xml:"link"`
-	Sym   string    `xml:"sym"`
-	Type  string    `xml:"type"`
+	Sym   string    `xml:"sym,omitempty"`
+	Type  string    `xml:"type,omitempty"`
 	// Accuracy info
-	Fix          string  `xml:"fix"`
-	Sat          int     `xml:"sat"`
-	Hdop         float64 `xml:"hdop"`
-	Vdop         float64 `xml:"vdop"`
-	Pdop         float64 `xml:"pdop"`
-	AgeOfGpsData float64 `xml:"ageofgpsdata"`
-	DGpsId       int     `xml:"dgpsid"`
+	Fix          string  `xml:"fix,omitempty"`
+	Sat          int     `xml:"sat,omitempty"`
+	Hdop         float64 `xml:"hdop,omitempty"`
+	Vdop         float64 `xml:"vdop,omitempty"`
+	Pdop         float64 `xml:"pdop,omitempty"`
+	AgeOfGpsData float64 `xml:"ageofgpsdata,omitempty"`
+	DGpsId       int     `xml:"dgpsid,omitempty"`
 }
 
 type GpxRte struct {
-	Name        string    `xml:"name"`
-	Cmt         string    `xml:"cmt"`
-	Desc        string    `xml:"desc"`
-	Src         string    `xml:"src"`
+	XMLName     xml.Name  `xml:"rte"`
+	Name        string    `xml:"name,omitempty"`
+	Cmt         string    `xml:"cmt,omitempty"`
+	Desc        string    `xml:"desc,omitempty"`
+	Src         string    `xml:"src,omitempty"`
 	Links       []GpxLink `xml:"link"`
-	Number      int       `xml:"number"`
-	Type        string    `xml:"type"`
+	Number      int       `xml:"number,omitempty"`
+	Type        string    `xml:"type,omitempty"`
 	RoutePoints []GpxWpt  `xml:"rtept"`
 }
 
 type GpxLink struct {
-	Url  string `xml:"href,attr"`
-	Text string `xml:"text"`
-	Type string `xml:"type"`
+	XMLName xml.Name `xml:"link"`
+	Url     string   `xml:"href,attr,omitempty"`
+	Text    string   `xml:"text,omitempty"`
+	Type    string   `xml:"type,omitempty"`
 }
 
 type GpxCopyright struct {
-	Author  string `xml:"author,attr"`
-	Year    string `xml:"year"`
-	License string `xml:"license"`
+	XMLName xml.Name `xml:"copyright"`
+	Author  string   `xml:"author,attr"`
+	Year    string   `xml:"year,omitempty"`
+	License string   `xml:"license,omitempty"`
 }
 
 type GpxEmail struct {
-	Id     string `xml:"id,attr"`
-	Domain string `xml:"domain,attr"`
+	XMLName xml.Name `xml:"email"`
+	Id      string   `xml:"id,attr,omitempty"`
+	Domain  string   `xml:"domain,attr,omitempty"`
 }
 
 type GpxPerson struct {
-	Name  string   `xml:"name"`
-	Email GpxEmail `xml:"email"`
-	Link  GpxLink  `xml:"link"`
+	XMLName xml.Name  `xml:"author"`
+	Name    string    `xml:"name,omitempty"`
+	Email   *GpxEmail `xml:"email,omitempty"`
+	Link    *GpxLink  `xml:"link,omitempty"`
 }
 
 type GpxMetadata struct {
-	Name      string       `xml:"name"`
-	Desc      string       `xml:"desc"`
-	Author    GpxPerson    `xml:"author"`
-	Copyright GpxCopyright `xml:"copyright"`
-	Links     []GpxLink    `xml:"link"`
-	Timestamp string       `xml:"time"`
-	Keywords  string       `xml:"keywords"`
-	Bounds    GpxBounds    `xml:"bounds"`
+	XMLName   xml.Name      `xml:"metadata"`
+	Name      string        `xml:"name,omitempty"`
+	Desc      string        `xml:"desc,omitempty"`
+	Author    *GpxPerson    `xml:"author,omitempty"`
+	Copyright *GpxCopyright `xml:"copyright,omitempty"`
+	Links     []GpxLink     `xml:"link"`
+	Timestamp string        `xml:"time,omitempty"`
+	Keywords  string        `xml:"keywords,omitempty"`
+	Bounds    *GpxBounds    `xml:"bounds"`
 }
 
 type Gpx struct {
-	Version   string      `xml:"version,attr"`
-	Creator   string      `xml:"creator,attr"`
-	Metadata  GpxMetadata `xml:"metadata"`
-	Tracks    []GpxTrk    `xml:"trk"`
-	Routes    []GpxRte    `xml:"rte"`
-	Waypoints []GpxWpt    `xml:"wpt"`
+	XMLName      xml.Name     `xml:"http://www.topografix.com/GPX/1/1 gpx"`
+	XmlNsXsi     string       `xml:"xmlns:xsi,attr,omitempty"`
+	XmlSchemaLoc string       `xml:"xsi:schemaLocation,attr,omitempty"`
+	Version      string       `xml:"version,attr"`
+	Creator      string       `xml:"creator,attr"`
+	Metadata     *GpxMetadata `xml:"metadata,omitempty"`
+	Waypoints    []GpxWpt     `xml:"wpt"`
+	Routes       []GpxRte     `xml:"rte"`
+	Tracks       []GpxTrk     `xml:"trk"`
 }
 
 type GpxBounds struct {
-	MinLat float64 `xml:"minlat,attr"`
-	MaxLat float64 `xml:"maxlat,attr"`
-	MinLon float64 `xml:"minlon,attr"`
-	MaxLon float64 `xml:"maxlon,attr"`
+	XMLName xml.Name `xml:"bounds"`
+	MinLat  float64  `xml:"minlat,attr"`
+	MaxLat  float64  `xml:"maxlat,attr"`
+	MinLon  float64  `xml:"minlon,attr"`
+	MaxLon  float64  `xml:"maxlon,attr"`
 }
 
 //==========================================================
@@ -153,12 +166,12 @@ type LocationsResultPair struct {
 
 //==========================================================
 
-func Parse(gpxPath string) (Gpx, error) {
+func Parse(gpxPath string) (*Gpx, error) {
 	gpxFile, err := os.Open(gpxPath)
 
 	if err != nil {
 		// fmt.Println("Error opening file: ", err)
-		return Gpx{}, err
+		return nil, err
 	}
 	defer gpxFile.Close()
 
@@ -166,9 +179,9 @@ func Parse(gpxPath string) (Gpx, error) {
 
 	if err != nil {
 		// fmt.Println("Error reading file: ", err)
-		return Gpx{}, err
+		return nil, err
 	}
-	var g Gpx
+	g := NewGpx()
 	xml.Unmarshal(b, &g)
 
 	return g, nil
@@ -182,6 +195,11 @@ func getTime(timestr string) time.Time {
 		return time.Time{}
 	}
 	return t
+}
+
+func toXml(n interface{}) []byte {
+	content, _ := xml.MarshalIndent(n, "", "	")
+	return content
 }
 
 //==========================================================
@@ -228,6 +246,16 @@ func (ud *UphillDownhill) Equals(ud2 UphillDownhill) bool {
 }
 
 //==========================================================
+func NewGpx() *Gpx {
+	gpx := new(Gpx)
+	gpx.XmlNsXsi = "http://www.w3.org/2001/XMLSchema-instance"
+	gpx.XmlSchemaLoc = "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+	gpx.Version = "1.1"
+	gpx.Creator = "github.com/ptrv/go-gpx"
+	return gpx
+}
+
+
 func (g *Gpx) Length2D() float64 {
 	var length2d float64
 	for _, trk := range g.Tracks {
@@ -258,11 +286,6 @@ func (g *Gpx) TimeBounds() TimeBounds {
 }
 
 func (g *Gpx) Bounds() GpxBounds {
-	// vals := make([]interface{}, len(g.Tracks))
-	// for i, v := range g.Tracks {
-	// 	vals[i] = v
-	// }
-	// return getBounds(vals)
 	maxLat := -math.MaxFloat64
 	minLat := math.MaxFloat64
 	maxLon := -math.MaxFloat64
@@ -367,6 +390,15 @@ func (g *Gpx) LocationAt(t time.Time) []LocationsResultPair {
 		}
 	}
 	return results
+}
+
+func (g *Gpx) ToXml() []byte {
+	g.XmlNsXsi = "http://www.w3.org/2001/XMLSchema-instance"
+	g.XmlSchemaLoc = "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+	var buffer bytes.Buffer
+	buffer.WriteString(xml.Header)
+	buffer.Write(toXml(g))
+	return buffer.Bytes()
 }
 
 //==========================================================

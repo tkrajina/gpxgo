@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var g Gpx
+var g *Gpx
 
 func init() {
 	log.Println("gpx test init")
@@ -157,5 +157,89 @@ func TestUphillDownhill(t *testing.T) {
 
 	if !updoE.Equals(updoA) {
 		t.Errorf("UphillDownhill expected: %+v, actual: %+v", updoE, updoA)
+	}
+}
+
+func TestToXml(t *testing.T) {
+	xmlA := string(g.ToXml())
+	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="eTrex 10">
+	<metadata>
+		<link href="http://www.garmin.com">
+			<text>Garmin International</text>
+		</link>
+		<time>2012-03-17T15:44:18Z</time>
+	</metadata>
+	<wpt lat="37.085751" lon="-121.17042">
+		<ele>195.440933</ele>
+		<time>2012-03-21T21:24:43Z</time>
+		<name>001</name>
+		<sym>Flag, Blue</sym>
+	</wpt>
+	<wpt lat="37.085751" lon="-121.17042">
+		<ele>195.438324</ele>
+		<time>2012-03-21T21:24:44Z</time>
+		<name>002</name>
+		<sym>Flag, Blue</sym>
+	</wpt>
+	<trk>
+		<name>17-MRZ-12 16:44:12</name>
+		<trkseg>
+			<trkpt lat="52.5113534275" lon="13.4571944922">
+				<ele>59.26</ele>
+				<time>2012-03-17T12:46:19Z</time>
+			</trkpt>
+			<trkpt lat="52.5113568641" lon="13.4571697656">
+				<ele>65.51</ele>
+				<time>2012-03-17T12:46:44Z</time>
+			</trkpt>
+			<trkpt lat="52.511710329" lon="13.456941694">
+				<ele>65.99</ele>
+				<time>2012-03-17T12:47:01Z</time>
+			</trkpt>
+			<trkpt lat="52.5117189623" lon="13.4567520116">
+				<ele>63.58</ele>
+				<time>2012-03-17T12:47:23Z</time>
+			</trkpt>
+		</trkseg>
+	</trk>
+</gpx>`
+
+	if xmlE != xmlA {
+		t.Errorf("XML expected: \n%s, \nactual \n%s", xmlE, xmlA)
+	}
+}
+
+func TestNewXml(t *testing.T) {
+	gpx := NewGpx()
+	gpxTrack := GpxTrk{}
+
+	gpxSegment := GpxTrkseg{}
+	gpxSegment.Points = append(gpxSegment.Points, GpxWpt{Lat: 2.1234, Lon: 5.1234, Ele: 1234})
+	gpxSegment.Points = append(gpxSegment.Points, GpxWpt{Lat: 2.1233, Lon: 5.1235, Ele: 1235})
+	gpxSegment.Points = append(gpxSegment.Points, GpxWpt{Lat: 2.1235, Lon: 5.1236, Ele: 1236})
+
+	gpxTrack.Segments = append(gpxTrack.Segments, gpxSegment)
+	gpx.Tracks = append(gpx.Tracks, gpxTrack)
+
+	actualXml := string(toXml(gpx))
+	expectedXml := `<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="github.com/ptrv/go-gpx">
+	<trk>
+		<trkseg>
+			<trkpt lat="2.1234" lon="5.1234">
+				<ele>1234</ele>
+			</trkpt>
+			<trkpt lat="2.1233" lon="5.1235">
+				<ele>1235</ele>
+			</trkpt>
+			<trkpt lat="2.1235" lon="5.1236">
+				<ele>1236</ele>
+			</trkpt>
+		</trkseg>
+	</trk>
+</gpx>`
+
+	if expectedXml != actualXml {
+		t.Errorf("XML expected:\n%s\n, actual: \n%s", expectedXml, actualXml)
 	}
 }
