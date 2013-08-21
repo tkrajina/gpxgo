@@ -283,6 +283,38 @@ func TestSplitGpx(t *testing.T) {
 	}
 }
 
+func TestJoin(t *testing.T) {
+	gTmp := g.Clone()
+	track := gTmp.Tracks[0]
+
+	track.Split(0, 2)
+	track.Join(0, 1)
+
+	segsA := string(toXml(track.Segments))
+	segsE := `<trkseg>
+	<trkpt lat="52.5113534275" lon="13.4571944922">
+		<ele>59.26</ele>
+		<time>2012-03-17T12:46:19Z</time>
+	</trkpt>
+	<trkpt lat="52.5113568641" lon="13.4571697656">
+		<ele>65.51</ele>
+		<time>2012-03-17T12:46:44Z</time>
+	</trkpt>
+	<trkpt lat="52.511710329" lon="13.456941694">
+		<ele>65.99</ele>
+		<time>2012-03-17T12:47:01Z</time>
+	</trkpt>
+	<trkpt lat="52.5117189623" lon="13.4567520116">
+		<ele>63.58</ele>
+		<time>2012-03-17T12:47:23Z</time>
+	</trkpt>
+</trkseg>`
+
+	if segsE != segsA {
+		t.Errorf("XML expected:\n%s\n, actual: \n%s", segsE, segsA)
+	}
+}
+
 func TestClone(t *testing.T) {
 	gTmp := g.Clone()
 	gTmp.Metadata.Timestamp = "2012-03-17T15:44:19Z"

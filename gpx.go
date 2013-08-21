@@ -542,7 +542,7 @@ func (trk *GpxTrk) Join(segNo, segNo2 int) {
 		seg := trk.Segments[i]
 		if i == segNo {
 			secondSeg := trk.Segments[segNo2]
-			seg.Join(secondSeg)
+			seg.Join(&secondSeg)
 			newSegs = append(newSegs, seg)
 		} else if i == segNo2 {
 			// do nothing, its already joined
@@ -780,7 +780,7 @@ func (seg *GpxTrkseg) Split(pt int) (GpxTrkseg, GpxTrkseg) {
 	return GpxTrkseg{Points: pts1}, GpxTrkseg{Points: pts2}
 }
 
-func (seg *GpxTrkseg) Join(seg2 GpxTrkseg) {
+func (seg *GpxTrkseg) Join(seg2 *GpxTrkseg) {
 	seg.Points = append(seg.Points, seg2.Points...)
 }
 
