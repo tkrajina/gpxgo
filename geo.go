@@ -165,6 +165,18 @@ func Distance3D(lat1, lon1, ele1, lat2, lon2, ele2 float64, haversine bool) floa
 }
 
 func ElevationAngle(loc1, loc2 GpxWpt, radians bool) float64 {
-	// TODO
-	return 0.0
+	b := loc2.Ele - loc1.Ele
+	a := loc2.Distance2D(loc1)
+
+	if a == 0.0 {
+		return 0.0
+	}
+
+	angle := math.Atan(b / a)
+
+	if radians {
+		return angle
+	}
+
+	return 180 * angle / math.Pi
 }
