@@ -394,7 +394,7 @@ func (g *Gpx) Split(trackNo, segNo, pointNo int) {
 		return
 	}
 
-	track := g.Tracks[trackNo]
+	track := &g.Tracks[trackNo]
 
 	track.Split(segNo, pointNo)
 }
