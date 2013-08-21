@@ -243,3 +243,12 @@ func TestNewXml(t *testing.T) {
 		t.Errorf("XML expected:\n%s\n, actual: \n%s", expectedXml, actualXml)
 	}
 }
+
+func TestClone(t *testing.T) {
+	gTmp := g.Clone()
+	gTmp.Metadata.Timestamp = "2012-03-17T15:44:19Z"
+
+	if gTmp.Metadata.Timestamp == g.Metadata.Timestamp {
+		t.Error("Clone failed")
+	}
+}

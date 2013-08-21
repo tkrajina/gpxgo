@@ -255,6 +255,60 @@ func NewGpx() *Gpx {
 	return gpx
 }
 
+func (g *Gpx) Clone() *Gpx {
+	newgpx := NewGpx()
+	if g.Metadata != nil {
+		newgpx.Metadata = &GpxMetadata{
+			Name:      g.Metadata.Name,
+			Desc:      g.Metadata.Desc,
+			Links:     make([]GpxLink, len(g.Metadata.Links)),
+			Timestamp: g.Metadata.Timestamp,
+			Keywords:  g.Metadata.Keywords,
+		}
+		copy(newgpx.Metadata.Links, g.Metadata.Links)
+		if g.Metadata.Author != nil {
+			newgpx.Metadata.Author = &GpxPerson{
+				Name: g.Metadata.Author.Name,
+			}
+			if g.Metadata.Author.Email != nil {
+				newgpx.Metadata.Author.Email = &GpxEmail{
+					Id:     g.Metadata.Author.Email.Id,
+					Domain: g.Metadata.Author.Email.Domain,
+				}
+			}
+			if g.Metadata.Author.Link != nil {
+				newgpx.Metadata.Author.Link = &GpxLink{
+					Url:  g.Metadata.Author.Link.Url,
+					Text: g.Metadata.Author.Link.Text,
+					Type: g.Metadata.Author.Link.Type,
+				}
+			}
+		}
+		if g.Metadata.Copyright != nil {
+			newgpx.Metadata.Copyright = &GpxCopyright{
+				Author:  g.Metadata.Copyright.Author,
+				Year:    g.Metadata.Copyright.Year,
+				License: g.Metadata.Copyright.License,
+			}
+		}
+		if g.Metadata.Bounds != nil {
+			newgpx.Metadata.Bounds = &GpxBounds{
+				MaxLat: g.Metadata.Bounds.MaxLat,
+				MinLat: g.Metadata.Bounds.MinLat,
+				MaxLon: g.Metadata.Bounds.MaxLon,
+				MinLon: g.Metadata.Bounds.MinLon,
+			}
+		}
+	}
+
+	newgpx.Waypoints = make([]GpxWpt, len(g.Waypoints))
+	newgpx.Routes = make([]GpxRte, len(g.Routes))
+	newgpx.Tracks = make([]GpxTrk, len(g.Tracks))
+	copy(newgpx.Waypoints, g.Waypoints)
+	copy(newgpx.Routes, g.Routes)
+	copy(newgpx.Tracks, g.Tracks)
+	return newgpx
+}
 
 func (g *Gpx) Length2D() float64 {
 	var length2d float64
