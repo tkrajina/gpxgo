@@ -517,13 +517,12 @@ func (trk *GpxTrk) Split(segNo, ptNo int) {
 }
 
 func (trk *GpxTrk) Join(segNo, segNo2 int) {
-	if segNo2 >= len(trk.Segments) {
+	lenSegs := len(trk.Segments)
+	if segNo >= lenSegs && segNo2 >= lenSegs {
 		return
 	}
-
 	newSegs := make([]GpxTrkseg, 0)
-
-	for i := 0; i < len(trk.Segments); i++ {
+	for i := 0; i < lenSegs; i++ {
 		seg := trk.Segments[i]
 		if i == segNo {
 			secondSeg := trk.Segments[segNo2]
