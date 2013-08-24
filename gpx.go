@@ -202,6 +202,15 @@ func toXml(n interface{}) []byte {
 	return content
 }
 
+func getMinimaMaximaStart() *GpxBounds {
+	return &GpxBounds{
+		MaxLat: -math.MaxFloat64,
+		MinLat: math.MaxFloat64,
+		MaxLon: -math.MaxFloat64,
+		MinLon: math.MaxFloat64,
+	}
+}
+
 //==========================================================
 func (tb *TimeBounds) Equals(tb2 TimeBounds) bool {
 	if tb.StartTime == tb2.StartTime && tb.EndTime == tb2.EndTime {
@@ -341,23 +350,15 @@ func (g *Gpx) TimeBounds() TimeBounds {
 }
 
 func (g *Gpx) Bounds() GpxBounds {
-	maxLat := -math.MaxFloat64
-	minLat := math.MaxFloat64
-	maxLon := -math.MaxFloat64
-	minLon := math.MaxFloat64
-
+	minmax := getMinimaMaximaStart()
 	for _, trk := range g.Tracks {
-		trkBounds := trk.Bounds()
-		maxLat = math.Max(trkBounds.MaxLat, maxLat)
-		minLat = math.Min(trkBounds.MinLat, minLat)
-		maxLon = math.Max(trkBounds.MaxLon, maxLon)
-		minLon = math.Min(trkBounds.MinLon, minLon)
+		bnds := trk.Bounds()
+		minmax.MaxLat = math.Max(bnds.MaxLat, minmax.MaxLat)
+		minmax.MinLat = math.Min(bnds.MinLat, minmax.MinLat)
+		minmax.MaxLon = math.Max(bnds.MaxLon, minmax.MaxLon)
+		minmax.MinLon = math.Min(bnds.MinLon, minmax.MinLon)
 	}
-
-	return GpxBounds{
-		MaxLat: maxLat, MinLat: minLat,
-		MaxLon: maxLon, MinLon: minLon,
-	}
+	return *minmax
 }
 
 func (g *Gpx) MovingData() MovingData {
@@ -488,24 +489,15 @@ func (trk *GpxTrk) TimeBounds() TimeBounds {
 }
 
 func (trk *GpxTrk) Bounds() GpxBounds {
-	maxLat := -math.MaxFloat64
-	minLat := math.MaxFloat64
-	maxLon := -math.MaxFloat64
-	minLon := math.MaxFloat64
-
+	minmax := getMinimaMaximaStart()
 	for _, seg := range trk.Segments {
-		segBounds := seg.Bounds()
-		maxLat = math.Max(segBounds.MaxLat, maxLat)
-		minLat = math.Min(segBounds.MinLat, minLat)
-		maxLon = math.Max(segBounds.MaxLon, maxLon)
-		minLon = math.Min(segBounds.MinLon, minLon)
-
+		bnds := seg.Bounds()
+		minmax.MaxLat = math.Max(bnds.MaxLat, minmax.MaxLat)
+		minmax.MinLat = math.Min(bnds.MinLat, minmax.MinLat)
+		minmax.MaxLon = math.Max(bnds.MaxLon, minmax.MaxLon)
+		minmax.MinLon = math.Min(bnds.MinLon, minmax.MinLon)
 	}
-
-	return GpxBounds{
-		MaxLat: maxLat, MinLat: minLat,
-		MaxLon: maxLon, MinLon: minLon,
-	}
+	return *minmax
 }
 
 func (trk *GpxTrk) Split(segNo, ptNo int) {
@@ -655,23 +647,14 @@ func (seg *GpxTrkseg) TimeBounds() TimeBounds {
 }
 
 func (seg *GpxTrkseg) Bounds() GpxBounds {
-
-	maxLat := -math.MaxFloat64
-	minLat := math.MaxFloat64
-	maxLon := -math.MaxFloat64
-	minLon := math.MaxFloat64
-
-	for _, trkpt := range seg.Points {
-		maxLat = math.Max(trkpt.Lat, maxLat)
-		minLat = math.Min(trkpt.Lat, minLat)
-		maxLon = math.Max(trkpt.Lon, maxLon)
-		minLon = math.Min(trkpt.Lon, minLon)
+	minmax := getMinimaMaximaStart()
+	for _, pt := range seg.Points {
+		minmax.MaxLat = math.Max(pt.Lat, minmax.MaxLat)
+		minmax.MinLat = math.Min(pt.Lat, minmax.MinLat)
+		minmax.MaxLon = math.Max(pt.Lon, minmax.MaxLon)
+		minmax.MinLon = math.Min(pt.Lon, minmax.MinLon)
 	}
-
-	return GpxBounds{
-		MaxLat: maxLat, MinLat: minLat,
-		MaxLon: maxLon, MinLon: minLon,
-	}
+	return *minmax
 }
 
 // Get speed at point
