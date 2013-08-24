@@ -307,6 +307,7 @@ func (g *Gpx) Clone() *Gpx {
 	copy(newgpx.Waypoints, g.Waypoints)
 	copy(newgpx.Routes, g.Routes)
 	copy(newgpx.Tracks, g.Tracks)
+
 	return newgpx
 }
 
@@ -447,8 +448,6 @@ func (g *Gpx) LocationAt(t time.Time) []LocationsResultPair {
 }
 
 func (g *Gpx) ToXml() []byte {
-	g.XmlNsXsi = "http://www.w3.org/2001/XMLSchema-instance"
-	g.XmlSchemaLoc = "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
 	var buffer bytes.Buffer
 	buffer.WriteString(xml.Header)
 	buffer.Write(toXml(g))
@@ -489,12 +488,6 @@ func (trk *GpxTrk) TimeBounds() TimeBounds {
 }
 
 func (trk *GpxTrk) Bounds() GpxBounds {
-	// vals := make([]interface{}, len(trk.Segments))
-	// for i, v := range trk.Segments {
-	// 	vals[i] = v
-	// }
-	// return getBounds(vals)
-
 	maxLat := -math.MaxFloat64
 	minLat := math.MaxFloat64
 	maxLon := -math.MaxFloat64
