@@ -223,7 +223,7 @@ func TestNewXml(t *testing.T) {
 	gpx.Tracks = append(gpx.Tracks, gpxTrack)
 
 	actualXml := string(toXml(gpx))
-	expectedXml := `<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="github.com/ptrv/go-gpx">
+	expectedXml := `<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="https://github.com/ptrv/go-gpx">
 	<trk>
 		<trkseg>
 			<trkpt lat="2.1234" lon="5.1234">

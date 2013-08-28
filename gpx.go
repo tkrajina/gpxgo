@@ -262,7 +262,7 @@ func NewGpx() *Gpx {
 	gpx.XmlNsXsi = "http://www.w3.org/2001/XMLSchema-instance"
 	gpx.XmlSchemaLoc = "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
 	gpx.Version = "1.1"
-	gpx.Creator = "github.com/ptrv/go-gpx"
+	gpx.Creator = "https://github.com/ptrv/go-gpx"
 	return gpx
 }
 
