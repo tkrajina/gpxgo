@@ -31,10 +31,16 @@ func main() {
 	gpxPath, _ := filepath.Abs(gpxFileArg)
 	fmt.Println("File: ", gpxPath)
 
-	fmt.Println("\tGPX name: ", gpxFile.Metadata.Name)
-	fmt.Println("\tGPX desctiption: ", gpxFile.Metadata.Desc)
-	fmt.Println("\tAuthor: ", gpxFile.Metadata.Author.Name)
-	fmt.Println("\tEmail: ", gpxFile.Metadata.Author.Email)
+	if gpxFile.Metadata != nil {
+		fmt.Println("\tGPX name: ", gpxFile.Metadata.Name)
+		fmt.Println("\tGPX desctiption: ", gpxFile.Metadata.Desc)
+		if gpxFile.Metadata.Author != nil {
+			fmt.Println("\tAuthor: ", gpxFile.Metadata.Author.Name)
+			if gpxFile.Metadata.Author.Email != nil {
+				fmt.Println("\tEmail: ", gpxFile.Metadata.Author.Email)
+			}
+		}
+	}
 
 	len2d := gpxFile.Length2D()
 	len3d := gpxFile.Length3D()

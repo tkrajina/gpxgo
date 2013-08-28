@@ -211,9 +211,9 @@ func getMinimaMaximaStart() *GpxBounds {
 	}
 }
 
-func (tb *TimeBounds) Equals(tb2 TimeBounds) bool {
 /*==========================================================*/
 
+func (tb *TimeBounds) Equals(tb2 *TimeBounds) bool {
 	if tb.StartTime == tb2.StartTime && tb.EndTime == tb2.EndTime {
 		return true
 	}
@@ -224,7 +224,7 @@ func (tb *TimeBounds) String() string {
 	return fmt.Sprintf("%+v, %+v", tb.StartTime, tb.EndTime)
 }
 
-func (b *GpxBounds) Equals(b2 GpxBounds) bool {
+func (b *GpxBounds) Equals(b2 *GpxBounds) bool {
 	if b.MinLon == b2.MinLon && b.MaxLat == b2.MaxLat &&
 		b.MinLon == b2.MinLon && b.MaxLon == b.MaxLon {
 		return true
@@ -233,11 +233,11 @@ func (b *GpxBounds) Equals(b2 GpxBounds) bool {
 }
 
 func (b *GpxBounds) String() string {
-	return fmt.Sprintf("%+v, %+v, %+v, %+v",
-		b.MinLat, b.MaxLat, b.MinLat, b.MaxLon)
+	return fmt.Sprintf("Max: %+v, %+v Min: %+v, %+v",
+		b.MinLat, b.MinLon, b.MaxLat, b.MaxLon)
 }
 
-func (md *MovingData) Equals(md2 MovingData) bool {
+func (md *MovingData) Equals(md2 *MovingData) bool {
 	if md.MovingTime == md2.MovingTime &&
 		md.MovingDistance == md2.MovingDistance &&
 		md.StoppedTime == md2.StoppedTime &&
@@ -248,7 +248,7 @@ func (md *MovingData) Equals(md2 MovingData) bool {
 	return false
 }
 
-func (ud *UphillDownhill) Equals(ud2 UphillDownhill) bool {
+func (ud *UphillDownhill) Equals(ud2 *UphillDownhill) bool {
 	if ud.Uphill == ud2.Uphill && ud.Downhill == ud2.Downhill {
 		return true
 	}
@@ -338,8 +338,8 @@ func (g *Gpx) Length3D() float64 {
 	return length3d
 }
 
-func (g *Gpx) TimeBounds() TimeBounds {
-	var tbGpx TimeBounds
+func (g *Gpx) TimeBounds() *TimeBounds {
+	var tbGpx *TimeBounds
 	for i, trk := range g.Tracks {
 		tbTrk := trk.TimeBounds()
 		if i == 0 {
@@ -351,7 +351,7 @@ func (g *Gpx) TimeBounds() TimeBounds {
 	return tbGpx
 }
 
-func (g *Gpx) Bounds() GpxBounds {
+func (g *Gpx) Bounds() *GpxBounds {
 	minmax := getMinimaMaximaStart()
 	for _, trk := range g.Tracks {
 		bnds := trk.Bounds()
@@ -360,10 +360,10 @@ func (g *Gpx) Bounds() GpxBounds {
 		minmax.MaxLon = math.Max(bnds.MaxLon, minmax.MaxLon)
 		minmax.MinLon = math.Min(bnds.MinLon, minmax.MinLon)
 	}
-	return *minmax
+	return minmax
 }
 
-func (g *Gpx) MovingData() MovingData {
+func (g *Gpx) MovingData() *MovingData {
 	var (
 		movingTime      float64
 		stoppedTime     float64
@@ -383,7 +383,7 @@ func (g *Gpx) MovingData() MovingData {
 			maxSpeed = md.MaxSpeed
 		}
 	}
-	return MovingData{
+	return &MovingData{
 		MovingTime:      movingTime,
 		MovingDistance:  movingDistance,
 		StoppedTime:     stoppedTime,
@@ -415,9 +415,9 @@ func (g *Gpx) Duration() float64 {
 	return result
 }
 
-func (g *Gpx) UphillDownhill() UphillDownhill {
+func (g *Gpx) UphillDownhill() *UphillDownhill {
 	if len(g.Tracks) == 0 {
-		return UphillDownhill{}
+		return nil
 	}
 
 	var (
@@ -432,7 +432,7 @@ func (g *Gpx) UphillDownhill() UphillDownhill {
 		downhill += updo.Downhill
 	}
 
-	return UphillDownhill{
+	return &UphillDownhill{
 		Uphill:   uphill,
 		Downhill: downhill,
 	}
@@ -476,8 +476,8 @@ func (trk *GpxTrk) Length3D() float64 {
 	return l
 }
 
-func (trk *GpxTrk) TimeBounds() TimeBounds {
-	var tbTrk TimeBounds
+func (trk *GpxTrk) TimeBounds() *TimeBounds {
+	var tbTrk *TimeBounds
 
 	for i, seg := range trk.Segments {
 		tbSeg := seg.TimeBounds()
@@ -490,7 +490,7 @@ func (trk *GpxTrk) TimeBounds() TimeBounds {
 	return tbTrk
 }
 
-func (trk *GpxTrk) Bounds() GpxBounds {
+func (trk *GpxTrk) Bounds() *GpxBounds {
 	minmax := getMinimaMaximaStart()
 	for _, seg := range trk.Segments {
 		bnds := seg.Bounds()
@@ -499,18 +499,22 @@ func (trk *GpxTrk) Bounds() GpxBounds {
 		minmax.MaxLon = math.Max(bnds.MaxLon, minmax.MaxLon)
 		minmax.MinLon = math.Min(bnds.MinLon, minmax.MinLon)
 	}
-	return *minmax
+	return minmax
 }
 
 func (trk *GpxTrk) Split(segNo, ptNo int) {
-	newSegs := make([]GpxTrkseg, 0)
+	lenSegs := len(trk.Segments)
+	if segNo >= lenSegs {
+		return
+	}
 
-	for i := 0; i < len(trk.Segments); i++ {
+	newSegs := make([]GpxTrkseg, 0)
+	for i := 0; i < lenSegs; i++ {
 		seg := trk.Segments[i]
 
-		if i == segNo {
+		if i == segNo && ptNo < len(seg.Points) {
 			seg1, seg2 := seg.Split(ptNo)
-			newSegs = append(newSegs, seg1, seg2)
+			newSegs = append(newSegs, *seg1, *seg2)
 		} else {
 			newSegs = append(newSegs, seg)
 		}
@@ -542,8 +546,7 @@ func (trk *GpxTrk) JoinNext(segNo int) {
 	trk.Join(segNo, segNo+1)
 }
 
-func (trk *GpxTrk) MovingData() MovingData {
-
+func (trk *GpxTrk) MovingData() *MovingData {
 	var (
 		movingTime      float64
 		stoppedTime     float64
@@ -563,7 +566,7 @@ func (trk *GpxTrk) MovingData() MovingData {
 			maxSpeed = md.MaxSpeed
 		}
 	}
-	return MovingData{
+	return &MovingData{
 		MovingTime:      movingTime,
 		MovingDistance:  movingDistance,
 		StoppedTime:     stoppedTime,
@@ -584,9 +587,9 @@ func (trk *GpxTrk) Duration() float64 {
 	return result
 }
 
-func (trk *GpxTrk) UphillDownhill() UphillDownhill {
+func (trk *GpxTrk) UphillDownhill() *UphillDownhill {
 	if len(trk.Segments) == 0 {
-		return UphillDownhill{}
+		return nil
 	}
 
 	var (
@@ -601,7 +604,7 @@ func (trk *GpxTrk) UphillDownhill() UphillDownhill {
 		downhill += updo.Downhill
 	}
 
-	return UphillDownhill{
+	return &UphillDownhill{
 		Uphill:   uphill,
 		Downhill: downhill,
 	}
@@ -630,7 +633,7 @@ func (seg *GpxTrkseg) Length3D() float64 {
 	return Length3D(seg.Points)
 }
 
-func (seg *GpxTrkseg) TimeBounds() TimeBounds {
+func (seg *GpxTrkseg) TimeBounds() *TimeBounds {
 	timeTuple := make([]time.Time, 0)
 
 	for _, trkpt := range seg.Points {
@@ -643,12 +646,12 @@ func (seg *GpxTrkseg) TimeBounds() TimeBounds {
 		}
 	}
 	if len(timeTuple) == 2 {
-		return TimeBounds{StartTime: timeTuple[0], EndTime: timeTuple[1]}
+		return &TimeBounds{StartTime: timeTuple[0], EndTime: timeTuple[1]}
 	}
-	return TimeBounds{}
+	return nil
 }
 
-func (seg *GpxTrkseg) Bounds() GpxBounds {
+func (seg *GpxTrkseg) Bounds() *GpxBounds {
 	minmax := getMinimaMaximaStart()
 	for _, pt := range seg.Points {
 		minmax.MaxLat = math.Max(pt.Lat, minmax.MaxLat)
@@ -656,7 +659,7 @@ func (seg *GpxTrkseg) Bounds() GpxBounds {
 		minmax.MaxLon = math.Max(pt.Lon, minmax.MaxLon)
 		minmax.MinLon = math.Min(pt.Lon, minmax.MinLon)
 	}
-	return *minmax
+	return minmax
 }
 
 // Get speed at point
@@ -668,18 +671,18 @@ func (seg *GpxTrkseg) Speed(pointIdx int) float64 {
 
 	point := seg.Points[pointIdx]
 
-	var prevPt GpxWpt
-	var nextPt GpxWpt
+	var prevPt *GpxWpt
+	var nextPt *GpxWpt
 
 	havePrev := false
 	haveNext := false
 	if 0 < pointIdx && pointIdx < trkptsLen {
-		prevPt = seg.Points[pointIdx-1]
+		prevPt = &seg.Points[pointIdx-1]
 		havePrev = true
 	}
 
 	if 0 < pointIdx && pointIdx < trkptsLen-1 {
-		nextPt = seg.Points[pointIdx+1]
+		nextPt = &seg.Points[pointIdx+1]
 		haveNext = true
 	}
 
@@ -738,24 +741,24 @@ func (seg *GpxTrkseg) Elevations() []float64 {
 }
 
 // Return uphill and dowhill
-func (seg *GpxTrkseg) UphillDownhill() UphillDownhill {
+func (seg *GpxTrkseg) UphillDownhill() *UphillDownhill {
 	if len(seg.Points) == 0 {
-		return UphillDownhill{}
+		return nil
 	}
 
 	elevations := seg.Elevations()
 
 	uphill, downhill := CalcUphillDownhill(elevations)
 
-	return UphillDownhill{Uphill: uphill, Downhill: downhill}
+	return &UphillDownhill{Uphill: uphill, Downhill: downhill}
 }
 
 // Split segment at point index pt. Point pt remains in first part
-func (seg *GpxTrkseg) Split(pt int) (GpxTrkseg, GpxTrkseg) {
+func (seg *GpxTrkseg) Split(pt int) (*GpxTrkseg, *GpxTrkseg) {
 	pts1 := seg.Points[:pt+1]
 	pts2 := seg.Points[pt+1:]
 
-	return GpxTrkseg{Points: pts1}, GpxTrkseg{Points: pts2}
+	return &GpxTrkseg{Points: pts1}, &GpxTrkseg{Points: pts2}
 }
 
 func (seg *GpxTrkseg) Join(seg2 *GpxTrkseg) {
@@ -783,7 +786,7 @@ func (seg *GpxTrkseg) LocationAt(t time.Time) int {
 	return -1
 }
 
-func (seg *GpxTrkseg) MovingData() MovingData {
+func (seg *GpxTrkseg) MovingData() *MovingData {
 	var (
 		movingTime      float64
 		stoppedTime     float64
@@ -794,8 +797,8 @@ func (seg *GpxTrkseg) MovingData() MovingData {
 	speedsDistances := make([]SpeedsAndDistances, 0)
 
 	for i := 1; i < len(seg.Points); i++ {
-		prev := seg.Points[i-1]
-		pt := seg.Points[i]
+		prev := &seg.Points[i-1]
+		pt := &seg.Points[i]
 
 		dist := pt.Distance3D(prev)
 
@@ -824,7 +827,7 @@ func (seg *GpxTrkseg) MovingData() MovingData {
 		maxSpeed = CalcMaxSpeed(speedsDistances)
 	}
 
-	return MovingData{
+	return &MovingData{
 		movingTime,
 		stoppedTime,
 		movingDistance,
@@ -841,7 +844,7 @@ func (pt *GpxWpt) Time() time.Time {
 }
 
 // Time difference of two GpxWpts in seconds
-func (pt *GpxWpt) TimeDiff(pt2 GpxWpt) float64 {
+func (pt *GpxWpt) TimeDiff(pt2 *GpxWpt) float64 {
 	t1 := pt.Time()
 	t2 := pt2.Time()
 
@@ -859,7 +862,7 @@ func (pt *GpxWpt) TimeDiff(pt2 GpxWpt) float64 {
 	return delta.Seconds()
 }
 
-func (pt *GpxWpt) SpeedBetween(pt2 GpxWpt, threeD bool) float64 {
+func (pt *GpxWpt) SpeedBetween(pt2 *GpxWpt, threeD bool) float64 {
 	seconds := pt.TimeDiff(pt2)
 	var distLen float64
 	if threeD {
@@ -871,10 +874,10 @@ func (pt *GpxWpt) SpeedBetween(pt2 GpxWpt, threeD bool) float64 {
 	return distLen / seconds
 }
 
-func (pt *GpxWpt) Distance2D(pt2 GpxWpt) float64 {
+func (pt *GpxWpt) Distance2D(pt2 *GpxWpt) float64 {
 	return Distance2D(pt.Lat, pt.Lon, pt2.Lat, pt2.Lon, false)
 }
-func (pt *GpxWpt) Distance3D(pt2 GpxWpt) float64 {
+func (pt *GpxWpt) Distance3D(pt2 *GpxWpt) float64 {
 	return Distance3D(pt.Lat, pt.Lon, pt.Ele, pt2.Lat, pt2.Lon, pt2.Ele, false)
 }
 

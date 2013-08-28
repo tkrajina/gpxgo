@@ -33,11 +33,11 @@ func HaversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 }
 
 func length(locs []GpxWpt, threeD bool) float64 {
-	var previousLoc GpxWpt
+	var previousLoc *GpxWpt
 	var res float64
 	for k, v := range locs {
 		if k > 0 {
-			previousLoc = locs[k-1]
+			previousLoc = &locs[k-1]
 			var d float64
 			if threeD {
 				d = v.Distance3D(previousLoc)
@@ -164,7 +164,7 @@ func Distance3D(lat1, lon1, ele1, lat2, lon2, ele2 float64, haversine bool) floa
 	return distance(lat1, lon1, ele1, lat2, lon2, ele2, true, haversine)
 }
 
-func ElevationAngle(loc1, loc2 GpxWpt, radians bool) float64 {
+func ElevationAngle(loc1, loc2 *GpxWpt, radians bool) float64 {
 	b := loc2.Ele - loc1.Ele
 	a := loc2.Distance2D(loc1)
 

@@ -105,6 +105,18 @@ func TestBoundsSeg(t *testing.T) {
 	}
 }
 
+func TestBoundsGpx(t *testing.T) {
+	boundsA := g.Bounds()
+	boundsE := GpxBounds{
+		MaxLat: 52.5117189623, MinLat: 52.5113534275,
+		MaxLon: 13.4571944922, MinLon: 13.4567520116,
+	}
+
+	if !boundsE.Equals(boundsA) {
+		t.Errorf("Bounds expected: %s, actual: %s", boundsE.String(), boundsA.String())
+	}
+}
+
 func TestSpeedSeg(t *testing.T) {
 	speedA := g.Tracks[0].Segments[0].Speed(2)
 	speedE := 1.5386074011963367
