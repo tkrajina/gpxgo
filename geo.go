@@ -16,7 +16,7 @@ func ToRad(x float64) float64 {
 	return x / 180. * math.Pi
 }
 
-// Haversine distance between two points.
+// HaversineDistance returns the haversine distance between two points.
 //
 // Implemented from http://www.movable-type.co.uk/scripts/latlong.html
 func HaversineDistance(lat1, lon1, lat2, lon2 float64) float64 {

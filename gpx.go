@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package gpx implements a simple GPX parser.
 package gpx
 
 import (
@@ -167,6 +168,7 @@ type LocationsResultPair struct {
 
 /*==========================================================*/
 
+// Parse parses a GPX file and return a Gpx object.
 func Parse(gpxPath string) (*Gpx, error) {
 	gpxFile, err := os.Open(gpxPath)
 	if err != nil {
@@ -257,6 +259,7 @@ func (ud *UphillDownhill) Equals(ud2 *UphillDownhill) bool {
 
 /*==========================================================*/
 
+// NewGpx creates and returns a new Gpx objects.
 func NewGpx() *Gpx {
 	gpx := new(Gpx)
 	gpx.XmlNsXsi = "http://www.w3.org/2001/XMLSchema-instance"
@@ -266,6 +269,7 @@ func NewGpx() *Gpx {
 	return gpx
 }
 
+// Clone duplicates a Gpx object with deep copy.
 func (g *Gpx) Clone() *Gpx {
 	newgpx := NewGpx()
 	if g.Metadata != nil {
@@ -322,6 +326,7 @@ func (g *Gpx) Clone() *Gpx {
 	return newgpx
 }
 
+// Length2D returns the 2D length of all tracks in a Gpx.
 func (g *Gpx) Length2D() float64 {
 	var length2d float64
 	for _, trk := range g.Tracks {
@@ -330,6 +335,7 @@ func (g *Gpx) Length2D() float64 {
 	return length2d
 }
 
+// Length3D returns the 3D length of all tracks,
 func (g *Gpx) Length3D() float64 {
 	var length3d float64
 	for _, trk := range g.Tracks {
@@ -338,6 +344,7 @@ func (g *Gpx) Length3D() float64 {
 	return length3d
 }
 
+// TimeBounds returns the time bounds of all tacks in a Gpx.
 func (g *Gpx) TimeBounds() *TimeBounds {
 	var tbGpx *TimeBounds
 	for i, trk := range g.Tracks {
@@ -351,6 +358,7 @@ func (g *Gpx) TimeBounds() *TimeBounds {
 	return tbGpx
 }
 
+// Bounds returns the bounds of all tracks in a Gpx.
 func (g *Gpx) Bounds() *GpxBounds {
 	minmax := getMinimaMaximaStart()
 	for _, trk := range g.Tracks {
@@ -363,6 +371,7 @@ func (g *Gpx) Bounds() *GpxBounds {
 	return minmax
 }
 
+// MovingData returns the moving data for all tracks in a Gpx.
 func (g *Gpx) MovingData() *MovingData {
 	var (
 		movingTime      float64
@@ -393,6 +402,8 @@ func (g *Gpx) MovingData() *MovingData {
 
 }
 
+// Split splits the Gpx segment segNo in a given track trackNo at
+// pointNo.
 func (g *Gpx) Split(trackNo, segNo, pointNo int) {
 	if trackNo >= len(g.Tracks) {
 		return
@@ -403,6 +414,7 @@ func (g *Gpx) Split(trackNo, segNo, pointNo int) {
 	track.Split(segNo, pointNo)
 }
 
+// Duration returns the duration of all tracks in a Gpx in seconds.
 func (g *Gpx) Duration() float64 {
 	if len(g.Tracks) == 0 {
 		return 0.0
@@ -415,6 +427,8 @@ func (g *Gpx) Duration() float64 {
 	return result
 }
 
+// UphillDownhill returns uphill and downhill values for all tracks in a
+// Gpx.
 func (g *Gpx) UphillDownhill() *UphillDownhill {
 	if len(g.Tracks) == 0 {
 		return nil
@@ -438,6 +452,8 @@ func (g *Gpx) UphillDownhill() *UphillDownhill {
 	}
 }
 
+// LocationAt returns a LocationResultsPair consisting the segment index
+// and the GpxWpt at a certain time.
 func (g *Gpx) LocationAt(t time.Time) []LocationsResultPair {
 	results := make([]LocationsResultPair, 0)
 
@@ -450,6 +466,7 @@ func (g *Gpx) LocationAt(t time.Time) []LocationsResultPair {
 	return results
 }
 
+// ToXml returns the marshalled Gpx object.
 func (g *Gpx) ToXml() []byte {
 	var buffer bytes.Buffer
 	buffer.WriteString(xml.Header)
@@ -459,6 +476,7 @@ func (g *Gpx) ToXml() []byte {
 
 /*==========================================================*/
 
+// Length2D returns the 2D length of a GPX track.
 func (trk *GpxTrk) Length2D() float64 {
 	var l float64
 	for _, seg := range trk.Segments {
@@ -467,6 +485,8 @@ func (trk *GpxTrk) Length2D() float64 {
 	}
 	return l
 }
+
+// Length3D returns the 3D length of a GPX track.
 func (trk *GpxTrk) Length3D() float64 {
 	var l float64
 	for _, seg := range trk.Segments {
@@ -476,6 +496,7 @@ func (trk *GpxTrk) Length3D() float64 {
 	return l
 }
 
+// TimeBounds returns the time bounds of a GPX track.
 func (trk *GpxTrk) TimeBounds() *TimeBounds {
 	var tbTrk *TimeBounds
 
@@ -490,6 +511,7 @@ func (trk *GpxTrk) TimeBounds() *TimeBounds {
 	return tbTrk
 }
 
+// Bounds returns the bounds of a GPX track.
 func (trk *GpxTrk) Bounds() *GpxBounds {
 	minmax := getMinimaMaximaStart()
 	for _, seg := range trk.Segments {
@@ -502,6 +524,7 @@ func (trk *GpxTrk) Bounds() *GpxBounds {
 	return minmax
 }
 
+// Split splits a GPX segment at a point number ptNo in a GPX track.
 func (trk *GpxTrk) Split(segNo, ptNo int) {
 	lenSegs := len(trk.Segments)
 	if segNo >= lenSegs {
@@ -522,6 +545,7 @@ func (trk *GpxTrk) Split(segNo, ptNo int) {
 	trk.Segments = newSegs
 }
 
+// Join joins two GPX segments in a GPX track.
 func (trk *GpxTrk) Join(segNo, segNo2 int) {
 	lenSegs := len(trk.Segments)
 	if segNo >= lenSegs && segNo2 >= lenSegs {
@@ -542,10 +566,14 @@ func (trk *GpxTrk) Join(segNo, segNo2 int) {
 	}
 	trk.Segments = newSegs
 }
+
+// JoinNext joins a GPX segment with the next segment in the current GPX
+// track.
 func (trk *GpxTrk) JoinNext(segNo int) {
 	trk.Join(segNo, segNo+1)
 }
 
+// MovingData returns the moving data of a GPX track.
 func (trk *GpxTrk) MovingData() *MovingData {
 	var (
 		movingTime      float64
@@ -575,6 +603,7 @@ func (trk *GpxTrk) MovingData() *MovingData {
 	}
 }
 
+// Duration returns the duration of a GPX track.
 func (trk *GpxTrk) Duration() float64 {
 	if len(trk.Segments) == 0 {
 		return 0.0
@@ -587,6 +616,7 @@ func (trk *GpxTrk) Duration() float64 {
 	return result
 }
 
+// UphillDownhill return the uphill and downhill values of a GPX track.
 func (trk *GpxTrk) UphillDownhill() *UphillDownhill {
 	if len(trk.Segments) == 0 {
 		return nil
@@ -610,6 +640,7 @@ func (trk *GpxTrk) UphillDownhill() *UphillDownhill {
 	}
 }
 
+// LocationAt returns a LocationResultsPair for a given time.
 func (trk *GpxTrk) LocationAt(t time.Time) []LocationsResultPair {
 	results := make([]LocationsResultPair, 0)
 
@@ -625,14 +656,17 @@ func (trk *GpxTrk) LocationAt(t time.Time) []LocationsResultPair {
 
 /*==========================================================*/
 
+// Length2D returns the 2D length of a GPX segment.
 func (seg *GpxTrkseg) Length2D() float64 {
 	return Length2D(seg.Points)
 }
 
+// Length3D returns the 3D length of a GPX segment.
 func (seg *GpxTrkseg) Length3D() float64 {
 	return Length3D(seg.Points)
 }
 
+// TimeBounds returns the time bounds of a GPX segment.
 func (seg *GpxTrkseg) TimeBounds() *TimeBounds {
 	timeTuple := make([]time.Time, 0)
 
@@ -651,6 +685,7 @@ func (seg *GpxTrkseg) TimeBounds() *TimeBounds {
 	return nil
 }
 
+// Bounds returns the bounds of a GPX segment.
 func (seg *GpxTrkseg) Bounds() *GpxBounds {
 	minmax := getMinimaMaximaStart()
 	for _, pt := range seg.Points {
@@ -662,7 +697,7 @@ func (seg *GpxTrkseg) Bounds() *GpxBounds {
 	return minmax
 }
 
-// Get speed at point
+// Speed returns the speed at point number in a GPX segment.
 func (seg *GpxTrkseg) Speed(pointIdx int) float64 {
 	trkptsLen := len(seg.Points)
 	if pointIdx >= trkptsLen {
@@ -710,7 +745,7 @@ func (seg *GpxTrkseg) Speed(pointIdx int) float64 {
 	return speed2
 }
 
-// Duration in seconds
+// Duration returns the duration in seconds in a GPX segment.
 func (seg *GpxTrkseg) Duration() float64 {
 	trksLen := len(seg.Points)
 	if trksLen == 0 {
@@ -732,6 +767,7 @@ func (seg *GpxTrkseg) Duration() float64 {
 	return dur.Seconds()
 }
 
+// Elevations returns a slice with the elevations in a GPX segment.
 func (seg *GpxTrkseg) Elevations() []float64 {
 	elevations := make([]float64, len(seg.Points))
 	for i, trkpt := range seg.Points {
@@ -740,7 +776,7 @@ func (seg *GpxTrkseg) Elevations() []float64 {
 	return elevations
 }
 
-// Return uphill and dowhill
+// UphillDownhill returns uphill and dowhill in a GPX segment.
 func (seg *GpxTrkseg) UphillDownhill() *UphillDownhill {
 	if len(seg.Points) == 0 {
 		return nil
@@ -753,7 +789,8 @@ func (seg *GpxTrkseg) UphillDownhill() *UphillDownhill {
 	return &UphillDownhill{Uphill: uphill, Downhill: downhill}
 }
 
-// Split segment at point index pt. Point pt remains in first part
+// Split splits a GPX segment at point index pt. Point pt remains in
+// first part.
 func (seg *GpxTrkseg) Split(pt int) (*GpxTrkseg, *GpxTrkseg) {
 	pts1 := seg.Points[:pt+1]
 	pts2 := seg.Points[pt+1:]
@@ -761,10 +798,12 @@ func (seg *GpxTrkseg) Split(pt int) (*GpxTrkseg, *GpxTrkseg) {
 	return &GpxTrkseg{Points: pts1}, &GpxTrkseg{Points: pts2}
 }
 
+// Join concatenates to GPX segments.
 func (seg *GpxTrkseg) Join(seg2 *GpxTrkseg) {
 	seg.Points = append(seg.Points, seg2.Points...)
 }
 
+// LocationAt returns the GpxWpt at a given time.
 func (seg *GpxTrkseg) LocationAt(t time.Time) int {
 	lenPts := len(seg.Points)
 	if lenPts == 0 {
@@ -786,6 +825,7 @@ func (seg *GpxTrkseg) LocationAt(t time.Time) int {
 	return -1
 }
 
+// MovingData returns the moving data of a GPX segment.
 func (seg *GpxTrkseg) MovingData() *MovingData {
 	var (
 		movingTime      float64
@@ -838,12 +878,12 @@ func (seg *GpxTrkseg) MovingData() *MovingData {
 
 /*==========================================================*/
 
-// Return Timestamp string as Time object
+// Time returns a timestamp string as Time object.
 func (pt *GpxWpt) Time() time.Time {
 	return getTime(pt.Timestamp)
 }
 
-// Time difference of two GpxWpts in seconds
+// TimeDiff returns the time difference of two GpxWpts in seconds.
 func (pt *GpxWpt) TimeDiff(pt2 *GpxWpt) float64 {
 	t1 := pt.Time()
 	t2 := pt2.Time()
@@ -862,6 +902,7 @@ func (pt *GpxWpt) TimeDiff(pt2 *GpxWpt) float64 {
 	return delta.Seconds()
 }
 
+// SpeedBetween calculates the speed between two GpxWpts.
 func (pt *GpxWpt) SpeedBetween(pt2 *GpxWpt, threeD bool) float64 {
 	seconds := pt.TimeDiff(pt2)
 	var distLen float64
@@ -874,23 +915,29 @@ func (pt *GpxWpt) SpeedBetween(pt2 *GpxWpt, threeD bool) float64 {
 	return distLen / seconds
 }
 
+// Distance2D returns the 2D distance of two GpxWpts.
 func (pt *GpxWpt) Distance2D(pt2 *GpxWpt) float64 {
 	return Distance2D(pt.Lat, pt.Lon, pt2.Lat, pt2.Lon, false)
 }
+
+// Distance3D returns the 3D distance of two GpxWpts.
 func (pt *GpxWpt) Distance3D(pt2 *GpxWpt) float64 {
 	return Distance3D(pt.Lat, pt.Lon, pt.Ele, pt2.Lat, pt2.Lon, pt2.Ele, false)
 }
 
+// MaxDilutionOfPrecision returns the dilution precision of a GpxWpt.
 func (pt *GpxWpt) MaxDilutionOfPrecision() float64 {
 	return math.Max(pt.Hdop, math.Max(pt.Vdop, pt.Pdop))
 }
 
 /*==========================================================*/
 
+// Length returns the length of a GPX route.
 func (rte *GpxRte) Length() float64 {
 	return Length2D(rte.RoutePoints)
 }
 
+// Center returns the center of a GPX route.
 func (rte *GpxRte) Center() (float64, float64) {
 	lenRtePts := len(rte.RoutePoints)
 	if lenRtePts == 0 {
