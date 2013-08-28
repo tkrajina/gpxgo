@@ -14,12 +14,13 @@ import (
 	"time"
 )
 
-//==========================================================
+/*==========================================================*/
 
 const TIMELAYOUT = "2006-01-02T15:04:05Z"
 const DEFAULT_STOPPED_SPEED_THRESHOLD = 1.0
 
-//==========================================================
+/*==========================================================*/
+
 type GpxTrkseg struct {
 	XMLName xml.Name `xml:"trkseg"`
 	Points  []GpxWpt `xml:"trkpt"`
@@ -134,7 +135,7 @@ type GpxBounds struct {
 	MaxLon  float64  `xml:"maxlon,attr"`
 }
 
-//==========================================================
+/*==========================================================*/
 
 type TimeBounds struct {
 	StartTime time.Time
@@ -164,11 +165,10 @@ type LocationsResultPair struct {
 	PointNo   int
 }
 
-//==========================================================
+/*==========================================================*/
 
 func Parse(gpxPath string) (*Gpx, error) {
 	gpxFile, err := os.Open(gpxPath)
-
 	if err != nil {
 		// fmt.Println("Error opening file: ", err)
 		return nil, err
@@ -187,7 +187,7 @@ func Parse(gpxPath string) (*Gpx, error) {
 	return g, nil
 }
 
-//==========================================================
+/*==========================================================*/
 
 func getTime(timestr string) time.Time {
 	t, err := time.Parse(TIMELAYOUT, timestr)
@@ -211,8 +211,9 @@ func getMinimaMaximaStart() *GpxBounds {
 	}
 }
 
-//==========================================================
 func (tb *TimeBounds) Equals(tb2 TimeBounds) bool {
+/*==========================================================*/
+
 	if tb.StartTime == tb2.StartTime && tb.EndTime == tb2.EndTime {
 		return true
 	}
@@ -254,7 +255,8 @@ func (ud *UphillDownhill) Equals(ud2 UphillDownhill) bool {
 	return false
 }
 
-//==========================================================
+/*==========================================================*/
+
 func NewGpx() *Gpx {
 	gpx := new(Gpx)
 	gpx.XmlNsXsi = "http://www.w3.org/2001/XMLSchema-instance"
@@ -455,7 +457,7 @@ func (g *Gpx) ToXml() []byte {
 	return buffer.Bytes()
 }
 
-//==========================================================
+/*==========================================================*/
 
 func (trk *GpxTrk) Length2D() float64 {
 	var l float64
@@ -618,7 +620,8 @@ func (trk *GpxTrk) LocationAt(t time.Time) []LocationsResultPair {
 	return results
 }
 
-//==========================================================
+/*==========================================================*/
+
 func (seg *GpxTrkseg) Length2D() float64 {
 	return Length2D(seg.Points)
 }
@@ -830,7 +833,7 @@ func (seg *GpxTrkseg) MovingData() MovingData {
 	}
 }
 
-//==========================================================
+/*==========================================================*/
 
 // Return Timestamp string as Time object
 func (pt *GpxWpt) Time() time.Time {
@@ -879,7 +882,7 @@ func (pt *GpxWpt) MaxDilutionOfPrecision() float64 {
 	return math.Max(pt.Hdop, math.Max(pt.Vdop, pt.Pdop))
 }
 
-//==========================================================
+/*==========================================================*/
 
 func (rte *GpxRte) Length() float64 {
 	return Length2D(rte.RoutePoints)
@@ -905,4 +908,4 @@ func (rte *GpxRte) Center() (float64, float64) {
 	return sumLat / n, sumLon / n
 }
 
-//==========================================================
+/*==========================================================*/
