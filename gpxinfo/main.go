@@ -1,4 +1,4 @@
-// Copyright 2013 Peter Vasil. All rights reserved.
+// Copyright 2013, 2014 Peter Vasil. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -56,12 +56,16 @@ func main() {
 	fmt.Printf("\tMax speed: %fm/s = %fkm/h\n", md.MaxSpeed, md.MaxSpeed*60*60/1000.0)
 
 	updo := gpxFile.UphillDownhill()
-	fmt.Println("\tTotal uphill: ", updo.Uphill)
-	fmt.Println("\tTotal downhill: ", updo.Downhill)
+	if updo != nil {
+		fmt.Println("\tTotal uphill: ", updo.Uphill)
+		fmt.Println("\tTotal downhill: ", updo.Downhill)
+	}
 
 	timeBounds := gpxFile.TimeBounds()
-	fmt.Println("\tStarted: ", timeBounds.StartTime)
-	fmt.Println("\tEnded: ", timeBounds.EndTime)
+	if timeBounds != nil {
+		fmt.Println("\tStarted: ", timeBounds.StartTime)
+		fmt.Println("\tEnded: ", timeBounds.EndTime)
+	}
 
 	fmt.Println()
 }
