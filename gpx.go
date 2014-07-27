@@ -127,7 +127,8 @@ type Metadata struct {
 
 // Gpx represents the root of a GPX file
 type Gpx struct {
-	XMLName      xml.Name  `xml:"http://www.topografix.com/GPX/1/1 gpx"`
+	XMLName      xml.Name  `xml:"gpx"`
+	XMLNs        string    `xml:"xmlns,attr"`
 	XMLNsXsi     string    `xml:"xmlns:xsi,attr,omitempty"`
 	XMLSchemaLoc string    `xml:"xsi:schemaLocation,attr,omitempty"`
 	Version      string    `xml:"version,attr"`
@@ -282,6 +283,7 @@ func (ud *UphillDownhill) Equals(ud2 *UphillDownhill) bool {
 // NewGpx creates and returns a new Gpx objects.
 func NewGpx() *Gpx {
 	gpx := new(Gpx)
+	gpx.XMLNs = "http://www.topografix.com/GPX/1/1"
 	gpx.XMLNsXsi = "http://www.w3.org/2001/XMLSchema-instance"
 	gpx.XMLSchemaLoc = "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
 	gpx.Version = "1.1"
@@ -291,7 +293,13 @@ func NewGpx() *Gpx {
 
 // Clone duplicates a Gpx object with deep copy.
 func (g *Gpx) Clone() *Gpx {
-	newgpx := NewGpx()
+	newgpx := new(Gpx)
+	newgpx.XMLNs = g.XMLNs
+	newgpx.XMLNsXsi = g.XMLNsXsi
+	newgpx.XMLSchemaLoc = g.XMLSchemaLoc
+	newgpx.Version = g.Version
+	newgpx.Creator = g.Creator
+
 	if g.Metadata != nil {
 		newgpx.Metadata = &Metadata{
 			Name:      g.Metadata.Name,
