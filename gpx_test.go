@@ -1,4 +1,4 @@
-// Copyright 2013 Peter Vasil. All rights reserved.
+// Copyright 2013, 2014 Peter Vasil. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -21,7 +21,7 @@ func TestParse(t *testing.T) {
 	g, err = Parse("testdata/file.gpx")
 
 	if err != nil {
-		t.Errorf("Error parsing GPX file: ", err)
+		t.Error("Error parsing GPX file: ", err)
 	}
 
 	// t.Log("Test parser")
@@ -95,7 +95,7 @@ func TestTimeBoundsSeg(t *testing.T) {
 
 func TestBoundsSeg(t *testing.T) {
 	boundsA := g.Tracks[0].Segments[0].Bounds()
-	boundsE := GpxBounds{
+	boundsE := Bounds{
 		MaxLat: 52.5117189623, MinLat: 52.5113534275,
 		MaxLon: 13.4571944922, MinLon: 13.4567520116,
 	}
@@ -107,7 +107,7 @@ func TestBoundsSeg(t *testing.T) {
 
 func TestBoundsGpx(t *testing.T) {
 	boundsA := g.Bounds()
-	boundsE := GpxBounds{
+	boundsE := Bounds{
 		MaxLat: 52.5117189623, MinLat: 52.5113534275,
 		MaxLon: 13.4571944922, MinLon: 13.4567520116,
 	}
@@ -173,7 +173,7 @@ func TestUphillDownhill(t *testing.T) {
 }
 
 func TestToXml(t *testing.T) {
-	xmlA := string(g.ToXml())
+	xmlA := string(g.ToXML())
 	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="eTrex 10">
 	<metadata>
@@ -224,18 +224,18 @@ func TestToXml(t *testing.T) {
 
 func TestNewXml(t *testing.T) {
 	gpx := NewGpx()
-	gpxTrack := GpxTrk{}
+	gpxTrack := Trk{}
 
-	gpxSegment := GpxTrkseg{}
-	gpxSegment.Points = append(gpxSegment.Points, GpxWpt{Lat: 2.1234, Lon: 5.1234, Ele: 1234})
-	gpxSegment.Points = append(gpxSegment.Points, GpxWpt{Lat: 2.1233, Lon: 5.1235, Ele: 1235})
-	gpxSegment.Points = append(gpxSegment.Points, GpxWpt{Lat: 2.1235, Lon: 5.1236, Ele: 1236})
+	gpxSegment := Trkseg{}
+	gpxSegment.Points = append(gpxSegment.Points, Wpt{Lat: 2.1234, Lon: 5.1234, Ele: 1234})
+	gpxSegment.Points = append(gpxSegment.Points, Wpt{Lat: 2.1233, Lon: 5.1235, Ele: 1235})
+	gpxSegment.Points = append(gpxSegment.Points, Wpt{Lat: 2.1235, Lon: 5.1236, Ele: 1236})
 
 	gpxTrack.Segments = append(gpxTrack.Segments, gpxSegment)
 	gpx.Tracks = append(gpx.Tracks, gpxTrack)
 
-	actualXml := string(toXml(gpx))
-	expectedXml := `<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="https://github.com/ptrv/go-gpx">
+	actualXML := string(toXML(gpx))
+	expectedXML := `<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="https://github.com/ptrv/go-gpx">
 	<trk>
 		<trkseg>
 			<trkpt lat="2.1234" lon="5.1234">
@@ -251,8 +251,8 @@ func TestNewXml(t *testing.T) {
 	</trk>
 </gpx>`
 
-	if expectedXml != actualXml {
-		t.Errorf("XML expected:\n%s\n, actual: \n%s", expectedXml, actualXml)
+	if expectedXML != actualXML {
+		t.Errorf("XML expected:\n%s\n, actual: \n%s", expectedXML, actualXML)
 	}
 }
 
@@ -268,7 +268,7 @@ func TestSplitGpx(t *testing.T) {
 		t.Errorf("GPX segments count expected: %d, actual %d", segsLenE, segsLenA)
 	}
 
-	segsA := string(toXml(gpxSegs))
+	segsA := string(toXML(gpxSegs))
 	segsE := `<trkseg>
 	<trkpt lat="52.5113534275" lon="13.4571944922">
 		<ele>59.26</ele>
@@ -302,7 +302,7 @@ func TestJoin(t *testing.T) {
 	track.Split(0, 2)
 	track.Join(0, 1)
 
-	segsA := string(toXml(track.Segments))
+	segsA := string(toXML(track.Segments))
 	segsE := `<trkseg>
 	<trkpt lat="52.5113534275" lon="13.4571944922">
 		<ele>59.26</ele>
