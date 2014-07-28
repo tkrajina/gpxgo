@@ -3,6 +3,7 @@ package gpx
 import (
 	"fmt"
 	"testing"
+    "time"
 )
 
 func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
@@ -13,7 +14,7 @@ func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
 }
 
 func assertNil(t *testing.T, var1 interface{}) {
-	if var1 == nil {
+	if var1 != nil {
 		fmt.Println(var1)
 		t.Error("nil!")
 	}
@@ -27,10 +28,24 @@ func assertNotNil(t *testing.T, var1 interface{}) {
 }
 
 func TestParseGPXTimes(t *testing.T) {
-	time, err := parseGPXTime("2013-01-01T12:00:00")
-	fmt.Println(time)
-	assertNil(t, err)
-	assertNotNil(t, time)
+    datetimes := []string {
+        "2013-01-02T12:07:08Z",
+        "2013-01-02 12:07:08Z",
+        "2013-01-02T12:07:08",
+    }
+    for _, value := range datetimes {
+        fmt.Println("datetime:", value)
+        parsedTime, err := parseGPXTime(value)
+        fmt.Println(parsedTime)
+        assertNil(t, err)
+        assertNotNil(t, parsedTime)
+        assertEquals(t, parsedTime.Year(), 2013)
+        assertEquals(t, parsedTime.Month(), time.January)
+        assertEquals(t, parsedTime.Day(), 2)
+        assertEquals(t, parsedTime.Hour(), 12)
+        assertEquals(t, parsedTime.Minute(), 7)
+        assertEquals(t, parsedTime.Second(), 8)
+    }
 }
 
 func TestParseAndReparseGPX11(t *testing.T) {
@@ -45,7 +60,7 @@ func TestParseAndReparseGPX11(t *testing.T) {
 
 		// Test after reparsing
 		xml, err := gpxDoc.ToXml("1.1")
-		fmt.Println(string(xml))
+		//fmt.Println(string(xml))
 		if err != nil {
 			t.Error("Error serializing to XML:" + err.Error())
 		}

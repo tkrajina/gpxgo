@@ -14,6 +14,7 @@ import (
 // An array cannot be constant :(
 var TIMELAYOUTS = []string{
 	"2006-01-02T15:04:05Z",
+	"2006-01-02T15:04:05",
 	"2006-01-02T15:04:05.1234Z",
 	"2006-01-02 15:04:05",
 	"2006-01-02 15:04:05.1234",
@@ -104,9 +105,13 @@ func parseGPXTime(timestr string) (time.Time, error) {
 		timelayout := TIMELAYOUTS[i]
 		t, err := time.Parse(timelayout, timestr)
 
+        fmt.Println("t=", t)
+
 		if err == nil {
 			return t, nil
-		}
+		} else {
+//            fmt.Scanln(err.Error())
+        }
 	}
 
 	return time.Now(), errors.New("Cannot parse " + timestr)
