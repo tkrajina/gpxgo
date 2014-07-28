@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// An array cannot be constant :(
+// An array cannot be constant :( The first one if the default layout:
 var TIMELAYOUTS = []string{
 	"2006-01-02T15:04:05Z",
 	"2006-01-02T15:04:05",
@@ -35,6 +35,7 @@ type GPX struct {
 	Link             string
 	LinkText         string
 	LinkType         string
+	Time             *time.Time
 	Keywords         string
 
 	// TODO
@@ -86,6 +87,10 @@ func (g *GPX) ToXml(version string) ([]byte, error) {
 			gpx11Doc.Link.Type = g.LinkType
 		}
 
+		if g.Time != nil {
+			gpx11Doc.Timestamp = formatGPXTime(g.Time)
+		}
+
 		return xml.Marshal(gpx11Doc)
 	} else {
 		return nil, errors.New("Invalid version " + version)
@@ -96,26 +101,30 @@ func guessGPXVersion(bytes []byte) string {
 	return "1.1"
 }
 
-func parseGPXTime(timestr string) (time.Time, error) {
+func parseGPXTime(timestr string) (*time.Time, error) {
 	if strings.Contains(timestr, ".") {
 		// Probably seconds with milliseconds
 		timestr = strings.Split(timestr, ".")[0]
 	}
 	timestr = strings.Trim(timestr, " \t\n\r")
-	for i := 0; i < len(TIMELAYOUTS); i++ {
-		timelayout := TIMELAYOUTS[i]
-		t, err := time.Parse(timelayout, timestr)
-
-		fmt.Println("t=", t)
+	for _, timeLayout := range TIMELAYOUTS {
+		t, err := time.Parse(timeLayout, timestr)
 
 		if err == nil {
-			return t, nil
-		} else {
-			//            fmt.Scanln(err.Error())
+			return &t, nil
 		}
 	}
 
-	return time.Now(), errors.New("Cannot parse " + timestr)
+	result := time.Now()
+
+	return &result, errors.New("Cannot parse " + timestr)
+}
+
+func formatGPXTime(time *time.Time) string {
+	if time == nil {
+		return ""
+	}
+	return time.Format(TIMELAYOUTS[0])
 }
 
 func ParseFile(fileName string) (*GPX, error) {
@@ -163,7 +172,11 @@ func ParseString(bytes []byte) (*GPX, error) {
 			result.Extensions = &g.Extensions.Bytes
 		}
 
-		fmt.Println("copyright", g.Copyright)
+		fmt.Println("ts=", g.Timestamp)
+		if len(g.Timestamp) > 0 {
+			result.Time, _ = parseGPXTime(g.Timestamp)
+		}
+
 		if g.Copyright != nil {
 			result.Copyright = g.Copyright.Author
 			result.CopyrightYear = g.Copyright.Year
@@ -178,7 +191,6 @@ func ParseString(bytes []byte) (*GPX, error) {
 
 		return result, nil
 	} else {
-		fmt.Println("error")
 		return nil, errors.New("Invalid version:" + version)
 	}
 }

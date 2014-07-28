@@ -18,8 +18,8 @@ type Gpx struct {
 	AuthorLink *GpxLink       `xml:"metadata>author>link,omitempty"`
 	Copyright  *GpxCopyright  `xml:"metadata>copyright,omitempty"`
 	Link       *GpxLink       `xml:"metadata>link,omitempty"`
-	Timestamp  string         `xml:"time,omitempty"`
-	Keywords   string         `xml:"keywords,omitempty"`
+	Timestamp  string         `xml:"metadata>time,omitempty"`
+	Keywords   string         `xml:"metadata>keywords,omitempty"`
 	Bounds     *GpxBounds     `xml:"bounds"`
 	Extensions *GpxExtensions `xml:"extensions"`
 	//Metadata     *GpxMetadata `xml:"metadata,omitempty"`
