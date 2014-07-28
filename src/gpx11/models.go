@@ -18,11 +18,23 @@ type Gpx struct {
     AuthorLink *GpxLink       `xml:"metadata>author>link,omitempty"`
 	Copyright *GpxCopyright `xml:"metadata>copyright,omitempty"`
     Link *GpxLink       `xml:"metadata>link,omitempty"`
+	Timestamp string        `xml:"time,omitempty"`
+	Keywords  string        `xml:"keywords,omitempty"`
+	Bounds    *GpxBounds    `xml:"bounds"`
 	Extensions   *GpxExtensions `xml:"extensions"`
 	//Metadata     *GpxMetadata `xml:"metadata,omitempty"`
 //	Waypoints    []GpxWpt     `xml:"wpt"`
 //	Routes       []GpxRte     `xml:"rte"`
 //	Tracks       []GpxTrk     `xml:"trk"`
+}
+
+
+type GpxBounds struct {
+	//XMLName xml.Name `xml:"bounds"`
+	MinLat  float64  `xml:"minlat,attr"`
+	MaxLat  float64  `xml:"maxlat,attr"`
+	MinLon  float64  `xml:"minlon,attr"`
+	MaxLon  float64  `xml:"maxlon,attr"`
 }
 
 type GpxCopyright struct {
