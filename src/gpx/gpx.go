@@ -20,6 +20,9 @@ type GPX struct {
     AuthorLink string
     AuthorLinkText string
     AuthorLinkType string
+    Copyright string
+    CopyrightYear string
+    CopyrightLicense string
 
     // TODO
     Extensions *[]byte
@@ -54,6 +57,13 @@ func (g *GPX) ToXml(version string) ([]byte, error) {
             gpx11Doc.AuthorLink.Href = g.AuthorLink
             gpx11Doc.AuthorLink.Text = g.AuthorLinkText
             gpx11Doc.AuthorLink.Type = g.AuthorLinkType
+        }
+
+        if len(g.Copyright) > 0 || len(g.CopyrightYear) > 0 || len(g.CopyrightLicense) > 0 {
+            gpx11Doc.Copyright = new(gpx11.GpxCopyright)
+            gpx11Doc.Copyright.Author = g.Copyright
+            gpx11Doc.Copyright.Year = g.CopyrightYear
+            gpx11Doc.Copyright.License = g.CopyrightLicense
         }
 
         return xml.Marshal(gpx11Doc)
@@ -109,6 +119,13 @@ func ParseString(bytes []byte) (*GPX, error) {
 
         if g.Extensions != nil {
             result.Extensions = &g.Extensions.Bytes
+        }
+
+        fmt.Println("copyright", g.Copyright)
+        if g.Copyright != nil {
+            result.Copyright = g.Copyright.Author
+            result.CopyrightYear = g.Copyright.Year
+            result.CopyrightLicense = g.Copyright.License
         }
 
         /*

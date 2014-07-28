@@ -14,12 +14,21 @@ type Gpx struct {
 	Desc      string            `xml:"metadata>desc,omitempty"`
     AuthorName string           `xml:"metadata>author>name,omitempty"`
     AuthorEmail *GpxEmail `xml:"metadata>author>email,omitempty"`
+    // TODO: There can be more than one link?
     AuthorLink *GpxLink       `xml:"metadata>author>link,omitempty"`
+	Copyright *GpxCopyright `xml:"metadata>copyright,omitempty"`
 	Extensions   *GpxExtensions `xml:"extensions"`
 	//Metadata     *GpxMetadata `xml:"metadata,omitempty"`
 //	Waypoints    []GpxWpt     `xml:"wpt"`
 //	Routes       []GpxRte     `xml:"rte"`
 //	Tracks       []GpxTrk     `xml:"trk"`
+}
+
+type GpxCopyright struct {
+	XMLName xml.Name `xml:"copyright"`
+	Author  string   `xml:"author,attr"`
+	Year    string   `xml:"year,omitempty"`
+	License string   `xml:"license,omitempty"`
 }
 
 type GpxAuthor struct {

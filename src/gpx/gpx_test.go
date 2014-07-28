@@ -38,6 +38,8 @@ func TestParseAndReparseGPX11(t *testing.T) {
     }
 
     for i := 1; i < len(gpxDocuments); i++ {
+        fmt.Println("Testing gpx doc #", i)
+
         gpxDoc := gpxDocuments[i]
 
         assertEquals(t, gpxDoc.Version, "1.1")
@@ -49,6 +51,9 @@ func TestParseAndReparseGPX11(t *testing.T) {
         assertEquals(t, gpxDoc.AuthorLink, "http://link")
         assertEquals(t, gpxDoc.AuthorLinkText, "link text")
         assertEquals(t, gpxDoc.AuthorLinkType, "link type")
+        assertEquals(t, gpxDoc.Copyright, "gpxauth")
+        assertEquals(t, gpxDoc.CopyrightYear, "2013")
+        assertEquals(t, gpxDoc.CopyrightLicense, "lic")
 
         //assertEquals(t, gpxDoc.AuthorName, "author name")
     }
