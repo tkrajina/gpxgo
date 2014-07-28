@@ -3,7 +3,7 @@ package gpx
 import (
 	"fmt"
 	"testing"
-    "time"
+	"time"
 )
 
 func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
@@ -28,24 +28,27 @@ func assertNotNil(t *testing.T, var1 interface{}) {
 }
 
 func TestParseGPXTimes(t *testing.T) {
-    datetimes := []string {
-        "2013-01-02T12:07:08Z",
-        "2013-01-02 12:07:08Z",
-        "2013-01-02T12:07:08",
-    }
-    for _, value := range datetimes {
-        fmt.Println("datetime:", value)
-        parsedTime, err := parseGPXTime(value)
-        fmt.Println(parsedTime)
-        assertNil(t, err)
-        assertNotNil(t, parsedTime)
-        assertEquals(t, parsedTime.Year(), 2013)
-        assertEquals(t, parsedTime.Month(), time.January)
-        assertEquals(t, parsedTime.Day(), 2)
-        assertEquals(t, parsedTime.Hour(), 12)
-        assertEquals(t, parsedTime.Minute(), 7)
-        assertEquals(t, parsedTime.Second(), 8)
-    }
+	datetimes := []string{
+		"2013-01-02T12:07:08Z",
+		"2013-01-02 12:07:08Z",
+		"2013-01-02T12:07:08",
+		"2013-01-02T12:07:08.034Z",
+		"2013-01-02 12:07:08.045Z",
+		"2013-01-02T12:07:08.123",
+	}
+	for _, value := range datetimes {
+		fmt.Println("datetime:", value)
+		parsedTime, err := parseGPXTime(value)
+		fmt.Println(parsedTime)
+		assertNil(t, err)
+		assertNotNil(t, parsedTime)
+		assertEquals(t, parsedTime.Year(), 2013)
+		assertEquals(t, parsedTime.Month(), time.January)
+		assertEquals(t, parsedTime.Day(), 2)
+		assertEquals(t, parsedTime.Hour(), 12)
+		assertEquals(t, parsedTime.Minute(), 7)
+		assertEquals(t, parsedTime.Second(), 8)
+	}
 }
 
 func TestParseAndReparseGPX11(t *testing.T) {

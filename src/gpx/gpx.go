@@ -15,11 +15,8 @@ import (
 var TIMELAYOUTS = []string{
 	"2006-01-02T15:04:05Z",
 	"2006-01-02T15:04:05",
-	"2006-01-02T15:04:05.1234Z",
+	"2006-01-02 15:04:05Z",
 	"2006-01-02 15:04:05",
-	"2006-01-02 15:04:05.1234",
-	"2006-01-02T15:04:05",
-	"2006-01-02T15:04:05.1234",
 }
 
 type GPX struct {
@@ -100,18 +97,22 @@ func guessGPXVersion(bytes []byte) string {
 }
 
 func parseGPXTime(timestr string) (time.Time, error) {
+	if strings.Contains(timestr, ".") {
+		// Probably seconds with milliseconds
+		timestr = strings.Split(timestr, ".")[0]
+	}
 	timestr = strings.Trim(timestr, " \t\n\r")
 	for i := 0; i < len(TIMELAYOUTS); i++ {
 		timelayout := TIMELAYOUTS[i]
 		t, err := time.Parse(timelayout, timestr)
 
-        fmt.Println("t=", t)
+		fmt.Println("t=", t)
 
 		if err == nil {
 			return t, nil
 		} else {
-//            fmt.Scanln(err.Error())
-        }
+			//            fmt.Scanln(err.Error())
+		}
 	}
 
 	return time.Now(), errors.New("Cannot parse " + timestr)
