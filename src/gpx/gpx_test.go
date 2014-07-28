@@ -54,6 +54,9 @@ func TestParseAndReparseGPX11(t *testing.T) {
         assertEquals(t, gpxDoc.Copyright, "gpxauth")
         assertEquals(t, gpxDoc.CopyrightYear, "2013")
         assertEquals(t, gpxDoc.CopyrightLicense, "lic")
+        assertEquals(t, gpxDoc.Link, "http://link2")
+        assertEquals(t, gpxDoc.LinkText, "link text2")
+        assertEquals(t, gpxDoc.LinkType, "link type2")
 
         //assertEquals(t, gpxDoc.AuthorName, "author name")
     }

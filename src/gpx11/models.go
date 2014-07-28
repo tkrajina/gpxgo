@@ -17,6 +17,7 @@ type Gpx struct {
     // TODO: There can be more than one link?
     AuthorLink *GpxLink       `xml:"metadata>author>link,omitempty"`
 	Copyright *GpxCopyright `xml:"metadata>copyright,omitempty"`
+    Link *GpxLink       `xml:"metadata>link,omitempty"`
 	Extensions   *GpxExtensions `xml:"extensions"`
 	//Metadata     *GpxMetadata `xml:"metadata,omitempty"`
 //	Waypoints    []GpxWpt     `xml:"wpt"`
