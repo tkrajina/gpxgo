@@ -12,6 +12,27 @@ func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
 	}
 }
 
+func assertNil(t *testing.T, var1 interface{}) {
+	if var1 == nil {
+		fmt.Println(var1)
+		t.Error("nil!")
+	}
+}
+
+func assertNotNil(t *testing.T, var1 interface{}) {
+	if var1 == nil {
+		fmt.Println(var1)
+		t.Error("nil!")
+	}
+}
+
+func TestParseGPXTimes(t *testing.T) {
+	time, err := parseGPXTime("2013-01-01T12:00:00")
+	fmt.Println(time)
+	assertNil(t, err)
+	assertNotNil(t, time)
+}
+
 func TestParseAndReparseGPX11(t *testing.T) {
 	gpxDocuments := []*GPX{}
 

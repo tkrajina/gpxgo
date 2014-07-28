@@ -8,7 +8,18 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 )
+
+// An array cannot be constant :(
+var TIMELAYOUTS = []string{
+	"2006-01-02T15:04:05Z",
+	"2006-01-02T15:04:05.1234Z",
+	"2006-01-02 15:04:05",
+	"2006-01-02 15:04:05.1234",
+	"2006-01-02T15:04:05",
+	"2006-01-02T15:04:05.1234",
+}
 
 type GPX struct {
 	Version          string
@@ -26,6 +37,7 @@ type GPX struct {
 	Link             string
 	LinkText         string
 	LinkType         string
+	Keywords         string
 
 	// TODO
 	Extensions *[]byte
@@ -84,6 +96,20 @@ func (g *GPX) ToXml(version string) ([]byte, error) {
 
 func guessGPXVersion(bytes []byte) string {
 	return "1.1"
+}
+
+func parseGPXTime(timestr string) (time.Time, error) {
+	timestr = strings.Trim(timestr, " \t\n\r")
+	for i := 0; i < len(TIMELAYOUTS); i++ {
+		timelayout := TIMELAYOUTS[i]
+		t, err := time.Parse(timelayout, timestr)
+
+		if err == nil {
+			return t, nil
+		}
+	}
+
+	return time.Now(), errors.New("Cannot parse " + timestr)
 }
 
 func ParseFile(fileName string) (*GPX, error) {
