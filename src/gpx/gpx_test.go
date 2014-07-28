@@ -97,7 +97,7 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		assertEquals(t, gpxDoc.LinkText, "link text2")
 		assertEquals(t, gpxDoc.LinkType, "link type2")
 		assertEquals(t, gpxDoc.Time.Format("2013-01-01 12:00:00 +0000 UTC"), time.Date(2013, time.January, 01, 12, 0, 0, 0, time.UTC).Format("2013-01-01 12:00:00 +0000 UTC"))
+		assertEquals(t, gpxDoc.Keywords, "example keywords")
 
-		//assertEquals(t, gpxDoc.AuthorName, "author name")
 	}
 }

@@ -91,6 +91,8 @@ func (g *GPX) ToXml(version string) ([]byte, error) {
 			gpx11Doc.Timestamp = formatGPXTime(g.Time)
 		}
 
+		gpx11Doc.Keywords = g.Keywords
+
 		return xml.Marshal(gpx11Doc)
 	} else {
 		return nil, errors.New("Invalid version " + version)
@@ -188,6 +190,8 @@ func ParseString(bytes []byte) (*GPX, error) {
 			result.LinkText = g.Link.Text
 			result.LinkType = g.Link.Type
 		}
+
+		result.Keywords = g.Keywords
 
 		return result, nil
 	} else {
