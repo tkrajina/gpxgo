@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const TIME_FORMAT = "2006-01-02T15:04:05Z"
+
 func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
 	if var1 != var2 {
 		fmt.Println(var1, "not equals to", var2)
@@ -99,5 +101,32 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		assertEquals(t, gpxDoc.Time.Format("2013-01-01 12:00:00 +0000 UTC"), time.Date(2013, time.January, 01, 12, 0, 0, 0, time.UTC).Format("2013-01-01 12:00:00 +0000 UTC"))
 		assertEquals(t, gpxDoc.Keywords, "example keywords")
 
+		// Waypoints:
+		assertEquals(t, len(gpxDoc.Waypoints), 2)
+		assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
+		assertEquals(t, gpxDoc.Waypoints[0].Longitue, 45.6)
+		assertEquals(t, gpxDoc.Waypoints[0].Elevation, 75.1)
+		assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
+		assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
+		assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
+		assertEquals(t, gpxDoc.Waypoints[0].Name, "example name")
+		assertEquals(t, gpxDoc.Waypoints[0].Comment, "example cmt")
+		assertEquals(t, gpxDoc.Waypoints[0].Description, "example desc")
+		assertEquals(t, gpxDoc.Waypoints[0].Source, "example src")
+		// TODO
+		// Links       []GpxLink
+		assertEquals(t, gpxDoc.Waypoints[0].Symbol, "example sym")
+		assertEquals(t, gpxDoc.Waypoints[0].Type, "example type")
+		assertEquals(t, gpxDoc.Waypoints[0].TypeOfGpsFix, "2d")
+		assertEquals(t, gpxDoc.Waypoints[0].Satellites, 5)
+		assertEquals(t, gpxDoc.Waypoints[0].HorizontalDilution, 6.0)
+		assertEquals(t, gpxDoc.Waypoints[0].VerticalDiluation, 7.0)
+		assertEquals(t, gpxDoc.Waypoints[0].PositionalDilution, 8.0)
+		assertEquals(t, gpxDoc.Waypoints[0].AgeOfDGpsData, 9.0)
+		assertEquals(t, gpxDoc.Waypoints[0].DGpsId, 45)
+		// TODO: Extensions
+
+		assertEquals(t, gpxDoc.Waypoints[1].Latitude, 13.4)
+		assertEquals(t, gpxDoc.Waypoints[1].Longitue, 46.7)
 	}
 }

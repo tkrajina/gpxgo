@@ -3,6 +3,7 @@ package gpx
 import (
 	"gpx11"
 	"strings"
+	//    "fmt"
 )
 
 func convertToGpx11Models(g *GPX) *gpx11.Gpx {
@@ -53,6 +54,37 @@ func convertToGpx11Models(g *GPX) *gpx11.Gpx {
 
 	gpx11Doc.Keywords = g.Keywords
 
+	if g.Waypoints != nil {
+		waypoints := make([]*gpx11.GpxWpt, len(g.Waypoints))
+		for waypointNo, waypoint := range g.Waypoints {
+			w := new(gpx11.GpxWpt)
+			w.Lat = waypoint.Latitude
+			w.Lon = waypoint.Longitue
+			w.Ele = waypoint.Elevation
+			w.Timestamp = formatGPXTime(waypoint.Timestamp)
+			w.MagVar = waypoint.MagneticVariation
+			w.GeoIdHeight = waypoint.GeoidHeight
+			w.Name = waypoint.Name
+			w.Cmt = waypoint.Comment
+			w.Desc = waypoint.Description
+			w.Src = waypoint.Source
+			// TODO
+			//w.Links = waypoint.Links
+			w.Sym = waypoint.Symbol
+			w.Type = waypoint.Type
+			w.Fix = waypoint.TypeOfGpsFix
+			w.Sat = waypoint.Satellites
+			w.Hdop = waypoint.HorizontalDilution
+			w.Vdop = waypoint.VerticalDiluation
+			w.Pdop = waypoint.PositionalDilution
+			w.AgeOfDGpsData = waypoint.AgeOfDGpsData
+			w.DGpsId = waypoint.DGpsId
+
+			waypoints[waypointNo] = w
+		}
+		gpx11Doc.Waypoints = waypoints
+	}
+
 	return gpx11Doc
 }
 
@@ -95,6 +127,38 @@ func convertFromGpx11Models(g *gpx11.Gpx) *GPX {
 	}
 
 	result.Keywords = g.Keywords
+
+	if g.Waypoints != nil {
+		waypoints := make([]*GPXWaypoint, len(g.Waypoints))
+		for waypointNo, waypoint := range g.Waypoints {
+			w := new(GPXWaypoint)
+			w.Latitude = waypoint.Lat
+			w.Longitue = waypoint.Lon
+			w.Elevation = waypoint.Ele
+			w.Timestamp, _ = parseGPXTime(waypoint.Timestamp)
+			w.MagneticVariation = waypoint.MagVar
+			w.GeoidHeight = waypoint.GeoIdHeight
+			w.Name = waypoint.Name
+			w.Comment = waypoint.Cmt
+			w.Description = waypoint.Desc
+			w.Source = waypoint.Src
+			// TODO
+			//w.Links = waypoint.Links
+			w.Symbol = waypoint.Sym
+			w.Type = waypoint.Type
+			w.TypeOfGpsFix = waypoint.Fix
+			w.Satellites = waypoint.Sat
+			w.HorizontalDilution = waypoint.Hdop
+			w.VerticalDiluation = waypoint.Vdop
+			w.PositionalDilution = waypoint.Pdop
+			w.AgeOfDGpsData = waypoint.AgeOfDGpsData
+			w.DGpsId = waypoint.DGpsId
+
+			waypoints[waypointNo] = w
+		}
+
+		result.Waypoints = waypoints
+	}
 
 	return result
 }

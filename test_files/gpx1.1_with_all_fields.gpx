@@ -41,8 +41,6 @@
             <text>link text3</text>
             <type>link type3</type>
         </link>
-        <url>example url</url>
-        <urlname>example urlname</urlname>
         <sym>example sym</sym>
         <type>example type</type>
         <fix>2d</fix>

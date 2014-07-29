@@ -22,8 +22,7 @@ type Gpx struct {
 	Keywords   string         `xml:"metadata>keywords,omitempty"`
 	Bounds     *GpxBounds     `xml:"bounds"`
 	Extensions *GpxExtensions `xml:"extensions"`
-	//Metadata     *GpxMetadata `xml:"metadata,omitempty"`
-	//	Waypoints    []GpxWpt     `xml:"wpt"`
+	Waypoints  []*GpxWpt      `xml:"wpt"`
 	//	Routes       []GpxRte     `xml:"rte"`
 	//	Tracks       []GpxTrk     `xml:"trk"`
 }
@@ -74,6 +73,32 @@ type GpxMetadata struct {
 
 type GpxExtensions struct {
 	Bytes []byte `xml:",innerxml"`
+}
+
+type GpxWpt struct {
+	Lat float64 `xml:"lat,attr"`
+	Lon float64 `xml:"lon,attr"`
+	// Position info
+	Ele         float64 `xml:"ele,omitempty"`
+	Timestamp   string  `xml:"time,omitempty"`
+	MagVar      string  `xml:"magvar,omitempty"`
+	GeoIdHeight string  `xml:"geoidheight,omitempty"`
+	// Description info
+	Name  string    `xml:"name,omitempty"`
+	Cmt   string    `xml:"cmt,omitempty"`
+	Desc  string    `xml:"desc,omitempty"`
+	Src   string    `xml:"src,omitempty"`
+	Links []GpxLink `xml:"link"`
+	Sym   string    `xml:"sym,omitempty"`
+	Type  string    `xml:"type,omitempty"`
+	// Accuracy info
+	Fix           string  `xml:"fix,omitempty"`
+	Sat           int     `xml:"sat,omitempty"`
+	Hdop          float64 `xml:"hdop,omitempty"`
+	Vdop          float64 `xml:"vdop,omitempty"`
+	Pdop          float64 `xml:"pdop,omitempty"`
+	AgeOfDGpsData float64 `xml:"ageofdgpsdata,omitempty"`
+	DGpsId        int     `xml:"dgpsid,omitempty"`
 }
 
 func NewGpx() *Gpx {
