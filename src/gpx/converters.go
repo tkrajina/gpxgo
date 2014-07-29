@@ -55,34 +55,36 @@ func convertToGpx11Models(g *GPX) *gpx11.Gpx {
 	gpx11Doc.Keywords = g.Keywords
 
 	if g.Waypoints != nil {
-		waypoints := make([]*gpx11.GpxWpt, len(g.Waypoints))
+		gpx11Doc.Waypoints = make([]*gpx11.GpxPoint, len(g.Waypoints))
 		for waypointNo, waypoint := range g.Waypoints {
-			w := new(gpx11.GpxWpt)
-			w.Lat = waypoint.Latitude
-			w.Lon = waypoint.Longitue
-			w.Ele = waypoint.Elevation
-			w.Timestamp = formatGPXTime(waypoint.Timestamp)
-			w.MagVar = waypoint.MagneticVariation
-			w.GeoIdHeight = waypoint.GeoidHeight
-			w.Name = waypoint.Name
-			w.Cmt = waypoint.Comment
-			w.Desc = waypoint.Description
-			w.Src = waypoint.Source
-			// TODO
-			//w.Links = waypoint.Links
-			w.Sym = waypoint.Symbol
-			w.Type = waypoint.Type
-			w.Fix = waypoint.TypeOfGpsFix
-			w.Sat = waypoint.Satellites
-			w.Hdop = waypoint.HorizontalDilution
-			w.Vdop = waypoint.VerticalDiluation
-			w.Pdop = waypoint.PositionalDilution
-			w.AgeOfDGpsData = waypoint.AgeOfDGpsData
-			w.DGpsId = waypoint.DGpsId
-
-			waypoints[waypointNo] = w
+			gpx11Doc.Waypoints[waypointNo] = convertPointToGpx11(waypoint)
 		}
-		gpx11Doc.Waypoints = waypoints
+	}
+
+	if g.Routes != nil {
+		gpx11Doc.Routes = make([]*gpx11.GpxRte, len(g.Routes))
+		for routeNo, route := range g.Routes {
+			r := new(gpx11.GpxRte)
+			r.Name = route.Name
+			r.Cmt = route.Comment
+			r.Desc = route.Description
+			r.Src = route.Source
+			// TODO
+			//r.Links = route.Links
+			r.Number = route.Number
+			r.Type = route.Type
+			// TODO
+			//r.RoutePoints = route.RoutePoints
+
+			gpx11Doc.Routes[routeNo] = r
+
+			if route.Points != nil {
+				r.Points = make([]*gpx11.GpxPoint, len(route.Points))
+				for pointNo, point := range route.Points {
+					r.Points[pointNo] = convertPointToGpx11(point)
+				}
+			}
+		}
 	}
 
 	return gpx11Doc
@@ -129,36 +131,91 @@ func convertFromGpx11Models(g *gpx11.Gpx) *GPX {
 	result.Keywords = g.Keywords
 
 	if g.Waypoints != nil {
-		waypoints := make([]*GPXWaypoint, len(g.Waypoints))
+		waypoints := make([]*GPXPoint, len(g.Waypoints))
 		for waypointNo, waypoint := range g.Waypoints {
-			w := new(GPXWaypoint)
-			w.Latitude = waypoint.Lat
-			w.Longitue = waypoint.Lon
-			w.Elevation = waypoint.Ele
-			w.Timestamp, _ = parseGPXTime(waypoint.Timestamp)
-			w.MagneticVariation = waypoint.MagVar
-			w.GeoidHeight = waypoint.GeoIdHeight
-			w.Name = waypoint.Name
-			w.Comment = waypoint.Cmt
-			w.Description = waypoint.Desc
-			w.Source = waypoint.Src
-			// TODO
-			//w.Links = waypoint.Links
-			w.Symbol = waypoint.Sym
-			w.Type = waypoint.Type
-			w.TypeOfGpsFix = waypoint.Fix
-			w.Satellites = waypoint.Sat
-			w.HorizontalDilution = waypoint.Hdop
-			w.VerticalDiluation = waypoint.Vdop
-			w.PositionalDilution = waypoint.Pdop
-			w.AgeOfDGpsData = waypoint.AgeOfDGpsData
-			w.DGpsId = waypoint.DGpsId
-
-			waypoints[waypointNo] = w
+			waypoints[waypointNo] = convertPointFromGpx11(waypoint)
 		}
-
 		result.Waypoints = waypoints
 	}
 
+	if g.Routes != nil {
+		result.Routes = make([]*GPXRoute, len(g.Routes))
+		for routeNo, route := range g.Routes {
+			r := new(GPXRoute)
+
+			r.Name = route.Name
+			r.Comment = route.Cmt
+			r.Description = route.Desc
+			r.Source = route.Src
+			// TODO
+			//r.Links = route.Links
+			r.Number = route.Number
+			r.Type = route.Type
+			// TODO
+			//r.RoutePoints = route.RoutePoints
+
+			if route.Points != nil {
+				r.Points = make([]*GPXPoint, len(route.Points))
+				for pointNo, point := range route.Points {
+					r.Points[pointNo] = convertPointFromGpx11(point)
+				}
+			}
+
+			result.Routes[routeNo] = r
+		}
+	}
+
+	return result
+}
+
+func convertPointToGpx11(original *GPXPoint) *gpx11.GpxPoint {
+	result := new(gpx11.GpxPoint)
+	result.Lat = original.Latitude
+	result.Lon = original.Longitue
+	result.Ele = original.Elevation
+	result.Timestamp = formatGPXTime(original.Timestamp)
+	result.MagVar = original.MagneticVariation
+	result.GeoIdHeight = original.GeoidHeight
+	result.Name = original.Name
+	result.Cmt = original.Comment
+	result.Desc = original.Description
+	result.Src = original.Source
+	// TODO
+	//w.Links = original.Links
+	result.Sym = original.Symbol
+	result.Type = original.Type
+	result.Fix = original.TypeOfGpsFix
+	result.Sat = original.Satellites
+	result.Hdop = original.HorizontalDilution
+	result.Vdop = original.VerticalDilution
+	result.Pdop = original.PositionalDilution
+	result.AgeOfDGpsData = original.AgeOfDGpsData
+	result.DGpsId = original.DGpsId
+	return result
+}
+
+func convertPointFromGpx11(original *gpx11.GpxPoint) *GPXPoint {
+	result := new(GPXPoint)
+	result.Latitude = original.Lat
+	result.Longitue = original.Lon
+	result.Elevation = original.Ele
+	result.Timestamp, _ = parseGPXTime(original.Timestamp)
+	result.MagneticVariation = original.MagVar
+	result.GeoidHeight = original.GeoIdHeight
+	result.Name = original.Name
+	result.Comment = original.Cmt
+	result.Description = original.Desc
+	result.Source = original.Src
+	// TODO
+	//w.Links = original.Links
+	result.Symbol = original.Sym
+	result.Type = original.Type
+	result.TypeOfGpsFix = original.Fix
+	result.Satellites = original.Sat
+	result.HorizontalDilution = original.Hdop
+	result.VerticalDilution = original.Vdop
+	result.PositionalDilution = original.Pdop
+	result.AgeOfDGpsData = original.AgeOfDGpsData
+	result.DGpsId = original.DGpsId
 	return result
 }

@@ -98,7 +98,7 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		assertEquals(t, gpxDoc.Link, "http://link2")
 		assertEquals(t, gpxDoc.LinkText, "link text2")
 		assertEquals(t, gpxDoc.LinkType, "link type2")
-		assertEquals(t, gpxDoc.Time.Format("2013-01-01 12:00:00 +0000 UTC"), time.Date(2013, time.January, 01, 12, 0, 0, 0, time.UTC).Format("2013-01-01 12:00:00 +0000 UTC"))
+		assertEquals(t, gpxDoc.Time.Format(TIME_FORMAT), time.Date(2013, time.January, 01, 12, 0, 0, 0, time.UTC).Format(TIME_FORMAT))
 		assertEquals(t, gpxDoc.Keywords, "example keywords")
 
 		// Waypoints:
@@ -120,7 +120,7 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		assertEquals(t, gpxDoc.Waypoints[0].TypeOfGpsFix, "2d")
 		assertEquals(t, gpxDoc.Waypoints[0].Satellites, 5)
 		assertEquals(t, gpxDoc.Waypoints[0].HorizontalDilution, 6.0)
-		assertEquals(t, gpxDoc.Waypoints[0].VerticalDiluation, 7.0)
+		assertEquals(t, gpxDoc.Waypoints[0].VerticalDilution, 7.0)
 		assertEquals(t, gpxDoc.Waypoints[0].PositionalDilution, 8.0)
 		assertEquals(t, gpxDoc.Waypoints[0].AgeOfDGpsData, 9.0)
 		assertEquals(t, gpxDoc.Waypoints[0].DGpsId, 45)
@@ -128,5 +128,21 @@ func TestParseAndReparseGPX11(t *testing.T) {
 
 		assertEquals(t, gpxDoc.Waypoints[1].Latitude, 13.4)
 		assertEquals(t, gpxDoc.Waypoints[1].Longitue, 46.7)
+
+		// Routes:
+		assertEquals(t, len(gpxDoc.Routes), 2)
+		assertEquals(t, gpxDoc.Routes[0].Name, "example name")
+		assertEquals(t, gpxDoc.Routes[0].Comment, "example cmt")
+		assertEquals(t, gpxDoc.Routes[0].Description, "example desc")
+		assertEquals(t, gpxDoc.Routes[0].Source, "example src")
+		assertEquals(t, gpxDoc.Routes[0].Number, 7)
+		assertEquals(t, gpxDoc.Routes[0].Type, "rte type")
+		assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
+		// TODO: Link
+		// TODO: Points
+
+		assertEquals(t, gpxDoc.Routes[1].Name, "second route")
+		assertEquals(t, gpxDoc.Routes[1].Description, "example desc 2")
+		assertEquals(t, len(gpxDoc.Routes[1].Points), 2)
 	}
 }

@@ -22,8 +22,8 @@ type Gpx struct {
 	Keywords   string         `xml:"metadata>keywords,omitempty"`
 	Bounds     *GpxBounds     `xml:"bounds"`
 	Extensions *GpxExtensions `xml:"extensions"`
-	Waypoints  []*GpxWpt      `xml:"wpt"`
-	//	Routes       []GpxRte     `xml:"rte"`
+	Waypoints  []*GpxPoint    `xml:"wpt"`
+	Routes     []*GpxRte      `xml:"rte"`
 	//	Tracks       []GpxTrk     `xml:"trk"`
 }
 
@@ -75,7 +75,10 @@ type GpxExtensions struct {
 	Bytes []byte `xml:",innerxml"`
 }
 
-type GpxWpt struct {
+/**
+ * Common struct fields for all points
+ */
+type GpxPoint struct {
 	Lat float64 `xml:"lat,attr"`
 	Lon float64 `xml:"lon,attr"`
 	// Position info
@@ -99,6 +102,38 @@ type GpxWpt struct {
 	Pdop          float64 `xml:"pdop,omitempty"`
 	AgeOfDGpsData float64 `xml:"ageofdgpsdata,omitempty"`
 	DGpsId        int     `xml:"dgpsid,omitempty"`
+}
+
+type GpxRte struct {
+	XMLName xml.Name `xml:"rte"`
+	Name    string   `xml:"name,omitempty"`
+	Cmt     string   `xml:"cmt,omitempty"`
+	Desc    string   `xml:"desc,omitempty"`
+	Src     string   `xml:"src,omitempty"`
+	// TODO
+	//Links       []Link   `xml:"link"`
+	Number int         `xml:"number,omitempty"`
+	Type   string      `xml:"type,omitempty"`
+	Points []*GpxPoint `xml:"rtept"`
+}
+
+type GpxTrkSeg struct {
+	XMLName xml.Name   `xml:"trkseg"`
+	Points  []GpxPoint `xml:"trkpt"`
+}
+
+// Trk is a GPX track
+type GpxTrk struct {
+	XMLName xml.Name `xml:"trk"`
+	Name    string   `xml:"name,omitempty"`
+	Cmt     string   `xml:"cmt,omitempty"`
+	Desc    string   `xml:"desc,omitempty"`
+	Src     string   `xml:"src,omitempty"`
+	// TODO
+	//Links    []Link   `xml:"link"`
+	Number   int          `xml:"number,omitempty"`
+	Type     string       `xml:"type,omitempty"`
+	Segments []*GpxTrkSeg `xml:"trkseg"`
 }
 
 func NewGpx() *Gpx {

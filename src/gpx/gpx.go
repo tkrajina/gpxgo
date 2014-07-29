@@ -40,10 +40,11 @@ type GPX struct {
 
 	// TODO
 	Extensions *[]byte
-	Waypoints  []*GPXWaypoint
+	Waypoints  []*GPXPoint
+	Routes     []*GPXRoute
 }
 
-type GPXWaypoint struct {
+type GPXPoint struct {
 	Latitude float64
 	Longitue float64
 	// Position info
@@ -65,10 +66,39 @@ type GPXWaypoint struct {
 	TypeOfGpsFix       string
 	Satellites         int
 	HorizontalDilution float64
-	VerticalDiluation  float64
+	VerticalDilution   float64
 	PositionalDilution float64
 	AgeOfDGpsData      float64
 	DGpsId             int
+}
+
+type GPXRoute struct {
+	Name        string
+	Comment     string
+	Description string
+	Source      string
+	// TODO
+	//Links       []Link
+	Number int
+	Type   string
+	// TODO
+	Points []*GPXPoint
+}
+
+type GPXTrackSegment struct {
+	Points []GPXPoint
+}
+
+type GpxTrk struct {
+	Name        string
+	Comment     string
+	Description string
+	Source      string
+	// TODO
+	//Links    []Link
+	Number   int
+	Type     string
+	Segments []*GPXTrackSegment
 }
 
 func (g *GPX) ToXml(version string) ([]byte, error) {
