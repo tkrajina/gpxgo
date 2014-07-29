@@ -118,8 +118,8 @@ type GpxRte struct {
 }
 
 type GpxTrkSeg struct {
-	XMLName xml.Name   `xml:"trkseg"`
-	Points  []GpxPoint `xml:"trkpt"`
+	XMLName xml.Name    `xml:"trkseg"`
+	Points  []*GpxPoint `xml:"trkpt"`
 }
 
 // Trk is a GPX track
@@ -131,9 +131,9 @@ type GpxTrk struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links    []Link   `xml:"link"`
-	Number int          `xml:"number,omitempty"`
-	Type   string       `xml:"type,omitempty"`
-	Tracks []*GpxTrkSeg `xml:"trk,omitempty"`
+	Number   int          `xml:"number,omitempty"`
+	Type     string       `xml:"type,omitempty"`
+	Segments []*GpxTrkSeg `xml:"trk,omitempty"`
 }
 
 func NewGpx() *Gpx {

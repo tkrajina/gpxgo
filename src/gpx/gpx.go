@@ -89,7 +89,8 @@ type GPXRoute struct {
 }
 
 type GPXTrackSegment struct {
-	Points []GPXPoint
+	Points []*GPXPoint
+	// TODO extensions
 }
 
 type GPXTrack struct {

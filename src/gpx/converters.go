@@ -91,7 +91,26 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11.Gpx {
 		gpx11Doc.Tracks = make([]*gpx11.GpxTrk, len(gpxDoc.Tracks))
 		for trackNo, track := range gpxDoc.Tracks {
 			gpx11Track := new(gpx11.GpxTrk)
-			_ = track
+			gpx11Track.Name = track.Name
+			gpx11Track.Cmt = track.Comment
+			gpx11Track.Desc = track.Description
+			gpx11Track.Src = track.Source
+			gpx11Track.Number = track.Number
+			gpx11Track.Type = track.Type
+
+			if track.Segments != nil {
+				gpx11Track.Segments = make([]*gpx11.GpxTrkSeg, len(track.Segments))
+				for segmentNo, segment := range track.Segments {
+					gpx11Segment := new(gpx11.GpxTrkSeg)
+					if segment.Points != nil {
+						gpx11Segment.Points = make([]*gpx11.GpxPoint, len(segment.Points))
+						for pointNo, point := range segment.Points {
+							gpx11Segment.Points[pointNo] = convertPointToGpx11(point)
+						}
+					}
+					gpx11Track.Segments[segmentNo] = gpx11Segment
+				}
+			}
 			gpx11Doc.Tracks[trackNo] = gpx11Track
 		}
 	}
@@ -171,6 +190,34 @@ func convertFromGpx11Models(gpx11Doc *gpx11.Gpx) *GPX {
 			}
 
 			gpxDoc.Routes[routeNo] = r
+		}
+	}
+
+	if gpx11Doc.Tracks != nil {
+		gpxDoc.Tracks = make([]*GPXTrack, len(gpx11Doc.Tracks))
+		for trackNo, track := range gpx11Doc.Tracks {
+			gpxTrack := new(GPXTrack)
+			gpxTrack.Name = track.Name
+			gpxTrack.Comment = track.Cmt
+			gpxTrack.Description = track.Desc
+			gpxTrack.Source = track.Src
+			gpxTrack.Number = track.Number
+			gpxTrack.Type = track.Type
+
+			if track.Segments != nil {
+				gpxTrack.Segments = make([]*GPXTrackSegment, len(track.Segments))
+				for segmentNo, segment := range track.Segments {
+					gpxSegment := new(GPXTrackSegment)
+					if segment.Points != nil {
+						gpxSegment.Points = make([]*GPXPoint, len(segment.Points))
+						for pointNo, point := range segment.Points {
+							gpxSegment.Points[pointNo] = convertPointFromGpx11(point)
+						}
+					}
+					gpxTrack.Segments[segmentNo] = gpxSegment
+				}
+			}
+			gpxDoc.Tracks[trackNo] = gpxTrack
 		}
 	}
 
