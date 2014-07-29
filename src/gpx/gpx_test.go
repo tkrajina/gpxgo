@@ -167,5 +167,19 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		assertEquals(t, gpxDoc.Routes[1].Name, "second route")
 		assertEquals(t, gpxDoc.Routes[1].Description, "example desc 2")
 		assertEquals(t, len(gpxDoc.Routes[1].Points), 2)
+
+		// Tracks:
+		assertEquals(t, len(gpxDoc.Tracks), 2)
+		assertEquals(t, gpxDoc.Tracks[0].Name, "example name t")
+		assertEquals(t, gpxDoc.Tracks[0].Comment, "example cmt t")
+		assertEquals(t, gpxDoc.Tracks[0].Description, "example desc t")
+		assertEquals(t, gpxDoc.Tracks[0].Source, "example src t")
+		assertEquals(t, gpxDoc.Tracks[0].Number, 1)
+		assertEquals(t, gpxDoc.Tracks[0].Type, "t")
+		// TODO link
+
+		// TODO: segment points
+
+		assertEquals(t, len(gpxDoc.Tracks[0].Segments), 2)
 	}
 }

@@ -133,7 +133,7 @@ type GpxTrk struct {
 	//Links    []Link   `xml:"link"`
 	Number   int          `xml:"number,omitempty"`
 	Type     string       `xml:"type,omitempty"`
-	Segments []*GpxTrkSeg `xml:"trk,omitempty"`
+	Segments []*GpxTrkSeg `xml:"trkseg,omitempty"`
 }
 
 func NewGpx() *Gpx {
