@@ -6,17 +6,17 @@ import (
 	//    "fmt"
 )
 
-func convertToGpx11Models(g *GPX) *gpx11.Gpx {
+func convertToGpx11Models(gpxDoc *GPX) *gpx11.Gpx {
 	gpx11Doc := gpx11.NewGpx()
 
-	gpx11Doc.Creator = g.Creator
-	gpx11Doc.Version = g.Version
-	gpx11Doc.Name = g.Name
-	gpx11Doc.Desc = g.Description
-	gpx11Doc.AuthorName = g.AuthorName
+	gpx11Doc.Creator = gpxDoc.Creator
+	gpx11Doc.Version = gpxDoc.Version
+	gpx11Doc.Name = gpxDoc.Name
+	gpx11Doc.Desc = gpxDoc.Description
+	gpx11Doc.AuthorName = gpxDoc.AuthorName
 
-	if len(g.AuthorEmail) > 0 {
-		parts := strings.Split(g.AuthorEmail, "@")
+	if len(gpxDoc.AuthorEmail) > 0 {
+		parts := strings.Split(gpxDoc.AuthorEmail, "@")
 		if len(parts) == 1 {
 			gpx11Doc.AuthorEmail = new(gpx11.GpxEmail)
 			gpx11Doc.AuthorEmail.Id = parts[0]
@@ -27,43 +27,43 @@ func convertToGpx11Models(g *GPX) *gpx11.Gpx {
 		}
 	}
 
-	if len(g.AuthorLink) > 0 || len(g.AuthorLinkText) > 0 || len(g.AuthorLinkType) > 0 {
+	if len(gpxDoc.AuthorLink) > 0 || len(gpxDoc.AuthorLinkText) > 0 || len(gpxDoc.AuthorLinkType) > 0 {
 		gpx11Doc.AuthorLink = new(gpx11.GpxLink)
-		gpx11Doc.AuthorLink.Href = g.AuthorLink
-		gpx11Doc.AuthorLink.Text = g.AuthorLinkText
-		gpx11Doc.AuthorLink.Type = g.AuthorLinkType
+		gpx11Doc.AuthorLink.Href = gpxDoc.AuthorLink
+		gpx11Doc.AuthorLink.Text = gpxDoc.AuthorLinkText
+		gpx11Doc.AuthorLink.Type = gpxDoc.AuthorLinkType
 	}
 
-	if len(g.Copyright) > 0 || len(g.CopyrightYear) > 0 || len(g.CopyrightLicense) > 0 {
+	if len(gpxDoc.Copyright) > 0 || len(gpxDoc.CopyrightYear) > 0 || len(gpxDoc.CopyrightLicense) > 0 {
 		gpx11Doc.Copyright = new(gpx11.GpxCopyright)
-		gpx11Doc.Copyright.Author = g.Copyright
-		gpx11Doc.Copyright.Year = g.CopyrightYear
-		gpx11Doc.Copyright.License = g.CopyrightLicense
+		gpx11Doc.Copyright.Author = gpxDoc.Copyright
+		gpx11Doc.Copyright.Year = gpxDoc.CopyrightYear
+		gpx11Doc.Copyright.License = gpxDoc.CopyrightLicense
 	}
 
-	if len(g.Link) > 0 || len(g.LinkText) > 0 || len(g.LinkType) > 0 {
+	if len(gpxDoc.Link) > 0 || len(gpxDoc.LinkText) > 0 || len(gpxDoc.LinkType) > 0 {
 		gpx11Doc.Link = new(gpx11.GpxLink)
-		gpx11Doc.Link.Href = g.Link
-		gpx11Doc.Link.Text = g.LinkText
-		gpx11Doc.Link.Type = g.LinkType
+		gpx11Doc.Link.Href = gpxDoc.Link
+		gpx11Doc.Link.Text = gpxDoc.LinkText
+		gpx11Doc.Link.Type = gpxDoc.LinkType
 	}
 
-	if g.Time != nil {
-		gpx11Doc.Timestamp = formatGPXTime(g.Time)
+	if gpxDoc.Time != nil {
+		gpx11Doc.Timestamp = formatGPXTime(gpxDoc.Time)
 	}
 
-	gpx11Doc.Keywords = g.Keywords
+	gpx11Doc.Keywords = gpxDoc.Keywords
 
-	if g.Waypoints != nil {
-		gpx11Doc.Waypoints = make([]*gpx11.GpxPoint, len(g.Waypoints))
-		for waypointNo, waypoint := range g.Waypoints {
+	if gpxDoc.Waypoints != nil {
+		gpx11Doc.Waypoints = make([]*gpx11.GpxPoint, len(gpxDoc.Waypoints))
+		for waypointNo, waypoint := range gpxDoc.Waypoints {
 			gpx11Doc.Waypoints[waypointNo] = convertPointToGpx11(waypoint)
 		}
 	}
 
-	if g.Routes != nil {
-		gpx11Doc.Routes = make([]*gpx11.GpxRte, len(g.Routes))
-		for routeNo, route := range g.Routes {
+	if gpxDoc.Routes != nil {
+		gpx11Doc.Routes = make([]*gpx11.GpxRte, len(gpxDoc.Routes))
+		for routeNo, route := range gpxDoc.Routes {
 			r := new(gpx11.GpxRte)
 			r.Name = route.Name
 			r.Cmt = route.Comment
@@ -90,57 +90,57 @@ func convertToGpx11Models(g *GPX) *gpx11.Gpx {
 	return gpx11Doc
 }
 
-func convertFromGpx11Models(g *gpx11.Gpx) *GPX {
-	result := new(GPX)
+func convertFromGpx11Models(gpx11Doc *gpx11.Gpx) *GPX {
+	gpxDoc := new(GPX)
 
-	result.Creator = g.Creator
-	result.Version = g.Version
-	result.Name = g.Name
-	result.Description = g.Desc
-	result.AuthorName = g.AuthorName
+	gpxDoc.Creator = gpx11Doc.Creator
+	gpxDoc.Version = gpx11Doc.Version
+	gpxDoc.Name = gpx11Doc.Name
+	gpxDoc.Description = gpx11Doc.Desc
+	gpxDoc.AuthorName = gpx11Doc.AuthorName
 
-	if g.AuthorEmail != nil {
-		result.AuthorEmail = g.AuthorEmail.Id + "@" + g.AuthorEmail.Domain
+	if gpx11Doc.AuthorEmail != nil {
+		gpxDoc.AuthorEmail = gpx11Doc.AuthorEmail.Id + "@" + gpx11Doc.AuthorEmail.Domain
 	}
-	if g.AuthorLink != nil {
-		result.AuthorLink = g.AuthorLink.Href
-		result.AuthorLinkText = g.AuthorLink.Text
-		result.AuthorLinkType = g.AuthorLink.Type
-	}
-
-	if g.Extensions != nil {
-		result.Extensions = &g.Extensions.Bytes
+	if gpx11Doc.AuthorLink != nil {
+		gpxDoc.AuthorLink = gpx11Doc.AuthorLink.Href
+		gpxDoc.AuthorLinkText = gpx11Doc.AuthorLink.Text
+		gpxDoc.AuthorLinkType = gpx11Doc.AuthorLink.Type
 	}
 
-	if len(g.Timestamp) > 0 {
-		result.Time, _ = parseGPXTime(g.Timestamp)
+	if gpx11Doc.Extensions != nil {
+		gpxDoc.Extensions = &gpx11Doc.Extensions.Bytes
 	}
 
-	if g.Copyright != nil {
-		result.Copyright = g.Copyright.Author
-		result.CopyrightYear = g.Copyright.Year
-		result.CopyrightLicense = g.Copyright.License
+	if len(gpx11Doc.Timestamp) > 0 {
+		gpxDoc.Time, _ = parseGPXTime(gpx11Doc.Timestamp)
 	}
 
-	if g.Link != nil {
-		result.Link = g.Link.Href
-		result.LinkText = g.Link.Text
-		result.LinkType = g.Link.Type
+	if gpx11Doc.Copyright != nil {
+		gpxDoc.Copyright = gpx11Doc.Copyright.Author
+		gpxDoc.CopyrightYear = gpx11Doc.Copyright.Year
+		gpxDoc.CopyrightLicense = gpx11Doc.Copyright.License
 	}
 
-	result.Keywords = g.Keywords
+	if gpx11Doc.Link != nil {
+		gpxDoc.Link = gpx11Doc.Link.Href
+		gpxDoc.LinkText = gpx11Doc.Link.Text
+		gpxDoc.LinkType = gpx11Doc.Link.Type
+	}
 
-	if g.Waypoints != nil {
-		waypoints := make([]*GPXPoint, len(g.Waypoints))
-		for waypointNo, waypoint := range g.Waypoints {
+	gpxDoc.Keywords = gpx11Doc.Keywords
+
+	if gpx11Doc.Waypoints != nil {
+		waypoints := make([]*GPXPoint, len(gpx11Doc.Waypoints))
+		for waypointNo, waypoint := range gpx11Doc.Waypoints {
 			waypoints[waypointNo] = convertPointFromGpx11(waypoint)
 		}
-		result.Waypoints = waypoints
+		gpxDoc.Waypoints = waypoints
 	}
 
-	if g.Routes != nil {
-		result.Routes = make([]*GPXRoute, len(g.Routes))
-		for routeNo, route := range g.Routes {
+	if gpx11Doc.Routes != nil {
+		gpxDoc.Routes = make([]*GPXRoute, len(gpx11Doc.Routes))
+		for routeNo, route := range gpx11Doc.Routes {
 			r := new(GPXRoute)
 
 			r.Name = route.Name
@@ -161,11 +161,11 @@ func convertFromGpx11Models(g *gpx11.Gpx) *GPX {
 				}
 			}
 
-			result.Routes[routeNo] = r
+			gpxDoc.Routes[routeNo] = r
 		}
 	}
 
-	return result
+	return gpxDoc
 }
 
 func convertPointToGpx11(original *GPXPoint) *gpx11.GpxPoint {
