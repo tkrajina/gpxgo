@@ -42,6 +42,7 @@ type GPX struct {
 	Extensions *[]byte
 	Waypoints  []*GPXPoint
 	Routes     []*GPXRoute
+	Tracks     []*GPXTrack
 }
 
 type GPXPoint struct {
@@ -91,7 +92,7 @@ type GPXTrackSegment struct {
 	Points []GPXPoint
 }
 
-type GpxTrk struct {
+type GPXTrack struct {
 	Name        string
 	Comment     string
 	Description string

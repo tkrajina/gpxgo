@@ -24,7 +24,7 @@ type Gpx struct {
 	Extensions *GpxExtensions `xml:"extensions"`
 	Waypoints  []*GpxPoint    `xml:"wpt"`
 	Routes     []*GpxRte      `xml:"rte"`
-	//	Tracks       []GpxTrk     `xml:"trk"`
+	Tracks     []*GpxTrk      `xml:"trk"`
 }
 
 type GpxBounds struct {
@@ -131,9 +131,9 @@ type GpxTrk struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links    []Link   `xml:"link"`
-	Number   int          `xml:"number,omitempty"`
-	Type     string       `xml:"type,omitempty"`
-	Segments []*GpxTrkSeg `xml:"trkseg"`
+	Number int          `xml:"number,omitempty"`
+	Type   string       `xml:"type,omitempty"`
+	Tracks []*GpxTrkSeg `xml:"trk,omitempty"`
 }
 
 func NewGpx() *Gpx {

@@ -87,6 +87,15 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11.Gpx {
 		}
 	}
 
+	if gpxDoc.Tracks != nil {
+		gpx11Doc.Tracks = make([]*gpx11.GpxTrk, len(gpxDoc.Tracks))
+		for trackNo, track := range gpxDoc.Tracks {
+			gpx11Track := new(gpx11.GpxTrk)
+			_ = track
+			gpx11Doc.Tracks[trackNo] = gpx11Track
+		}
+	}
+
 	return gpx11Doc
 }
 
