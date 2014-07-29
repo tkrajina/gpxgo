@@ -50,9 +50,11 @@ type GPXPoint struct {
 	// Position info
 	Elevation float64
 	// TODO
-	Timestamp         *time.Time
+	Timestamp *time.Time
+	// TODO: Type
 	MagneticVariation string
-	GeoidHeight       string
+	// TODO: Type
+	GeoidHeight string
 	// Description info
 	Name        string
 	Comment     string

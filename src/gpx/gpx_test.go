@@ -140,6 +140,29 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
 		// TODO: Link
 		// TODO: Points
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation, 75.1)
+		fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:03Z")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].GeoidHeight, "2.1")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Name, "example name r")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Comment, "example cmt r")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Description, "example desc r")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Source, "example src r")
+		// TODO
+		//assertEquals(t, gpxDoc.Routes[0].Points[0].Link, "http://linkrtept")
+		//assertEquals(t, gpxDoc.Routes[0].Points[0].Text, "rtept link")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Type, "example type r")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Symbol, "example sym r")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Type, "example type r")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].TypeOfGpsFix, "3d")
+		assertEquals(t, gpxDoc.Routes[0].Points[0].Satellites, 6)
+		assertEquals(t, gpxDoc.Routes[0].Points[0].HorizontalDilution, 7.0)
+		assertEquals(t, gpxDoc.Routes[0].Points[0].VerticalDilution, 8.0)
+		assertEquals(t, gpxDoc.Routes[0].Points[0].PositionalDilution, 9.0)
+		assertEquals(t, gpxDoc.Routes[0].Points[0].AgeOfDGpsData, 10.0)
+		assertEquals(t, gpxDoc.Routes[0].Points[0].DGpsId, 99)
+		// TODO: Extensions
 
 		assertEquals(t, gpxDoc.Routes[1].Name, "second route")
 		assertEquals(t, gpxDoc.Routes[1].Description, "example desc 2")
