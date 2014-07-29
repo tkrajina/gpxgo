@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 	//	"fmt"
-	"gpx11"
+	"gpx/gpx11"
 	"io/ioutil"
 	"os"
 	"strings"

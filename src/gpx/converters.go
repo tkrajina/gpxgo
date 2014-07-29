@@ -1,7 +1,7 @@
 package gpx
 
 import (
-	"gpx11"
+	"gpx/gpx11"
 	"strings"
 	//    "fmt"
 )
