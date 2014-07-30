@@ -3,12 +3,12 @@ package gpx
 import (
 	"encoding/xml"
 	"errors"
-	//	"fmt"
 	"gpx/gpx11"
 	"io/ioutil"
 	"os"
 	"strings"
 	"time"
+	//"fmt"
 )
 
 // An array cannot be constant :( The first one if the default layout:
@@ -117,8 +117,39 @@ func (g *GPX) ToXml(version string) ([]byte, error) {
 	}
 }
 
-func guessGPXVersion(bytes []byte) string {
-	return "1.1"
+func guessGPXVersion(bytes []byte) (string, error) {
+	startOfDocument := string(bytes[:1000])
+
+	parts := strings.Split(startOfDocument, "<gpx")
+	if len(parts) <= 1 {
+		return "", errors.New("Invalid GPX file, cannot find version")
+	}
+	parts = strings.Split(parts[1], "version=")
+
+	if len(parts) <= 1 {
+		return "", errors.New("Invalid GPX file, cannot find version")
+	}
+
+    if len(parts[1]) < 10 {
+		return "", errors.New("Invalid GPX file, cannot find version")
+    }
+
+    result := parts[1][1:4]
+
+	return result, nil
+
+	/*
+	    parts = strings.Split(parts[1], parts[1][0])
+	    if len(parts) <= 1 {
+	        return "", errors.New("Invalid GPX file, cannot find version")
+	    }
+
+	    if parts[1] != "1.0" || parts[1] != "1.1" {
+	        return "", errors.New("Invalid GPX file, cannot find version")
+	    }
+
+		return parts[1]
+	*/
 }
 
 func parseGPXTime(timestr string) (*time.Time, error) {
@@ -162,7 +193,7 @@ func ParseFile(fileName string) (*GPX, error) {
 }
 
 func ParseString(bytes []byte) (*GPX, error) {
-	version := guessGPXVersion(bytes)
+	version, _ := guessGPXVersion(bytes)
 	if version == "1.0" {
 		return nil, errors.New("Invalid version:" + version)
 	} else if version == "1.1" {

@@ -2,6 +2,8 @@ package gpx
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
@@ -51,6 +53,27 @@ func TestParseGPXTimes(t *testing.T) {
 		assertEquals(t, parsedTime.Minute(), 7)
 		assertEquals(t, parsedTime.Second(), 8)
 	}
+}
+
+func testDetectVersion(t *testing.T, fileName, expectedVersion string) {
+	f, _ := os.Open(fileName)
+	contents, _ := ioutil.ReadAll(f)
+    version, err := guessGPXVersion(contents)
+    fmt.Println("Version=", version)
+    if err != nil {
+		t.Error("Can't detect 1.1 GPX, error=" + err.Error())
+    }
+	if version != expectedVersion {
+		t.Error("Can't detect 1.1 GPX")
+	}
+}
+
+func TestDetect11GPXVersion(t *testing.T) {
+    testDetectVersion(t, "../../test_files/gpx1.1_with_all_fields.gpx", "1.1")
+}
+
+func TestDetect10GPXVersion(t *testing.T) {
+    testDetectVersion(t, "../../test_files/gpx1.0_with_all_fields.gpx", "1.0")
 }
 
 func TestParseAndReparseGPX11(t *testing.T) {
