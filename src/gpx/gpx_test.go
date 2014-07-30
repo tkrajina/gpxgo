@@ -58,22 +58,22 @@ func TestParseGPXTimes(t *testing.T) {
 func testDetectVersion(t *testing.T, fileName, expectedVersion string) {
 	f, _ := os.Open(fileName)
 	contents, _ := ioutil.ReadAll(f)
-    version, err := guessGPXVersion(contents)
-    fmt.Println("Version=", version)
-    if err != nil {
+	version, err := guessGPXVersion(contents)
+	fmt.Println("Version=", version)
+	if err != nil {
 		t.Error("Can't detect 1.1 GPX, error=" + err.Error())
-    }
+	}
 	if version != expectedVersion {
 		t.Error("Can't detect 1.1 GPX")
 	}
 }
 
 func TestDetect11GPXVersion(t *testing.T) {
-    testDetectVersion(t, "../../test_files/gpx1.1_with_all_fields.gpx", "1.1")
+	testDetectVersion(t, "../../test_files/gpx1.1_with_all_fields.gpx", "1.1")
 }
 
 func TestDetect10GPXVersion(t *testing.T) {
-    testDetectVersion(t, "../../test_files/gpx1.0_with_all_fields.gpx", "1.0")
+	testDetectVersion(t, "../../test_files/gpx1.0_with_all_fields.gpx", "1.0")
 }
 
 func TestParseAndReparseGPX11(t *testing.T) {
@@ -205,4 +205,33 @@ func TestParseAndReparseGPX11(t *testing.T) {
 
 		assertEquals(t, len(gpxDoc.Tracks[0].Segments), 2)
 	}
+}
+
+func TestParseAndReparseGPX10(t *testing.T) {
+	gpxDocuments := []*GPX{}
+
+	{
+		gpxDoc, err := ParseFile("../../test_files/gpx1.0_with_all_fields.gpx")
+		if err != nil || gpxDoc == nil {
+			t.Error("Error parsing:" + err.Error())
+		}
+		gpxDocuments = append(gpxDocuments, gpxDoc)
+
+		// Test after reparsing
+		xml, err := gpxDoc.ToXml("1.0")
+		//fmt.Println(string(xml))
+		if err != nil {
+			t.Error("Error serializing to XML:" + err.Error())
+		}
+		gpxDoc2, err := ParseString(xml)
+		if err != nil {
+			t.Error("Error parsing XML:" + err.Error())
+		}
+		gpxDocuments = append(gpxDocuments, gpxDoc2)
+
+		// TODO: ToString 1.0 and check again
+	}
+
+	/* TODO Other asserts
+	 */
 }

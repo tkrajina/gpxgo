@@ -3,11 +3,14 @@ package gpx
 import (
 	"encoding/xml"
 	"errors"
-	"gpx/gpx11"
 	"io/ioutil"
 	"os"
 	"strings"
 	"time"
+
+	"gpx/gpx10"
+	"gpx/gpx11"
+
 	//"fmt"
 )
 
@@ -107,10 +110,10 @@ type GPXTrack struct {
 
 func (g *GPX) ToXml(version string) ([]byte, error) {
 	if version == "1.0" {
-		return nil, errors.New("Invalid version:" + version)
+		gpx10Doc := convertToGpx10Models(g)
+		return xml.Marshal(gpx10Doc)
 	} else if version == "1.1" {
 		gpx11Doc := convertToGpx11Models(g)
-
 		return xml.Marshal(gpx11Doc)
 	} else {
 		return nil, errors.New("Invalid version " + version)
@@ -130,26 +133,13 @@ func guessGPXVersion(bytes []byte) (string, error) {
 		return "", errors.New("Invalid GPX file, cannot find version")
 	}
 
-    if len(parts[1]) < 10 {
+	if len(parts[1]) < 10 {
 		return "", errors.New("Invalid GPX file, cannot find version")
-    }
+	}
 
-    result := parts[1][1:4]
+	result := parts[1][1:4]
 
 	return result, nil
-
-	/*
-	    parts = strings.Split(parts[1], parts[1][0])
-	    if len(parts) <= 1 {
-	        return "", errors.New("Invalid GPX file, cannot find version")
-	    }
-
-	    if parts[1] != "1.0" || parts[1] != "1.1" {
-	        return "", errors.New("Invalid GPX file, cannot find version")
-	    }
-
-		return parts[1]
-	*/
 }
 
 func parseGPXTime(timestr string) (*time.Time, error) {
@@ -195,7 +185,13 @@ func ParseFile(fileName string) (*GPX, error) {
 func ParseString(bytes []byte) (*GPX, error) {
 	version, _ := guessGPXVersion(bytes)
 	if version == "1.0" {
-		return nil, errors.New("Invalid version:" + version)
+		g := gpx10.NewGpx()
+		err := xml.Unmarshal(bytes, &g)
+		if err != nil {
+			return nil, err
+		}
+
+		return convertFromGpx10Models(g), nil
 	} else if version == "1.1" {
 		g := gpx11.NewGpx()
 		err := xml.Unmarshal(bytes, &g)
