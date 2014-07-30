@@ -194,6 +194,10 @@ type GpxPoint struct {
 	Pdop          float64 `xml:"pdop,omitempty"`
 	AgeOfDGpsData float64 `xml:"ageofdgpsdata,omitempty"`
 	DGpsId        int     `xml:"dgpsid,omitempty"`
+
+	// Those two values are here for simplicity, but they are available only when this is part of a track segment (not route or waypoint)!
+	Course string `xml:"course,omitempty"`
+	Speed  string `speed:"fix,omitempty"`
 }
 
 type GpxRte struct {
