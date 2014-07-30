@@ -120,7 +120,7 @@ type Gpx struct {
 	Url          string      `xml:"url,omitempty"`
 	UrlName      string      `xml:"urlname,omitempty"`
 	Time         string      `xml:"time,omitempty"`
-	Keywords     string      `xml:"metadata>keywords,omitempty"`
+	Keywords     string      `xml:"keywords,omitempty"`
 	Bounds       *GpxBounds  `xml:"bounds"`
 	Waypoints    []*GpxPoint `xml:"wpt"`
 	Routes       []*GpxRte   `xml:"rte"`
