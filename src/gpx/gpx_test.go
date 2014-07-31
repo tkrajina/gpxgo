@@ -88,7 +88,7 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		assertEquals(t, gpxDoc.Version, "1.1")
 
 		// Test after reparsing
-		xml, err := gpxDoc.ToXml("1.1")
+		xml, err := gpxDoc.ToXml(ToXmlParams{Version:"1.1"})
 		//fmt.Println(string(xml))
 		if err != nil {
 			t.Error("Error serializing to XML:" + err.Error())
@@ -247,7 +247,7 @@ func TestParseAndReparseGPX10(t *testing.T) {
 		assertEquals(t, gpxDoc.Version, "1.0")
 
 		// Test after reparsing
-		xml, err := gpxDoc.ToXml("1.0")
+		xml, err := gpxDoc.ToXml(ToXmlParams{Version:"1.0"})
 		//fmt.Println(string(xml))
 		if err != nil {
 			t.Error("Error serializing to XML:" + err.Error())
@@ -294,104 +294,419 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 
 	// TODO: Bounds (here and in 1.1)
 
-	   // Waypoints:
-	   assertEquals(t, len(gpxDoc.Waypoints), 2)
-	   assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
-	   assertEquals(t, gpxDoc.Waypoints[0].Longitue, 45.6)
-	   assertEquals(t, gpxDoc.Waypoints[0].Elevation, 75.1)
-	   assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
-	   assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
-	   assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
-	   assertEquals(t, gpxDoc.Waypoints[0].Name, "example name")
-	   assertEquals(t, gpxDoc.Waypoints[0].Comment, "example cmt")
-	   assertEquals(t, gpxDoc.Waypoints[0].Description, "example desc")
-	   assertEquals(t, gpxDoc.Waypoints[0].Source, "example src")
-	   // TODO
-	   // Links       []GpxLink
-	   assertEquals(t, gpxDoc.Waypoints[0].Symbol, "example sym")
-	   assertEquals(t, gpxDoc.Waypoints[0].Type, "example type")
-	   assertEquals(t, gpxDoc.Waypoints[0].TypeOfGpsFix, "2d")
-	   assertEquals(t, gpxDoc.Waypoints[0].Satellites, 5)
-	   assertEquals(t, gpxDoc.Waypoints[0].HorizontalDilution, 6.0)
-	   assertEquals(t, gpxDoc.Waypoints[0].VerticalDilution, 7.0)
-	   assertEquals(t, gpxDoc.Waypoints[0].PositionalDilution, 8.0)
-	   assertEquals(t, gpxDoc.Waypoints[0].AgeOfDGpsData, 9.0)
-	   assertEquals(t, gpxDoc.Waypoints[0].DGpsId, 45)
-	   // TODO: Extensions
+	// Waypoints:
+	assertEquals(t, len(gpxDoc.Waypoints), 2)
+	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
+	assertEquals(t, gpxDoc.Waypoints[0].Longitue, 45.6)
+	assertEquals(t, gpxDoc.Waypoints[0].Elevation, 75.1)
+	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
+	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
+	assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
+	assertEquals(t, gpxDoc.Waypoints[0].Name, "example name")
+	assertEquals(t, gpxDoc.Waypoints[0].Comment, "example cmt")
+	assertEquals(t, gpxDoc.Waypoints[0].Description, "example desc")
+	assertEquals(t, gpxDoc.Waypoints[0].Source, "example src")
+	// TODO
+	// Links       []GpxLink
+	assertEquals(t, gpxDoc.Waypoints[0].Symbol, "example sym")
+	assertEquals(t, gpxDoc.Waypoints[0].Type, "example type")
+	assertEquals(t, gpxDoc.Waypoints[0].TypeOfGpsFix, "2d")
+	assertEquals(t, gpxDoc.Waypoints[0].Satellites, 5)
+	assertEquals(t, gpxDoc.Waypoints[0].HorizontalDilution, 6.0)
+	assertEquals(t, gpxDoc.Waypoints[0].VerticalDilution, 7.0)
+	assertEquals(t, gpxDoc.Waypoints[0].PositionalDilution, 8.0)
+	assertEquals(t, gpxDoc.Waypoints[0].AgeOfDGpsData, 9.0)
+	assertEquals(t, gpxDoc.Waypoints[0].DGpsId, 45)
+	// TODO: Extensions
 
-	   assertEquals(t, gpxDoc.Waypoints[1].Latitude, 13.4)
-	   assertEquals(t, gpxDoc.Waypoints[1].Longitue, 46.7)
+	assertEquals(t, gpxDoc.Waypoints[1].Latitude, 13.4)
+	assertEquals(t, gpxDoc.Waypoints[1].Longitue, 46.7)
 
-	   // Routes:
-	   assertEquals(t, len(gpxDoc.Routes), 2)
-	   assertEquals(t, gpxDoc.Routes[0].Name, "example name")
-	   assertEquals(t, gpxDoc.Routes[0].Comment, "example cmt")
-	   assertEquals(t, gpxDoc.Routes[0].Description, "example desc")
-	   assertEquals(t, gpxDoc.Routes[0].Source, "example src")
-	   assertEquals(t, gpxDoc.Routes[0].Number, 7)
-	   assertEquals(t, gpxDoc.Routes[0].Type, "")
-	   assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
-	   // TODO: Link
-	   // TODO: Points
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation, 75.1)
-	   fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:03Z")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].GeoidHeight, "2.1")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Name, "example name r")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Comment, "example cmt r")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Description, "example desc r")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Source, "example src r")
-	   // TODO link
-	   //assertEquals(t, gpxDoc.Routes[0].Points[0].Link, "http://linkrtept")
-	   //assertEquals(t, gpxDoc.Routes[0].Points[0].Text, "rtept link")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Type, "example type r")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Symbol, "example sym r")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Type, "example type r")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].TypeOfGpsFix, "3d")
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].Satellites, 6)
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].HorizontalDilution, 7.0)
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].VerticalDilution, 8.0)
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].PositionalDilution, 9.0)
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].AgeOfDGpsData, 10.0)
-	   assertEquals(t, gpxDoc.Routes[0].Points[0].DGpsId, 99)
-	   // TODO: Extensions
+	// Routes:
+	assertEquals(t, len(gpxDoc.Routes), 2)
+	assertEquals(t, gpxDoc.Routes[0].Name, "example name")
+	assertEquals(t, gpxDoc.Routes[0].Comment, "example cmt")
+	assertEquals(t, gpxDoc.Routes[0].Description, "example desc")
+	assertEquals(t, gpxDoc.Routes[0].Source, "example src")
+	assertEquals(t, gpxDoc.Routes[0].Number, 7)
+	assertEquals(t, gpxDoc.Routes[0].Type, "")
+	assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
+	// TODO: Link
+	// TODO: Points
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation, 75.1)
+	fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:03Z")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].GeoidHeight, "2.1")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Name, "example name r")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Comment, "example cmt r")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Description, "example desc r")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Source, "example src r")
+	// TODO link
+	//assertEquals(t, gpxDoc.Routes[0].Points[0].Link, "http://linkrtept")
+	//assertEquals(t, gpxDoc.Routes[0].Points[0].Text, "rtept link")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Type, "example type r")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Symbol, "example sym r")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Type, "example type r")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].TypeOfGpsFix, "3d")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Satellites, 6)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].HorizontalDilution, 7.0)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].VerticalDilution, 8.0)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].PositionalDilution, 9.0)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].AgeOfDGpsData, 10.0)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].DGpsId, 99)
+	// TODO: Extensions
 
-	   assertEquals(t, gpxDoc.Routes[1].Name, "second route")
-	   assertEquals(t, gpxDoc.Routes[1].Description, "example desc 2")
-	   assertEquals(t, len(gpxDoc.Routes[1].Points), 2)
+	assertEquals(t, gpxDoc.Routes[1].Name, "second route")
+	assertEquals(t, gpxDoc.Routes[1].Description, "example desc 2")
+	assertEquals(t, len(gpxDoc.Routes[1].Points), 2)
 
-	   // Tracks:
-	   assertEquals(t, len(gpxDoc.Tracks), 2)
-	   assertEquals(t, gpxDoc.Tracks[0].Name, "example name t")
-	   assertEquals(t, gpxDoc.Tracks[0].Comment, "example cmt t")
-	   assertEquals(t, gpxDoc.Tracks[0].Description, "example desc t")
-	   assertEquals(t, gpxDoc.Tracks[0].Source, "example src t")
-	   assertEquals(t, gpxDoc.Tracks[0].Number, 1)
-	   assertEquals(t, gpxDoc.Tracks[0].Type, "")
-	   // TODO link
+	// Tracks:
+	assertEquals(t, len(gpxDoc.Tracks), 2)
+	assertEquals(t, gpxDoc.Tracks[0].Name, "example name t")
+	assertEquals(t, gpxDoc.Tracks[0].Comment, "example cmt t")
+	assertEquals(t, gpxDoc.Tracks[0].Description, "example desc t")
+	assertEquals(t, gpxDoc.Tracks[0].Source, "example src t")
+	assertEquals(t, gpxDoc.Tracks[0].Number, 1)
+	assertEquals(t, gpxDoc.Tracks[0].Type, "")
+	// TODO link
 
-	   assertEquals(t, len(gpxDoc.Tracks[0].Segments), 2)
+	assertEquals(t, len(gpxDoc.Tracks[0].Segments), 2)
 
-	   assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
-	   assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation, 11.1)
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-01T12:00:04Z")
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Name, "example name t")
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Comment, "example cmt t")
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Description, "example desc t")
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Source, "example src t")
-	   // TODO link
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Symbol, "example sym t")
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Type, "example type t")
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].TypeOfGpsFix, "3d")
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Satellites, 100)
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].HorizontalDilution, 101.0)
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].VerticalDilution, 102.0)
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].PositionalDilution, 103.0)
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].AgeOfDGpsData, 104.0)
-	   assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].DGpsId, 99)
-	   // TODO extensions
+	assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
+	assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation, 11.1)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-01T12:00:04Z")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Name, "example name t")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Comment, "example cmt t")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Description, "example desc t")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Source, "example src t")
+	// TODO link
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Symbol, "example sym t")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Type, "example type t")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].TypeOfGpsFix, "3d")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Satellites, 100)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].HorizontalDilution, 101.0)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].VerticalDilution, 102.0)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].PositionalDilution, 103.0)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].AgeOfDGpsData, 104.0)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].DGpsId, 99)
+	// TODO extensions
 }
+
+func TestLength2DSeg(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+
+    fmt.Println("tracks=", g.Tracks)
+    fmt.Println("tracks=", len(g.Tracks))
+    fmt.Println("segments=", len(g.Tracks[0].Segments))
+
+	lengthA := g.Tracks[0].Segments[0].Length2D()
+	lengthE := 56.77577732775905
+
+	if lengthA != lengthE {
+		t.Errorf("Length 2d expected: %f, actual %f", lengthE, lengthA)
+	}
+}
+
+func TestLength3DSeg(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	lengthA := g.Tracks[0].Segments[0].Length3D()
+	lengthE := 61.76815317436073
+
+	if lengthA != lengthE {
+		t.Errorf("Length 3d expected: %f, actual %f", lengthE, lengthA)
+	}
+}
+
+func TestTimePoint(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	timeA := *g.Tracks[0].Segments[0].Points[0].Timestamp
+	//2012-03-17T12:46:19Z
+	timeE := time.Date(2012, 3, 17, 12, 46, 19, 0, time.UTC)
+
+	if timeA != timeE {
+		t.Errorf("Time expected: %s, actual: %s", timeE.String(), timeA.String())
+	}
+}
+
+func TestTimeBoundsSeg(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	timeBoundsA := g.Tracks[0].Segments[0].TimeBounds()
+
+	startTime := time.Date(2012, 3, 17, 12, 46, 19, 0, time.UTC)
+	endTime := time.Date(2012, 3, 17, 12, 47, 23, 0, time.UTC)
+	timeBoundsE := TimeBounds{
+		StartTime: &startTime,
+		EndTime:   &endTime,
+	}
+
+	if !timeBoundsE.Equals(timeBoundsA) {
+		t.Errorf("TimeBounds expected: %s, actual: %s", timeBoundsE.String(), timeBoundsA.String())
+	}
+}
+
+/* TODO: Bounds
+func TestBoundsSeg(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+
+	boundsA := g.Tracks[0].Segments[0].Bounds()
+	boundsE := GpxBounds{
+		MaxLat: 52.5117189623, MinLat: 52.5113534275,
+		MaxLon: 13.4571944922, MinLon: 13.4567520116,
+	}
+
+	if !boundsE.Equals(boundsA) {
+		t.Errorf("Bounds expected: %s, actual: %s", boundsE.String(), boundsA.String())
+	}
+}
+
+func TestBoundsGpx(t *testing.T) {
+	boundsA := g.Bounds()
+	boundsE := GpxBounds{
+		MaxLat: 52.5117189623, MinLat: 52.5113534275,
+		MaxLon: 13.4571944922, MinLon: 13.4567520116,
+	}
+
+	if !boundsE.Equals(boundsA) {
+		t.Errorf("Bounds expected: %s, actual: %s", boundsE.String(), boundsA.String())
+	}
+}
+*/
+
+func TestSpeedSeg(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	speedA := g.Tracks[0].Segments[0].Speed(2)
+	speedE := 1.5386074011963367
+
+	if speedE != speedA {
+		t.Errorf("Speed expected: %f, actual: %f", speedE, speedA)
+	}
+}
+
+func TestDurationSeg(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	durA := g.Tracks[0].Segments[0].Duration()
+	durE := 64.0
+
+	if durE != durA {
+		t.Errorf("Duration expected: %f, actual: %f", durE, durA)
+	}
+}
+
+func TestUphillDownHillSeg(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	updoA := g.Tracks[0].Segments[0].UphillDownhill()
+	updoE := UphillDownhill{
+		Uphill:   5.863000000000007,
+		Downhill: 1.5430000000000064}
+
+	if !updoE.Equals(updoA) {
+		t.Errorf("UphillDownhill expected: %+v, actual: %+v", updoE, updoA)
+	}
+}
+
+func TestMovingData(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	movDataA := g.MovingData()
+	movDataE := MovingData{
+		MovingTime:      39.0,
+		StoppedTime:     25.0,
+		MovingDistance:  55.28705571308896,
+		StoppedDistance: 6.481097461271765,
+		MaxSpeed:        0.0,
+	}
+
+	if !movDataE.Equals(movDataA) {
+		t.Errorf("Moving data expected: %+v, actual: %+v", movDataE, movDataA)
+	}
+}
+
+func TestUphillDownhill(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	updoA := g.UphillDownhill()
+	updoE := UphillDownhill{
+		Uphill:   5.863000000000007,
+		Downhill: 1.5430000000000064}
+
+	if !updoE.Equals(updoA) {
+		t.Errorf("UphillDownhill expected: %+v, actual: %+v", updoE, updoA)
+	}
+}
+
+func TestToXml(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	xml, _ := g.ToXml(ToXmlParams{Version:"1.1"})
+	xmlA := string(xml)
+	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="eTrex 10">
+	<metadata>
+		<link href="http://www.garmin.com">
+			<text>Garmin International</text>
+		</link>
+		<time>2012-03-17T15:44:18Z</time>
+	</metadata>
+	<wpt lat="37.085751" lon="-121.17042">
+		<ele>195.440933</ele>
+		<time>2012-03-21T21:24:43Z</time>
+		<name>001</name>
+		<sym>Flag, Blue</sym>
+	</wpt>
+	<wpt lat="37.085751" lon="-121.17042">
+		<ele>195.438324</ele>
+		<time>2012-03-21T21:24:44Z</time>
+		<name>002</name>
+		<sym>Flag, Blue</sym>
+	</wpt>
+	<trk>
+		<name>17-MRZ-12 16:44:12</name>
+		<trkseg>
+			<trkpt lat="52.5113534275" lon="13.4571944922">
+				<ele>59.26</ele>
+				<time>2012-03-17T12:46:19Z</time>
+			</trkpt>
+			<trkpt lat="52.5113568641" lon="13.4571697656">
+				<ele>65.51</ele>
+				<time>2012-03-17T12:46:44Z</time>
+			</trkpt>
+			<trkpt lat="52.511710329" lon="13.456941694">
+				<ele>65.99</ele>
+				<time>2012-03-17T12:47:01Z</time>
+			</trkpt>
+			<trkpt lat="52.5117189623" lon="13.4567520116">
+				<ele>63.58</ele>
+				<time>2012-03-17T12:47:23Z</time>
+			</trkpt>
+		</trkseg>
+	</trk>
+</gpx>`
+
+	if xmlE != xmlA {
+		t.Errorf("XML expected: \n%s, \nactual \n%s", xmlE, xmlA)
+	}
+}
+
+func TestNewXml(t *testing.T) {
+	gpx := new(GPX)
+	gpxTrack := new(GPXTrack)
+
+	gpxSegment := new(GPXTrackSegment)
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1234, Longitue: 5.1234, Elevation: 1234}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1233, Longitue: 5.1235, Elevation: 1235}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1235, Longitue: 5.1236, Elevation: 1236}})
+
+	gpxTrack.Segments = append(gpxTrack.Segments, gpxSegment)
+	gpx.Tracks = append(gpx.Tracks, gpxTrack)
+
+	xml, _ := gpx.ToXml(ToXmlParams{Version:"1.1", Indent: true})
+	actualXml := string(xml)
+	expectedXml := `<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="https://github.com/ptrv/go-gpx">
+	<trk>
+		<trkseg>
+			<trkpt lat="2.1234" lon="5.1234">
+				<ele>1234</ele>
+			</trkpt>
+			<trkpt lat="2.1233" lon="5.1235">
+				<ele>1235</ele>
+			</trkpt>
+			<trkpt lat="2.1235" lon="5.1236">
+				<ele>1236</ele>
+			</trkpt>
+		</trkseg>
+	</trk>
+</gpx>`
+
+	if expectedXml != actualXml {
+		t.Errorf("XML expected:\n%s\n, actual: \n%s", expectedXml, actualXml)
+	}
+}
+
+/* TODO: Clone
+func TestSplitGpx(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+
+	gTmp := g.Clone()
+
+	gTmp.Split(0, 0, 2)
+
+	gpxSegs := gTmp.Tracks[0].Segments
+
+	segsLenA := len(gpxSegs)
+	segsLenE := 2
+	if segsLenE != segsLenA {
+		t.Errorf("GPX segments count expected: %d, actual %d", segsLenE, segsLenA)
+	}
+
+	segsA := string(toXml(gpxSegs))
+	segsE := `<trkseg>
+	<trkpt lat="52.5113534275" lon="13.4571944922">
+		<ele>59.26</ele>
+		<time>2012-03-17T12:46:19Z</time>
+	</trkpt>
+	<trkpt lat="52.5113568641" lon="13.4571697656">
+		<ele>65.51</ele>
+		<time>2012-03-17T12:46:44Z</time>
+	</trkpt>
+	<trkpt lat="52.511710329" lon="13.456941694">
+		<ele>65.99</ele>
+		<time>2012-03-17T12:47:01Z</time>
+	</trkpt>
+</trkseg>
+<trkseg>
+	<trkpt lat="52.5117189623" lon="13.4567520116">
+		<ele>63.58</ele>
+		<time>2012-03-17T12:47:23Z</time>
+	</trkpt>
+</trkseg>`
+
+	if segsE != segsA {
+		t.Errorf("XML expected:\n%s\n, actual: \n%s", segsE, segsA)
+	}
+}
+*/
+
+/* TODO: clone
+func TestJoin(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+	gTmp := g.Clone()
+	track := gTmp.Tracks[0]
+
+	track.Split(0, 2)
+	track.Join(0, 1)
+
+	segsA := string(toXml(track.Segments))
+	segsE := `<trkseg>
+	<trkpt lat="52.5113534275" lon="13.4571944922">
+		<ele>59.26</ele>
+		<time>2012-03-17T12:46:19Z</time>
+	</trkpt>
+	<trkpt lat="52.5113568641" lon="13.4571697656">
+		<ele>65.51</ele>
+		<time>2012-03-17T12:46:44Z</time>
+	</trkpt>
+	<trkpt lat="52.511710329" lon="13.456941694">
+		<ele>65.99</ele>
+		<time>2012-03-17T12:47:01Z</time>
+	</trkpt>
+	<trkpt lat="52.5117189623" lon="13.4567520116">
+		<ele>63.58</ele>
+		<time>2012-03-17T12:47:23Z</time>
+	</trkpt>
+</trkseg>`
+
+	if segsE != segsA {
+		t.Errorf("XML expected:\n%s\n, actual: \n%s", segsE, segsA)
+	}
+}
+
+func TestClone(t *testing.T) {
+	gTmp := g.Clone()
+	gTmp.Metadata.Timestamp = "2012-03-17T15:44:19Z"
+
+	if gTmp.Metadata.Timestamp == g.Metadata.Timestamp {
+		t.Error("Clone failed")
+	}
+}
+*/

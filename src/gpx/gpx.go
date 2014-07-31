@@ -22,16 +22,36 @@ var TIMELAYOUTS = []string{
 	"2006-01-02 15:04:05",
 }
 
-func (g *GPX) ToXml(version string) ([]byte, error) {
+type ToXmlParams struct {
+    Version string
+    Indent bool
+}
+
+/*
+ * Params are optional, you can set null to use GPXs Version and no indentation.
+ */
+func (g *GPX) ToXml(params ToXmlParams) ([]byte, error) {
+
+    version := g.Version
+    if len(params.Version) > 0 {
+        version = params.Version
+    }
+    indentation := params.Indent
+
+    var gpxDoc interface{}
 	if version == "1.0" {
-		gpx10Doc := convertToGpx10Models(g)
-		return xml.Marshal(gpx10Doc)
+		gpxDoc = convertToGpx10Models(g)
 	} else if version == "1.1" {
-		gpx11Doc := convertToGpx11Models(g)
-		return xml.Marshal(gpx11Doc)
+		gpxDoc = convertToGpx11Models(g)
 	} else {
 		return nil, errors.New("Invalid version " + version)
 	}
+
+    if indentation {
+        return xml.MarshalIndent(gpxDoc, "", "	")
+    } else {
+        return xml.Marshal(gpxDoc)
+    }
 }
 
 func guessGPXVersion(bytes []byte) (string, error) {
