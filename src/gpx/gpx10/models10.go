@@ -109,8 +109,9 @@ gpx
 
 type Gpx struct {
 	XMLName      xml.Name    `xml:"http://www.topografix.com/GPX/1/0 gpx"`
-	XmlNsXsi     string      `xml:"xmlns:xsi,attr,omitempty"`
-	XmlSchemaLoc string      `xml:"xsi:schemaLocation,attr,omitempty"`
+    //XMLNs        string    `xml:"xmlns,attr"`
+	//XmlNsXsi     string      `xml:"xmlns:xsi,attr,omitempty"`
+	//XmlSchemaLoc string      `xml:"xsi:schemaLocation,attr,omitempty"`
 	Version      string      `xml:"version,attr"`
 	Creator      string      `xml:"creator,attr"`
 	Name         string      `xml:"name,omitempty"`
