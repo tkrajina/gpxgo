@@ -30,7 +30,7 @@ type GPX struct {
 	Keywords         string
 
 	// TODO
-	Extensions *[]byte
+	//Extensions []byte
 	Waypoints  []*GPXPoint
 	Routes     []*GPXRoute
 	Tracks     []*GPXTrack

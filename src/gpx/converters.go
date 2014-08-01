@@ -390,9 +390,11 @@ func convertFromGpx11Models(gpx11Doc *gpx11.Gpx) *GPX {
 		gpxDoc.AuthorLinkType = gpx11Doc.AuthorLink.Type
 	}
 
+    /* TODO
 	if gpx11Doc.Extensions != nil {
 		gpxDoc.Extensions = &gpx11Doc.Extensions.Bytes
 	}
+    */
 
 	if len(gpx11Doc.Timestamp) > 0 {
 		gpxDoc.Time, _ = parseGPXTime(gpx11Doc.Timestamp)
