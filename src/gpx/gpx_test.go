@@ -89,7 +89,7 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		assertEquals(t, gpxDoc.Version, "1.1")
 
 		// Test after reparsing
-		xml, err := gpxDoc.ToXml(ToXmlParams{Version:"1.1"})
+		xml, err := gpxDoc.ToXml(ToXmlParams{Version:"1.1", Indent: true})
 		//fmt.Println(string(xml))
 		if err != nil {
 			t.Error("Error serializing to XML:" + err.Error())
@@ -248,7 +248,7 @@ func TestParseAndReparseGPX10(t *testing.T) {
 		assertEquals(t, gpxDoc.Version, "1.0")
 
 		// Test after reparsing
-		xml, err := gpxDoc.ToXml(ToXmlParams{Version:"1.0"})
+		xml, err := gpxDoc.ToXml(ToXmlParams{Version:"1.0", Indent: true})
 		//fmt.Println(string(xml))
 		if err != nil {
 			t.Error("Error serializing to XML:" + err.Error())
@@ -539,7 +539,7 @@ func TestUphillDownhill(t *testing.T) {
 
 func TestToXml(t *testing.T) {
 	g, _ := ParseFile("../../test_files/file.gpx")
-	xml, _ := g.ToXml(ToXmlParams{Version:"1.1"})
+	xml, _ := g.ToXml(ToXmlParams{Version:"1.1", Indent: true})
 	xmlA := string(xml)
 	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="eTrex 10">
