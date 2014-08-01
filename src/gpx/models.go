@@ -8,82 +8,6 @@ import (
 
 const DEFAULT_STOPPED_SPEED_THRESHOLD = 1.0
 
-type GpxBounds struct {
-	MinLat float64
-	MaxLat float64
-	MinLon float64
-	MaxLon float64
-}
-
-// Equals returns true if two Bounds objects are equal
-func (b *GpxBounds) Equals(b2 *GpxBounds) bool {
-	return b.MinLon == b2.MinLon && b.MaxLat == b2.MaxLat && b.MinLon == b2.MinLon && b.MaxLon == b.MaxLon
-}
-
-func (b *GpxBounds) String() string {
-	return fmt.Sprintf("Max: %+v, %+v Min: %+v, %+v", b.MinLat, b.MinLon, b.MaxLat, b.MaxLon)
-}
-
-// Generic point datas
-type Point struct {
-	Latitude  float64
-	Longitue  float64
-	Elevation float64
-}
-
-// Distance2D returns the 2D distance of two GpxWpts.
-func (pt *Point) Distance2D(pt2 *Point) float64 {
-	return Distance2D(pt.Latitude, pt.Longitue, pt2.Latitude, pt2.Longitue, false)
-}
-
-// Distance3D returns the 3D distance of two GpxWpts.
-func (pt *Point) Distance3D(pt2 *Point) float64 {
-	return Distance3D(pt.Latitude, pt.Longitue, pt.Elevation, pt2.Latitude, pt2.Longitue, pt2.Elevation, false)
-}
-
-type TimeBounds struct {
-	StartTime time.Time
-	EndTime   time.Time
-}
-
-func (tb *TimeBounds) Equals(tb2 *TimeBounds) bool {
-	fmt.Println(tb.StartTime)
-	fmt.Println(tb2.StartTime)
-	fmt.Println(tb.EndTime.Equal(tb2.EndTime))
-	if tb.StartTime == tb2.StartTime && tb.EndTime == tb2.EndTime {
-		return true
-	}
-	return false
-}
-
-func (tb *TimeBounds) String() string {
-	return fmt.Sprintf("%+v, %+v", tb.StartTime, tb.EndTime)
-}
-
-type UphillDownhill struct {
-	Uphill   float64
-	Downhill float64
-}
-
-type LocationsResultPair struct {
-	SegmentNo int
-	PointNo   int
-}
-
-/**
- * Useful when looking for smaller bounds
- * 
- * TODO does it work is region is between 179E and 179W?
- */
-func getMinimaMaximaStart() *GpxBounds {
-	return &GpxBounds{
-		MaxLat: -math.MaxFloat64,
-		MinLat: math.MaxFloat64,
-		MaxLon: -math.MaxFloat64,
-		MinLon: math.MaxFloat64,
-	}
-}
-
 type GPX struct {
 	Version          string
 	Creator          string
@@ -242,13 +166,6 @@ func (g *GPX) UphillDownhill() *UphillDownhill {
 	}
 }
 
-func (ud *UphillDownhill) Equals(ud2 *UphillDownhill) bool {
-	if ud.Uphill == ud2.Uphill && ud.Downhill == ud2.Downhill {
-		return true
-	}
-	return false
-}
-
 // LocationAt returns a LocationResultsPair consisting the segment index
 // and the GpxWpt at a certain time.
 func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
@@ -261,6 +178,89 @@ func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
 		}
 	}
 	return results
+}
+
+type GpxBounds struct {
+	MinLat float64
+	MaxLat float64
+	MinLon float64
+	MaxLon float64
+}
+
+// Equals returns true if two Bounds objects are equal
+func (b *GpxBounds) Equals(b2 *GpxBounds) bool {
+	return b.MinLon == b2.MinLon && b.MaxLat == b2.MaxLat && b.MinLon == b2.MinLon && b.MaxLon == b.MaxLon
+}
+
+func (b *GpxBounds) String() string {
+	return fmt.Sprintf("Max: %+v, %+v Min: %+v, %+v", b.MinLat, b.MinLon, b.MaxLat, b.MaxLon)
+}
+
+// Generic point data
+type Point struct {
+	Latitude  float64
+	Longitue  float64
+	Elevation float64
+}
+
+// Distance2D returns the 2D distance of two GpxWpts.
+func (pt *Point) Distance2D(pt2 *Point) float64 {
+	return Distance2D(pt.Latitude, pt.Longitue, pt2.Latitude, pt2.Longitue, false)
+}
+
+// Distance3D returns the 3D distance of two GpxWpts.
+func (pt *Point) Distance3D(pt2 *Point) float64 {
+	return Distance3D(pt.Latitude, pt.Longitue, pt.Elevation, pt2.Latitude, pt2.Longitue, pt2.Elevation, false)
+}
+
+type TimeBounds struct {
+	StartTime time.Time
+	EndTime   time.Time
+}
+
+func (tb *TimeBounds) Equals(tb2 *TimeBounds) bool {
+	fmt.Println(tb.StartTime)
+	fmt.Println(tb2.StartTime)
+	fmt.Println(tb.EndTime.Equal(tb2.EndTime))
+	if tb.StartTime == tb2.StartTime && tb.EndTime == tb2.EndTime {
+		return true
+	}
+	return false
+}
+
+func (tb *TimeBounds) String() string {
+	return fmt.Sprintf("%+v, %+v", tb.StartTime, tb.EndTime)
+}
+
+type UphillDownhill struct {
+	Uphill   float64
+	Downhill float64
+}
+
+func (ud *UphillDownhill) Equals(ud2 *UphillDownhill) bool {
+	if ud.Uphill == ud2.Uphill && ud.Downhill == ud2.Downhill {
+		return true
+	}
+	return false
+}
+
+type LocationsResultPair struct {
+	SegmentNo int
+	PointNo   int
+}
+
+/**
+ * Useful when looking for smaller bounds
+ *
+ * TODO does it work is region is between 179E and 179W?
+ */
+func getMinimaMaximaStart() *GpxBounds {
+	return &GpxBounds{
+		MaxLat: -math.MaxFloat64,
+		MinLat: math.MaxFloat64,
+		MaxLon: -math.MaxFloat64,
+		MinLon: math.MaxFloat64,
+	}
 }
 
 type GPXPoint struct {
