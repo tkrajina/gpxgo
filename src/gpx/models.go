@@ -70,6 +70,11 @@ type LocationsResultPair struct {
 	PointNo   int
 }
 
+/**
+ * Useful when looking for smaller bounds
+ * 
+ * TODO does it work is region is between 179E and 179W?
+ */
 func getMinimaMaximaStart() *GpxBounds {
 	return &GpxBounds{
 		MaxLat: -math.MaxFloat64,
