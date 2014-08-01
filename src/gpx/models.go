@@ -8,6 +8,8 @@ import (
 
 const DEFAULT_STOPPED_SPEED_THRESHOLD = 1.0
 
+// ----------------------------------------------------------------------------------------------------
+
 type GPX struct {
 	Version          string
 	Creator          string
@@ -180,6 +182,8 @@ func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
 	return results
 }
 
+// ----------------------------------------------------------------------------------------------------
+
 type GpxBounds struct {
 	MinLat float64
 	MaxLat float64
@@ -195,6 +199,8 @@ func (b *GpxBounds) Equals(b2 *GpxBounds) bool {
 func (b *GpxBounds) String() string {
 	return fmt.Sprintf("Max: %+v, %+v Min: %+v, %+v", b.MinLat, b.MinLon, b.MaxLat, b.MaxLon)
 }
+
+// ----------------------------------------------------------------------------------------------------
 
 // Generic point data
 type Point struct {
@@ -212,6 +218,8 @@ func (pt *Point) Distance2D(pt2 *Point) float64 {
 func (pt *Point) Distance3D(pt2 *Point) float64 {
 	return Distance3D(pt.Latitude, pt.Longitue, pt.Elevation, pt2.Latitude, pt2.Longitue, pt2.Elevation, false)
 }
+
+// ----------------------------------------------------------------------------------------------------
 
 type TimeBounds struct {
 	StartTime time.Time
@@ -232,6 +240,8 @@ func (tb *TimeBounds) String() string {
 	return fmt.Sprintf("%+v, %+v", tb.StartTime, tb.EndTime)
 }
 
+// ----------------------------------------------------------------------------------------------------
+
 type UphillDownhill struct {
 	Uphill   float64
 	Downhill float64
@@ -244,24 +254,14 @@ func (ud *UphillDownhill) Equals(ud2 *UphillDownhill) bool {
 	return false
 }
 
+// ----------------------------------------------------------------------------------------------------
+
 type LocationsResultPair struct {
 	SegmentNo int
 	PointNo   int
 }
 
-/**
- * Useful when looking for smaller bounds
- *
- * TODO does it work is region is between 179E and 179W?
- */
-func getMinimaMaximaStart() *GpxBounds {
-	return &GpxBounds{
-		MaxLat: -math.MaxFloat64,
-		MinLat: math.MaxFloat64,
-		MaxLon: -math.MaxFloat64,
-		MinLon: math.MaxFloat64,
-	}
-}
+// ----------------------------------------------------------------------------------------------------
 
 type GPXPoint struct {
 	Point
@@ -303,6 +303,32 @@ func (pt *GPXPoint) SpeedBetween(pt2 *GPXPoint, threeD bool) float64 {
 	return distLen / seconds
 }
 
+// TimeDiff returns the time difference of two GpxWpts in seconds.
+func (pt *GPXPoint) TimeDiff(pt2 *GPXPoint) float64 {
+	t1 := pt.Timestamp
+	t2 := pt2.Timestamp
+
+	if t1.Equal(t2) {
+		return 0.0
+	}
+
+	var delta time.Duration
+	if t1.After(t2) {
+		delta = t1.Sub(t2)
+	} else {
+		delta = t2.Sub(t1)
+	}
+
+	return delta.Seconds()
+}
+
+// MaxDilutionOfPrecision returns the dilution precision of a GpxWpt.
+func (pt *GPXPoint) MaxDilutionOfPrecision() float64 {
+	return math.Max(pt.HorizontalDilution, math.Max(pt.VerticalDilution, pt.PositionalDilution))
+}
+
+// ----------------------------------------------------------------------------------------------------
+
 type GPXRoute struct {
 	Name        string
 	Comment     string
@@ -316,199 +342,42 @@ type GPXRoute struct {
 	Points []*GPXPoint
 }
 
+// Length returns the length of a GPX route.
+func (rte *GPXRoute) Length() float64 {
+	// TODO: npe check
+	points := make([]*Point, len(rte.Points))
+	for pointNo, point := range rte.Points {
+		points[pointNo] = &point.Point
+	}
+	return Length2D(points)
+}
+
+// Center returns the center of a GPX route.
+func (rte *GPXRoute) Center() (float64, float64) {
+	lenRtePts := len(rte.Points)
+	if lenRtePts == 0 {
+		return 0.0, 0.0
+	}
+
+	var (
+		sumLat float64
+		sumLon float64
+	)
+
+	for _, pt := range rte.Points {
+		sumLat += pt.Latitude
+		sumLon += pt.Longitue
+	}
+
+	n := float64(lenRtePts)
+	return sumLat / n, sumLon / n
+}
+
+// ----------------------------------------------------------------------------------------------------
+
 type GPXTrackSegment struct {
 	Points []*GPXPoint
 	// TODO extensions
-}
-
-type GPXTrack struct {
-	Name        string
-	Comment     string
-	Description string
-	Source      string
-	// TODO
-	//Links    []Link
-	Number   int
-	Type     string
-	Segments []*GPXTrackSegment
-}
-
-// Length2D returns the 2D length of a GPX track.
-func (trk *GPXTrack) Length2D() float64 {
-	var l float64
-	for _, seg := range trk.Segments {
-		d := seg.Length2D()
-		l += d
-	}
-	return l
-}
-
-// Length3D returns the 3D length of a GPX track.
-func (trk *GPXTrack) Length3D() float64 {
-	var l float64
-	for _, seg := range trk.Segments {
-		d := seg.Length3D()
-		l += d
-	}
-	return l
-}
-
-// TimeBounds returns the time bounds of a GPX track.
-func (trk *GPXTrack) TimeBounds() *TimeBounds {
-	var tbTrk *TimeBounds
-
-	for i, seg := range trk.Segments {
-		tbSeg := seg.TimeBounds()
-		if i == 0 {
-			tbTrk = tbSeg
-		} else {
-			tbTrk.EndTime = tbSeg.EndTime
-		}
-	}
-	return tbTrk
-}
-
-// Bounds returns the bounds of a GPX track.
-func (trk *GPXTrack) Bounds() *GpxBounds {
-	minmax := getMinimaMaximaStart()
-	for _, seg := range trk.Segments {
-		bnds := seg.Bounds()
-		minmax.MaxLat = math.Max(bnds.MaxLat, minmax.MaxLat)
-		minmax.MinLat = math.Min(bnds.MinLat, minmax.MinLat)
-		minmax.MaxLon = math.Max(bnds.MaxLon, minmax.MaxLon)
-		minmax.MinLon = math.Min(bnds.MinLon, minmax.MinLon)
-	}
-	return minmax
-}
-
-// Split splits a GPX segment at a point number ptNo in a GPX track.
-func (trk *GPXTrack) Split(segNo, ptNo int) {
-	lenSegs := len(trk.Segments)
-	if segNo >= lenSegs {
-		return
-	}
-
-	newSegs := make([]*GPXTrackSegment, 0)
-	for i := 0; i < lenSegs; i++ {
-		seg := trk.Segments[i]
-
-		if i == segNo && ptNo < len(seg.Points) {
-			seg1, seg2 := seg.Split(ptNo)
-			newSegs = append(newSegs, seg1, seg2)
-		} else {
-			newSegs = append(newSegs, seg)
-		}
-	}
-	trk.Segments = newSegs
-}
-
-// Join joins two GPX segments in a GPX track.
-func (trk *GPXTrack) Join(segNo, segNo2 int) {
-	lenSegs := len(trk.Segments)
-	if segNo >= lenSegs && segNo2 >= lenSegs {
-		return
-	}
-	newSegs := make([]*GPXTrackSegment, 0)
-	for i := 0; i < lenSegs; i++ {
-		seg := trk.Segments[i]
-		if i == segNo {
-			secondSeg := trk.Segments[segNo2]
-			seg.Join(secondSeg)
-			newSegs = append(newSegs, seg)
-		} else if i == segNo2 {
-			// do nothing, its already joined
-		} else {
-			newSegs = append(newSegs, seg)
-		}
-	}
-	trk.Segments = newSegs
-}
-
-// JoinNext joins a GPX segment with the next segment in the current GPX
-// track.
-func (trk *GPXTrack) JoinNext(segNo int) {
-	trk.Join(segNo, segNo+1)
-}
-
-// MovingData returns the moving data of a GPX track.
-func (trk *GPXTrack) MovingData() *MovingData {
-	var (
-		movingTime      float64
-		stoppedTime     float64
-		movingDistance  float64
-		stoppedDistance float64
-		maxSpeed        float64
-	)
-
-	for _, seg := range trk.Segments {
-		md := seg.MovingData()
-		movingTime += md.MovingTime
-		stoppedTime += md.StoppedTime
-		movingDistance += md.MovingDistance
-		stoppedDistance += md.StoppedDistance
-
-		if md.MaxSpeed > maxSpeed {
-			maxSpeed = md.MaxSpeed
-		}
-	}
-	return &MovingData{
-		MovingTime:      movingTime,
-		MovingDistance:  movingDistance,
-		StoppedTime:     stoppedTime,
-		StoppedDistance: stoppedDistance,
-		MaxSpeed:        maxSpeed,
-	}
-}
-
-// Duration returns the duration of a GPX track.
-func (trk *GPXTrack) Duration() float64 {
-	if len(trk.Segments) == 0 {
-		return 0.0
-	}
-
-	var result float64
-	for _, seg := range trk.Segments {
-		result += seg.Duration()
-	}
-	return result
-}
-
-// UphillDownhill return the uphill and downhill values of a GPX track.
-func (trk *GPXTrack) UphillDownhill() *UphillDownhill {
-	if len(trk.Segments) == 0 {
-		return nil
-	}
-
-	var (
-		uphill   float64
-		downhill float64
-	)
-
-	for _, seg := range trk.Segments {
-		updo := seg.UphillDownhill()
-
-		uphill += updo.Uphill
-		downhill += updo.Downhill
-	}
-
-	return &UphillDownhill{
-		Uphill:   uphill,
-		Downhill: downhill,
-	}
-}
-
-// LocationAt returns a LocationResultsPair for a given time.
-func (trk *GPXTrack) LocationAt(t time.Time) []LocationsResultPair {
-	results := make([]LocationsResultPair, 0)
-
-	for i := 0; i < len(trk.Segments); i++ {
-		seg := trk.Segments[i]
-		loc := seg.LocationAt(t)
-		if loc != -1 {
-			results = append(results, LocationsResultPair{i, loc})
-		}
-	}
-	return results
 }
 
 // Length2D returns the 2D length of a GPX segment.
@@ -746,63 +615,211 @@ func (seg *GPXTrackSegment) MovingData() *MovingData {
 	}
 }
 
-/*==========================================================*/
+// ----------------------------------------------------------------------------------------------------
 
-// TimeDiff returns the time difference of two GpxWpts in seconds.
-func (pt *GPXPoint) TimeDiff(pt2 *GPXPoint) float64 {
-	t1 := pt.Timestamp
-	t2 := pt2.Timestamp
+type GPXTrack struct {
+	Name        string
+	Comment     string
+	Description string
+	Source      string
+	// TODO
+	//Links    []Link
+	Number   int
+	Type     string
+	Segments []*GPXTrackSegment
+}
 
-	if t1.Equal(t2) {
+// Length2D returns the 2D length of a GPX track.
+func (trk *GPXTrack) Length2D() float64 {
+	var l float64
+	for _, seg := range trk.Segments {
+		d := seg.Length2D()
+		l += d
+	}
+	return l
+}
+
+// Length3D returns the 3D length of a GPX track.
+func (trk *GPXTrack) Length3D() float64 {
+	var l float64
+	for _, seg := range trk.Segments {
+		d := seg.Length3D()
+		l += d
+	}
+	return l
+}
+
+// TimeBounds returns the time bounds of a GPX track.
+func (trk *GPXTrack) TimeBounds() *TimeBounds {
+	var tbTrk *TimeBounds
+
+	for i, seg := range trk.Segments {
+		tbSeg := seg.TimeBounds()
+		if i == 0 {
+			tbTrk = tbSeg
+		} else {
+			tbTrk.EndTime = tbSeg.EndTime
+		}
+	}
+	return tbTrk
+}
+
+// Bounds returns the bounds of a GPX track.
+func (trk *GPXTrack) Bounds() *GpxBounds {
+	minmax := getMinimaMaximaStart()
+	for _, seg := range trk.Segments {
+		bnds := seg.Bounds()
+		minmax.MaxLat = math.Max(bnds.MaxLat, minmax.MaxLat)
+		minmax.MinLat = math.Min(bnds.MinLat, minmax.MinLat)
+		minmax.MaxLon = math.Max(bnds.MaxLon, minmax.MaxLon)
+		minmax.MinLon = math.Min(bnds.MinLon, minmax.MinLon)
+	}
+	return minmax
+}
+
+// Split splits a GPX segment at a point number ptNo in a GPX track.
+func (trk *GPXTrack) Split(segNo, ptNo int) {
+	lenSegs := len(trk.Segments)
+	if segNo >= lenSegs {
+		return
+	}
+
+	newSegs := make([]*GPXTrackSegment, 0)
+	for i := 0; i < lenSegs; i++ {
+		seg := trk.Segments[i]
+
+		if i == segNo && ptNo < len(seg.Points) {
+			seg1, seg2 := seg.Split(ptNo)
+			newSegs = append(newSegs, seg1, seg2)
+		} else {
+			newSegs = append(newSegs, seg)
+		}
+	}
+	trk.Segments = newSegs
+}
+
+// Join joins two GPX segments in a GPX track.
+func (trk *GPXTrack) Join(segNo, segNo2 int) {
+	lenSegs := len(trk.Segments)
+	if segNo >= lenSegs && segNo2 >= lenSegs {
+		return
+	}
+	newSegs := make([]*GPXTrackSegment, 0)
+	for i := 0; i < lenSegs; i++ {
+		seg := trk.Segments[i]
+		if i == segNo {
+			secondSeg := trk.Segments[segNo2]
+			seg.Join(secondSeg)
+			newSegs = append(newSegs, seg)
+		} else if i == segNo2 {
+			// do nothing, its already joined
+		} else {
+			newSegs = append(newSegs, seg)
+		}
+	}
+	trk.Segments = newSegs
+}
+
+// JoinNext joins a GPX segment with the next segment in the current GPX
+// track.
+func (trk *GPXTrack) JoinNext(segNo int) {
+	trk.Join(segNo, segNo+1)
+}
+
+// MovingData returns the moving data of a GPX track.
+func (trk *GPXTrack) MovingData() *MovingData {
+	var (
+		movingTime      float64
+		stoppedTime     float64
+		movingDistance  float64
+		stoppedDistance float64
+		maxSpeed        float64
+	)
+
+	for _, seg := range trk.Segments {
+		md := seg.MovingData()
+		movingTime += md.MovingTime
+		stoppedTime += md.StoppedTime
+		movingDistance += md.MovingDistance
+		stoppedDistance += md.StoppedDistance
+
+		if md.MaxSpeed > maxSpeed {
+			maxSpeed = md.MaxSpeed
+		}
+	}
+	return &MovingData{
+		MovingTime:      movingTime,
+		MovingDistance:  movingDistance,
+		StoppedTime:     stoppedTime,
+		StoppedDistance: stoppedDistance,
+		MaxSpeed:        maxSpeed,
+	}
+}
+
+// Duration returns the duration of a GPX track.
+func (trk *GPXTrack) Duration() float64 {
+	if len(trk.Segments) == 0 {
 		return 0.0
 	}
 
-	var delta time.Duration
-	if t1.After(t2) {
-		delta = t1.Sub(t2)
-	} else {
-		delta = t2.Sub(t1)
+	var result float64
+	for _, seg := range trk.Segments {
+		result += seg.Duration()
 	}
-
-	return delta.Seconds()
+	return result
 }
 
-// MaxDilutionOfPrecision returns the dilution precision of a GpxWpt.
-func (pt *GPXPoint) MaxDilutionOfPrecision() float64 {
-	return math.Max(pt.HorizontalDilution, math.Max(pt.VerticalDilution, pt.PositionalDilution))
-}
-
-/*==========================================================*/
-
-// Length returns the length of a GPX route.
-func (rte *GPXRoute) Length() float64 {
-	// TODO: npe check
-	points := make([]*Point, len(rte.Points))
-	for pointNo, point := range rte.Points {
-		points[pointNo] = &point.Point
-	}
-	return Length2D(points)
-}
-
-// Center returns the center of a GPX route.
-func (rte *GPXRoute) Center() (float64, float64) {
-	lenRtePts := len(rte.Points)
-	if lenRtePts == 0 {
-		return 0.0, 0.0
+// UphillDownhill return the uphill and downhill values of a GPX track.
+func (trk *GPXTrack) UphillDownhill() *UphillDownhill {
+	if len(trk.Segments) == 0 {
+		return nil
 	}
 
 	var (
-		sumLat float64
-		sumLon float64
+		uphill   float64
+		downhill float64
 	)
 
-	for _, pt := range rte.Points {
-		sumLat += pt.Latitude
-		sumLon += pt.Longitue
+	for _, seg := range trk.Segments {
+		updo := seg.UphillDownhill()
+
+		uphill += updo.Uphill
+		downhill += updo.Downhill
 	}
 
-	n := float64(lenRtePts)
-	return sumLat / n, sumLon / n
+	return &UphillDownhill{
+		Uphill:   uphill,
+		Downhill: downhill,
+	}
 }
 
-/*==========================================================*/
+// LocationAt returns a LocationResultsPair for a given time.
+func (trk *GPXTrack) LocationAt(t time.Time) []LocationsResultPair {
+	results := make([]LocationsResultPair, 0)
+
+	for i := 0; i < len(trk.Segments); i++ {
+		seg := trk.Segments[i]
+		loc := seg.LocationAt(t)
+		if loc != -1 {
+			results = append(results, LocationsResultPair{i, loc})
+		}
+	}
+	return results
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+/**
+ * Useful when looking for smaller bounds
+ *
+ * TODO does it work is region is between 179E and 179W?
+ */
+func getMinimaMaximaStart() *GpxBounds {
+	return &GpxBounds{
+		MaxLat: -math.MaxFloat64,
+		MinLat: math.MaxFloat64,
+		MaxLon: -math.MaxFloat64,
+		MinLon: math.MaxFloat64,
+	}
+}
+
