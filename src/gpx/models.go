@@ -24,10 +24,21 @@ func (b *GpxBounds) String() string {
 	return fmt.Sprintf("Max: %+v, %+v Min: %+v, %+v", b.MinLat, b.MinLon, b.MaxLat, b.MaxLon)
 }
 
+// Generic point datas
 type Point struct {
 	Latitude  float64
 	Longitue  float64
 	Elevation float64
+}
+
+// Distance2D returns the 2D distance of two GpxWpts.
+func (pt *Point) Distance2D(pt2 *Point) float64 {
+	return Distance2D(pt.Latitude, pt.Longitue, pt2.Latitude, pt2.Longitue, false)
+}
+
+// Distance3D returns the 3D distance of two GpxWpts.
+func (pt *Point) Distance3D(pt2 *Point) float64 {
+	return Distance3D(pt.Latitude, pt.Longitue, pt.Elevation, pt2.Latitude, pt2.Longitue, pt2.Elevation, false)
 }
 
 type TimeBounds struct {
@@ -57,16 +68,6 @@ type UphillDownhill struct {
 type LocationsResultPair struct {
 	SegmentNo int
 	PointNo   int
-}
-
-// Distance2D returns the 2D distance of two GpxWpts.
-func (pt *Point) Distance2D(pt2 *Point) float64 {
-	return Distance2D(pt.Latitude, pt.Longitue, pt2.Latitude, pt2.Longitue, false)
-}
-
-// Distance3D returns the 3D distance of two GpxWpts.
-func (pt *Point) Distance3D(pt2 *Point) float64 {
-	return Distance3D(pt.Latitude, pt.Longitue, pt.Elevation, pt2.Latitude, pt2.Longitue, pt2.Elevation, false)
 }
 
 func getMinimaMaximaStart() *GpxBounds {
