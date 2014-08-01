@@ -97,18 +97,18 @@ func testDetectVersion(t *testing.T, fileName, expectedVersion string) {
 }
 
 func TestDetect11GPXVersion(t *testing.T) {
-	testDetectVersion(t, "../../test_files/gpx1.1_with_all_fields.gpx", "1.1")
+	testDetectVersion(t, "../test_files/gpx1.1_with_all_fields.gpx", "1.1")
 }
 
 func TestDetect10GPXVersion(t *testing.T) {
-	testDetectVersion(t, "../../test_files/gpx1.0_with_all_fields.gpx", "1.0")
+	testDetectVersion(t, "../test_files/gpx1.0_with_all_fields.gpx", "1.0")
 }
 
 func TestParseAndReparseGPX11(t *testing.T) {
 	gpxDocuments := []*GPX{}
 
 	{
-		gpxDoc, err := ParseFile("../../test_files/gpx1.1_with_all_fields.gpx")
+		gpxDoc, err := ParseFile("../test_files/gpx1.1_with_all_fields.gpx")
 		if err != nil || gpxDoc == nil {
 			t.Error("Error parsing:" + err.Error())
 		}
@@ -267,7 +267,7 @@ func TestParseAndReparseGPX10(t *testing.T) {
 	gpxDocuments := []*GPX{}
 
 	{
-		gpxDoc, err := ParseFile("../../test_files/gpx1.0_with_all_fields.gpx")
+		gpxDoc, err := ParseFile("../test_files/gpx1.0_with_all_fields.gpx")
 		if err != nil || gpxDoc == nil {
 			t.Error("Error parsing:" + err.Error())
 		}
@@ -425,7 +425,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 }
 
 func TestLength2DSeg(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 
 	fmt.Println("tracks=", g.Tracks)
 	fmt.Println("tracks=", len(g.Tracks))
@@ -440,7 +440,7 @@ func TestLength2DSeg(t *testing.T) {
 }
 
 func TestLength3DSeg(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 	lengthA := g.Tracks[0].Segments[0].Length3D()
 	lengthE := 61.76815317436073
 
@@ -450,7 +450,7 @@ func TestLength3DSeg(t *testing.T) {
 }
 
 func TestTimePoint(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 	timeA := g.Tracks[0].Segments[0].Points[0].Timestamp
 	//2012-03-17T12:46:19Z
 	timeE := time.Date(2012, 3, 17, 12, 46, 19, 0, time.UTC)
@@ -461,7 +461,7 @@ func TestTimePoint(t *testing.T) {
 }
 
 func TestTimeBoundsSeg(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 	timeBoundsA := g.Tracks[0].Segments[0].TimeBounds()
 
 	startTime := time.Date(2012, 3, 17, 12, 46, 19, 0, time.UTC)
@@ -477,7 +477,7 @@ func TestTimeBoundsSeg(t *testing.T) {
 }
 
 func TestBoundsSeg(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 
 	boundsA := g.Tracks[0].Segments[0].Bounds()
 	boundsE := GpxBounds{
@@ -491,7 +491,7 @@ func TestBoundsSeg(t *testing.T) {
 }
 
 func TestBoundsGpx(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 
 	boundsA := g.Bounds()
 	boundsE := GpxBounds{
@@ -505,7 +505,7 @@ func TestBoundsGpx(t *testing.T) {
 }
 
 func TestSpeedSeg(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 	speedA := g.Tracks[0].Segments[0].Speed(2)
 	speedE := 1.5386074011963367
 
@@ -515,7 +515,7 @@ func TestSpeedSeg(t *testing.T) {
 }
 
 func TestDurationSeg(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 	durA := g.Tracks[0].Segments[0].Duration()
 	durE := 64.0
 
@@ -525,7 +525,7 @@ func TestDurationSeg(t *testing.T) {
 }
 
 func TestUphillDownHillSeg(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 	updoA := g.Tracks[0].Segments[0].UphillDownhill()
 	updoE := UphillDownhill{
 		Uphill:   5.863000000000007,
@@ -537,7 +537,7 @@ func TestUphillDownHillSeg(t *testing.T) {
 }
 
 func TestMovingData(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 	movDataA := g.MovingData()
 	movDataE := MovingData{
 		MovingTime:      39.0,
@@ -553,7 +553,7 @@ func TestMovingData(t *testing.T) {
 }
 
 func TestUphillDownhill(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 	updoA := g.UphillDownhill()
 	updoE := UphillDownhill{
 		Uphill:   5.863000000000007,
@@ -565,7 +565,7 @@ func TestUphillDownhill(t *testing.T) {
 }
 
 func TestToXml(t *testing.T) {
-	g, _ := ParseFile("../../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 	xml, _ := g.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 	xmlA := string(xml)
 	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
