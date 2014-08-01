@@ -11,6 +11,13 @@ import (
 
 const TIME_FORMAT = "2006-01-02T15:04:05Z"
 
+func min(x, y int) int {
+    if x < y {
+        return x
+    }
+    return y
+}
+
 func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
 	if var1 != var2 {
 		fmt.Println(var1, "not equals to", var2)
@@ -21,19 +28,19 @@ func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
 func assertLinesEquals(t *testing.T, string1, string2 string) {
 	lines1 := strings.Split(string1, "\n")
 	lines2 := strings.Split(string2, "\n")
+	for i := 0; i < min(len(lines1), len(lines2)); i++ {
+		line1 := strings.Trim(lines1[i], " \n\r\t")
+		line2 := strings.Trim(lines2[i], " \n\r\t")
+		if line1 != line2 {
+			t.Error("Line (#", i, ") different:", line1, "\nand:", line2)
+            break
+		}
+	}
 	if len(lines1) != len(lines2) {
 		fmt.Println("String1:", string1)
 		fmt.Println("String2:", string2)
 		t.Error("String have a different number of lines", len(lines1), "and", len(lines2))
 		return
-	}
-	for i := 0; i < len(lines1); i++ {
-		line1 := strings.Trim(lines1[i], " \n\r")
-		line2 := strings.Trim(lines2[i], " \n\r")
-		if line1 != line2 {
-			t.Error("Line (#", i, ") different:", line1, "\nand:", line2)
-			return
-		}
 	}
 }
 
@@ -562,8 +569,9 @@ func TestToXml(t *testing.T) {
 	xml, _ := g.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 	xmlA := string(xml)
 	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="eTrex 10">
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="eTrex 10">
 	<metadata>
+        <author></author>
 		<link href="http://www.garmin.com">
 			<text>Garmin International</text>
 		</link>
