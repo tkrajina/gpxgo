@@ -490,8 +490,9 @@ func TestBoundsSeg(t *testing.T) {
 	}
 }
 
-/* TODO: Bounds
 func TestBoundsGpx(t *testing.T) {
+	g, _ := ParseFile("../../test_files/file.gpx")
+
 	boundsA := g.Bounds()
 	boundsE := GpxBounds{
 		MaxLat: 52.5117189623, MinLat: 52.5113534275,
@@ -502,7 +503,6 @@ func TestBoundsGpx(t *testing.T) {
 		t.Errorf("Bounds expected: %s, actual: %s", boundsE.String(), boundsA.String())
 	}
 }
-*/
 
 func TestSpeedSeg(t *testing.T) {
 	g, _ := ParseFile("../../test_files/file.gpx")
