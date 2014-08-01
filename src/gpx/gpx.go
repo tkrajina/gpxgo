@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	//"fmt"
 
 	"gpx/gpx10"
 	"gpx/gpx11"
@@ -108,6 +109,10 @@ func parseGPXTime(timestr string) (*time.Time, error) {
 
 func formatGPXTime(time *time.Time) string {
 	if time == nil {
+		return ""
+	}
+	if time.Year() <= 1 {
+		// Invalid date:
 		return ""
 	}
 	return time.Format(TIMELAYOUTS[0])

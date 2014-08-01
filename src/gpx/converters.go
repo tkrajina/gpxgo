@@ -16,13 +16,13 @@ const DEFAULT_CREATOR = "https://github.com/ptrv/go-gpx"
 func convertToGpx10Models(gpxDoc *GPX) *gpx10.Gpx {
 	gpx10Doc := gpx10.NewGpx()
 
-    gpx10Doc.Version = "1.0"
-    //gpx10Doc.XMLNs = "http://www.topografix.com/GPX/1/0"
-    if len(gpxDoc.Creator) == 0 {
-        gpx10Doc.Creator = DEFAULT_CREATOR
-    } else {
-        gpx10Doc.Creator = gpxDoc.Creator
-    }
+	gpx10Doc.Version = "1.0"
+	//gpx10Doc.XMLNs = "http://www.topografix.com/GPX/1/0"
+	if len(gpxDoc.Creator) == 0 {
+		gpx10Doc.Creator = DEFAULT_CREATOR
+	} else {
+		gpx10Doc.Creator = gpxDoc.Creator
+	}
 	gpx10Doc.Name = gpxDoc.Name
 	gpx10Doc.Desc = gpxDoc.Description
 	gpx10Doc.Author = gpxDoc.AuthorName
@@ -258,13 +258,13 @@ func convertPointFromGpx10(original *gpx10.GpxPoint) *GPXPoint {
 func convertToGpx11Models(gpxDoc *GPX) *gpx11.Gpx {
 	gpx11Doc := gpx11.NewGpx()
 
-    gpx11Doc.Version = "1.1"
-    //gpx11Doc.XMLNs = "http://www.topografix.com/GPX/1/1"
-    if len(gpxDoc.Creator) == 0 {
-        gpx11Doc.Creator = DEFAULT_CREATOR
-    } else {
-        gpx11Doc.Creator = gpxDoc.Creator
-    }
+	gpx11Doc.Version = "1.1"
+	//gpx11Doc.XMLNs = "http://www.topografix.com/GPX/1/1"
+	if len(gpxDoc.Creator) == 0 {
+		gpx11Doc.Creator = DEFAULT_CREATOR
+	} else {
+		gpx11Doc.Creator = gpxDoc.Creator
+	}
 	gpx11Doc.Name = gpxDoc.Name
 	gpx11Doc.Desc = gpxDoc.Description
 	gpx11Doc.AuthorName = gpxDoc.AuthorName
