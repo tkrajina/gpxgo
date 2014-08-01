@@ -1,2 +1,4 @@
-*.test
-/gpxinfo/gpxinfo
+*.sw*
+tags
+gpxgo
+pkg/*

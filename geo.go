@@ -1,4 +1,4 @@
-// Copyright 2013, 2014 Peter Vasil. All rights reserved.
+// Copyright 2014 Peter Vasil. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -12,9 +12,29 @@ import (
 const oneDegree = 1000.0 * 10000.8 / 90.0
 const earthRadius = 6371 * 1000
 
-// ToRad converts degree to radian
 func ToRad(x float64) float64 {
 	return x / 180. * math.Pi
+}
+
+type MovingData struct {
+	MovingTime      float64
+	StoppedTime     float64
+	MovingDistance  float64
+	StoppedDistance float64
+	MaxSpeed        float64
+}
+
+func (md *MovingData) Equals(md2 *MovingData) bool {
+	return md.MovingTime == md2.MovingTime &&
+		md.MovingDistance == md2.MovingDistance &&
+		md.StoppedTime == md2.StoppedTime &&
+		md.StoppedDistance == md2.StoppedDistance &&
+		md.MaxSpeed == md.MaxSpeed
+}
+
+type SpeedsAndDistances struct {
+	Speed    float64
+	Distance float64
 }
 
 // HaversineDistance returns the haversine distance between two points.
@@ -33,12 +53,12 @@ func HaversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	return d
 }
 
-func length(locs []Wpt, threeD bool) float64 {
-	var previousLoc *Wpt
+func length(locs []*Point, threeD bool) float64 {
+	var previousLoc *Point
 	var res float64
 	for k, v := range locs {
 		if k > 0 {
-			previousLoc = &locs[k-1]
+			previousLoc = locs[k-1]
 			var d float64
 			if threeD {
 				d = v.Distance3D(previousLoc)
@@ -51,17 +71,14 @@ func length(locs []Wpt, threeD bool) float64 {
 	return res
 }
 
-// Length2D returns the 2D length of a given Waypoints array
-func Length2D(locs []Wpt) float64 {
+func Length2D(locs []*Point) float64 {
 	return length(locs, false)
 }
 
-// Length3D returns the 3D length of a given Waypoints array
-func Length3D(locs []Wpt) float64 {
+func Length3D(locs []*Point) float64 {
 	return length(locs, true)
 }
 
-// CalcMaxSpeed calculates the max speed
 func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 	lenArrs := len(speedsDistances)
 
@@ -70,22 +87,22 @@ func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 		return 0.0
 	}
 
-	var sumDists float64
+	var sum_dists float64
 	for _, d := range speedsDistances {
-		sumDists += d.Distance
+		sum_dists += d.Distance
 	}
-	averageDist := sumDists / float64(lenArrs)
+	average_dist := sum_dists / float64(lenArrs)
 
 	var variance float64
 	for i := 0; i < len(speedsDistances); i++ {
-		variance += math.Pow(speedsDistances[i].Distance-averageDist, 2)
+		variance += math.Pow(speedsDistances[i].Distance-average_dist, 2)
 	}
 	stdDeviation := math.Sqrt(variance)
 
 	// ignore items with distance too long
-	var filteredSD []SpeedsAndDistances
+	filteredSD := make([]SpeedsAndDistances, 0)
 	for i := 0; i < len(speedsDistances); i++ {
-		dist := math.Abs(speedsDistances[i].Distance - averageDist)
+		dist := math.Abs(speedsDistances[i].Distance - average_dist)
 		if dist <= stdDeviation*1.5 {
 			filteredSD = append(filteredSD, speedsDistances[i])
 		}
@@ -105,14 +122,13 @@ func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 	return speedsSorted[maxIdx]
 }
 
-// CalcUphillDownhill calculates uphill/downhill data
 func CalcUphillDownhill(elevations []float64) (float64, float64) {
 	elevsLen := len(elevations)
 	if elevsLen == 0 {
 		return 0.0, 0.0
 	}
 
-	smoothElevations := make([]float64, elevsLen)
+	smooth_elevations := make([]float64, elevsLen)
 
 	for i, elev := range elevations {
 		var currEle float64
@@ -123,14 +139,14 @@ func CalcUphillDownhill(elevations []float64) (float64, float64) {
 		} else {
 			currEle = elev
 		}
-		smoothElevations[i] = currEle
+		smooth_elevations[i] = currEle
 	}
 
 	var uphill float64
 	var downhill float64
 
-	for i := 1; i < len(smoothElevations); i++ {
-		d := smoothElevations[i] - smoothElevations[i-1]
+	for i := 1; i < len(smooth_elevations); i++ {
+		d := smooth_elevations[i] - smooth_elevations[i-1]
 		if d > 0.0 {
 			uphill += d
 		} else {
@@ -161,20 +177,16 @@ func distance(lat1, lon1, ele1, lat2, lon2, ele2 float64, threeD, haversine bool
 
 	return math.Sqrt(math.Pow(distance2d, 2) + math.Pow((ele1-ele2), 2))
 }
-
-// Distance2D calculates the 2D distance of a given lat/lon pair
 func Distance2D(lat1, lon1, lat2, lon2 float64, haversine bool) float64 {
 	return distance(lat1, lon1, 0.0, lat2, lon2, 0.0, false, haversine)
 }
 
-// Distance3D calculates the 3D distance of a given lat/lon pair
 func Distance3D(lat1, lon1, ele1, lat2, lon2, ele2 float64, haversine bool) float64 {
 	return distance(lat1, lon1, ele1, lat2, lon2, ele2, true, haversine)
 }
 
-// ElevationAngle calculates the elavation angle
-func ElevationAngle(loc1, loc2 *Wpt, radians bool) float64 {
-	b := loc2.Ele - loc1.Ele
+func ElevationAngle(loc1, loc2 *Point, radians bool) float64 {
+	b := loc2.Elevation - loc1.Elevation
 	a := loc2.Distance2D(loc1)
 
 	if a == 0.0 {
