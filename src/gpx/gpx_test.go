@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 	"time"
-    "strings"
 )
 
 const TIME_FORMAT = "2006-01-02T15:04:05Z"
@@ -19,22 +19,22 @@ func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
 }
 
 func assertLinesEquals(t *testing.T, string1, string2 string) {
-    lines1 := strings.Split(string1, "\n")
-    lines2 := strings.Split(string2, "\n")
-    if len(lines1) != len(lines2) {
-        fmt.Println("String1:", string1)
-        fmt.Println("String2:", string2)
-        t.Error("String have a different number of lines", len(lines1), "and", len(lines2))
-        return
-    }
-    for i := 0; i < len(lines1); i++ {
-        line1 := strings.Trim(lines1[i], " \n\r")
-        line2 := strings.Trim(lines2[i], " \n\r")
-        if line1 != line2 {
-            t.Error("Line (#", i, ") different:", line1, "\nand:", line2)
-            return
-        }
-    }
+	lines1 := strings.Split(string1, "\n")
+	lines2 := strings.Split(string2, "\n")
+	if len(lines1) != len(lines2) {
+		fmt.Println("String1:", string1)
+		fmt.Println("String2:", string2)
+		t.Error("String have a different number of lines", len(lines1), "and", len(lines2))
+		return
+	}
+	for i := 0; i < len(lines1); i++ {
+		line1 := strings.Trim(lines1[i], " \n\r")
+		line2 := strings.Trim(lines2[i], " \n\r")
+		if line1 != line2 {
+			t.Error("Line (#", i, ") different:", line1, "\nand:", line2)
+			return
+		}
+	}
 }
 
 func assertNil(t *testing.T, var1 interface{}) {
@@ -77,7 +77,7 @@ func TestParseGPXTimes(t *testing.T) {
 
 func testDetectVersion(t *testing.T, fileName, expectedVersion string) {
 	f, err := os.Open(fileName)
-    fmt.Println("err=", err)
+	fmt.Println("err=", err)
 	contents, _ := ioutil.ReadAll(f)
 	version, err := guessGPXVersion(contents)
 	fmt.Println("Version=", version)
@@ -109,7 +109,7 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		assertEquals(t, gpxDoc.Version, "1.1")
 
 		// Test after reparsing
-		xml, err := gpxDoc.ToXml(ToXmlParams{Version:"1.1", Indent: true})
+		xml, err := gpxDoc.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 		//fmt.Println(string(xml))
 		if err != nil {
 			t.Error("Error serializing to XML:" + err.Error())
@@ -268,7 +268,7 @@ func TestParseAndReparseGPX10(t *testing.T) {
 		assertEquals(t, gpxDoc.Version, "1.0")
 
 		// Test after reparsing
-		xml, err := gpxDoc.ToXml(ToXmlParams{Version:"1.0", Indent: true})
+		xml, err := gpxDoc.ToXml(ToXmlParams{Version: "1.0", Indent: true})
 		//fmt.Println(string(xml))
 		if err != nil {
 			t.Error("Error serializing to XML:" + err.Error())
@@ -420,9 +420,9 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 func TestLength2DSeg(t *testing.T) {
 	g, _ := ParseFile("../../test_files/file.gpx")
 
-    fmt.Println("tracks=", g.Tracks)
-    fmt.Println("tracks=", len(g.Tracks))
-    fmt.Println("segments=", len(g.Tracks[0].Segments))
+	fmt.Println("tracks=", g.Tracks)
+	fmt.Println("tracks=", len(g.Tracks))
+	fmt.Println("segments=", len(g.Tracks[0].Segments))
 
 	lengthA := g.Tracks[0].Segments[0].Length2D()
 	lengthE := 56.77577732775905
@@ -559,7 +559,7 @@ func TestUphillDownhill(t *testing.T) {
 
 func TestToXml(t *testing.T) {
 	g, _ := ParseFile("../../test_files/file.gpx")
-	xml, _ := g.ToXml(ToXmlParams{Version:"1.1", Indent: true})
+	xml, _ := g.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 	xmlA := string(xml)
 	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="eTrex 10">
@@ -604,7 +604,7 @@ func TestToXml(t *testing.T) {
 	</trk>
 </gpx>`
 
-    assertLinesEquals(t, xmlE, xmlA)
+	assertLinesEquals(t, xmlE, xmlA)
 }
 
 func TestNewXml(t *testing.T) {
@@ -619,7 +619,7 @@ func TestNewXml(t *testing.T) {
 	gpxTrack.Segments = append(gpxTrack.Segments, gpxSegment)
 	gpx.Tracks = append(gpx.Tracks, gpxTrack)
 
-	xml, _ := gpx.ToXml(ToXmlParams{Version:"1.1", Indent: true})
+	xml, _ := gpx.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 	actualXml := string(xml)
 	expectedXml := `<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="https://github.com/ptrv/go-gpx">
 	<trk>
@@ -637,7 +637,7 @@ func TestNewXml(t *testing.T) {
 	</trk>
 </gpx>`
 
-    assertLinesEquals(t, expectedXml, actualXml)
+	assertLinesEquals(t, expectedXml, actualXml)
 }
 
 /* TODO: Clone

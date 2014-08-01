@@ -108,24 +108,24 @@ gpx
 */
 
 type Gpx struct {
-	XMLName      xml.Name    `xml:"http://www.topografix.com/GPX/1/0 gpx"`
-    //XMLNs        string    `xml:"xmlns,attr"`
+	XMLName xml.Name `xml:"http://www.topografix.com/GPX/1/0 gpx"`
+	//XMLNs        string    `xml:"xmlns,attr"`
 	//XmlNsXsi     string      `xml:"xmlns:xsi,attr,omitempty"`
 	//XmlSchemaLoc string      `xml:"xsi:schemaLocation,attr,omitempty"`
-	Version      string      `xml:"version,attr"`
-	Creator      string      `xml:"creator,attr"`
-	Name         string      `xml:"name,omitempty"`
-	Desc         string      `xml:"desc,omitempty"`
-	Author       string      `xml:"author,omitempty"`
-	Email        string      `xml:"email,omitempty"`
-	Url          string      `xml:"url,omitempty"`
-	UrlName      string      `xml:"urlname,omitempty"`
-	Time         string      `xml:"time,omitempty"`
-	Keywords     string      `xml:"keywords,omitempty"`
-	Bounds       *GpxBounds  `xml:"bounds"`
-	Waypoints    []*GpxPoint `xml:"wpt"`
-	Routes       []*GpxRte   `xml:"rte"`
-	Tracks       []*GpxTrk   `xml:"trk"`
+	Version   string      `xml:"version,attr"`
+	Creator   string      `xml:"creator,attr"`
+	Name      string      `xml:"name,omitempty"`
+	Desc      string      `xml:"desc,omitempty"`
+	Author    string      `xml:"author,omitempty"`
+	Email     string      `xml:"email,omitempty"`
+	Url       string      `xml:"url,omitempty"`
+	UrlName   string      `xml:"urlname,omitempty"`
+	Time      string      `xml:"time,omitempty"`
+	Keywords  string      `xml:"keywords,omitempty"`
+	Bounds    *GpxBounds  `xml:"bounds"`
+	Waypoints []*GpxPoint `xml:"wpt"`
+	Routes    []*GpxRte   `xml:"rte"`
+	Tracks    []*GpxTrk   `xml:"trk"`
 }
 
 type GpxBounds struct {

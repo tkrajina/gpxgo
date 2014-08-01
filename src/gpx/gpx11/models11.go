@@ -144,16 +144,16 @@ gpx (gpxType)
 */
 
 type Gpx struct {
-	XMLName      xml.Name  `xml:"http://www.topografix.com/GPX/1/1 gpx"`
-    //XMLNs        string    `xml:"xmlns,attr"`
+	XMLName xml.Name `xml:"http://www.topografix.com/GPX/1/1 gpx"`
+	//XMLNs        string    `xml:"xmlns,attr"`
 	//XmlNsXsi     string    `xml:"xmlns:xsi,attr,omitempty"`
 	//XmlSchemaLoc string    `xml:"xsi:schemaLocation,attr,omitempty"`
-	Version      string    `xml:"version,attr"`
-	Creator      string    `xml:"creator,attr"`
-	Name         string    `xml:"metadata>name,omitempty"`
-	Desc         string    `xml:"metadata>desc,omitempty"`
-	AuthorName   string    `xml:"metadata>author>name,omitempty"`
-	AuthorEmail  *GpxEmail `xml:"metadata>author>email,omitempty"`
+	Version     string    `xml:"version,attr"`
+	Creator     string    `xml:"creator,attr"`
+	Name        string    `xml:"metadata>name,omitempty"`
+	Desc        string    `xml:"metadata>desc,omitempty"`
+	AuthorName  string    `xml:"metadata>author>name,omitempty"`
+	AuthorEmail *GpxEmail `xml:"metadata>author>email,omitempty"`
 	// TODO: There can be more than one link?
 	AuthorLink *GpxLink       `xml:"metadata>author>link,omitempty"`
 	Copyright  *GpxCopyright  `xml:"metadata>copyright,omitempty"`

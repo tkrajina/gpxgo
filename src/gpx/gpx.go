@@ -1,6 +1,7 @@
 package gpx
 
 import (
+	"bytes"
 	"encoding/xml"
 	"errors"
 	"io/ioutil"
@@ -23,22 +24,21 @@ var TIMELAYOUTS = []string{
 }
 
 type ToXmlParams struct {
-    Version string
-    Indent bool
+	Version string
+	Indent  bool
 }
 
 /*
  * Params are optional, you can set null to use GPXs Version and no indentation.
  */
 func (g *GPX) ToXml(params ToXmlParams) ([]byte, error) {
+	version := g.Version
+	if len(params.Version) > 0 {
+		version = params.Version
+	}
+	indentation := params.Indent
 
-    version := g.Version
-    if len(params.Version) > 0 {
-        version = params.Version
-    }
-    indentation := params.Indent
-
-    var gpxDoc interface{}
+	var gpxDoc interface{}
 	if version == "1.0" {
 		gpxDoc = convertToGpx10Models(g)
 	} else if version == "1.1" {
@@ -47,11 +47,22 @@ func (g *GPX) ToXml(params ToXmlParams) ([]byte, error) {
 		return nil, errors.New("Invalid version " + version)
 	}
 
-    if indentation {
-        return xml.MarshalIndent(gpxDoc, "", "	")
-    } else {
-        return xml.Marshal(gpxDoc)
-    }
+	var buffer bytes.Buffer
+	buffer.WriteString(xml.Header)
+	if indentation {
+		bytes, err := xml.MarshalIndent(gpxDoc, "", "	")
+		if err != nil {
+			return nil, err
+		}
+		buffer.Write(bytes)
+	} else {
+		bytes, err := xml.Marshal(gpxDoc)
+		if err != nil {
+			return nil, err
+		}
+		buffer.Write(bytes)
+	}
+	return buffer.Bytes(), nil
 }
 
 func guessGPXVersion(bytes []byte) (string, error) {

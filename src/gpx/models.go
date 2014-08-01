@@ -27,9 +27,9 @@ type TimeBounds struct {
 }
 
 func (tb *TimeBounds) Equals(tb2 *TimeBounds) bool {
-    fmt.Println(tb.StartTime)
-    fmt.Println(tb2.StartTime)
-    fmt.Println(tb.EndTime.Equal(tb2.EndTime))
+	fmt.Println(tb.StartTime)
+	fmt.Println(tb2.StartTime)
+	fmt.Println(tb.EndTime.Equal(tb2.EndTime))
 	if tb.StartTime == tb2.StartTime && tb.EndTime == tb2.EndTime {
 		return true
 	}
@@ -514,11 +514,11 @@ func (seg *GPXTrackSegment) TimeBounds() *TimeBounds {
 	timeTuple := make([]time.Time, 0)
 
 	for _, trkpt := range seg.Points {
-        if len(timeTuple) < 2 {
-            timeTuple = append(timeTuple, trkpt.Timestamp)
-        } else {
-            timeTuple[1] = trkpt.Timestamp
-        }
+		if len(timeTuple) < 2 {
+			timeTuple = append(timeTuple, trkpt.Timestamp)
+		} else {
+			timeTuple[1] = trkpt.Timestamp
+		}
 	}
 	if len(timeTuple) == 2 {
 		return &TimeBounds{StartTime: timeTuple[0], EndTime: timeTuple[1]}
