@@ -56,7 +56,8 @@ func TestParseGPXTimes(t *testing.T) {
 }
 
 func testDetectVersion(t *testing.T, fileName, expectedVersion string) {
-	f, _ := os.Open(fileName)
+	f, err := os.Open(fileName)
+    fmt.Println("err=", err)
 	contents, _ := ioutil.ReadAll(f)
 	version, err := guessGPXVersion(contents)
 	fmt.Println("Version=", version)
@@ -423,7 +424,7 @@ func TestLength3DSeg(t *testing.T) {
 
 func TestTimePoint(t *testing.T) {
 	g, _ := ParseFile("../../test_files/file.gpx")
-	timeA := *g.Tracks[0].Segments[0].Points[0].Timestamp
+	timeA := g.Tracks[0].Segments[0].Points[0].Timestamp
 	//2012-03-17T12:46:19Z
 	timeE := time.Date(2012, 3, 17, 12, 46, 19, 0, time.UTC)
 
@@ -439,8 +440,8 @@ func TestTimeBoundsSeg(t *testing.T) {
 	startTime := time.Date(2012, 3, 17, 12, 46, 19, 0, time.UTC)
 	endTime := time.Date(2012, 3, 17, 12, 47, 23, 0, time.UTC)
 	timeBoundsE := TimeBounds{
-		StartTime: &startTime,
-		EndTime:   &endTime,
+		StartTime: startTime,
+		EndTime:   endTime,
 	}
 
 	if !timeBoundsE.Equals(timeBoundsA) {

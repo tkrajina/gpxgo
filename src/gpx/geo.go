@@ -25,14 +25,11 @@ type MovingData struct {
 }
 
 func (md *MovingData) Equals(md2 *MovingData) bool {
-	if md.MovingTime == md2.MovingTime &&
+	return md.MovingTime == md2.MovingTime &&
 		md.MovingDistance == md2.MovingDistance &&
 		md.StoppedTime == md2.StoppedTime &&
 		md.StoppedDistance == md2.StoppedDistance &&
-		md.MaxSpeed == md.MaxSpeed {
-		return true
-	}
-	return false
+		md.MaxSpeed == md.MaxSpeed
 }
 
 type SpeedsAndDistances struct {

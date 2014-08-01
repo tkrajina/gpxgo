@@ -22,11 +22,14 @@ type Point struct {
 }
 
 type TimeBounds struct {
-	StartTime *time.Time
-	EndTime   *time.Time
+	StartTime time.Time
+	EndTime   time.Time
 }
 
 func (tb *TimeBounds) Equals(tb2 *TimeBounds) bool {
+    fmt.Println(tb.StartTime)
+    fmt.Println(tb2.StartTime)
+    fmt.Println(tb.EndTime.Equal(tb2.EndTime))
 	if tb.StartTime == tb2.StartTime && tb.EndTime == tb2.EndTime {
 		return true
 	}
@@ -241,7 +244,7 @@ func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
 type GPXPoint struct {
 	Point
 	// TODO
-	Timestamp *time.Time
+	Timestamp time.Time
 	// TODO: Type
 	MagneticVariation string
 	// TODO: Type
@@ -508,16 +511,14 @@ func (seg *GPXTrackSegment) Length3D() float64 {
 
 // TimeBounds returns the time bounds of a GPX segment.
 func (seg *GPXTrackSegment) TimeBounds() *TimeBounds {
-	timeTuple := make([]*time.Time, 0)
+	timeTuple := make([]time.Time, 0)
 
 	for _, trkpt := range seg.Points {
-		if trkpt.Timestamp != nil {
-			if len(timeTuple) < 2 {
-				timeTuple = append(timeTuple, trkpt.Timestamp)
-			} else {
-				timeTuple[1] = trkpt.Timestamp
-			}
-		}
+        if len(timeTuple) < 2 {
+            timeTuple = append(timeTuple, trkpt.Timestamp)
+        } else {
+            timeTuple[1] = trkpt.Timestamp
+        }
 	}
 	if len(timeTuple) == 2 {
 		return &TimeBounds{StartTime: timeTuple[0], EndTime: timeTuple[1]}
@@ -596,8 +597,8 @@ func (seg *GPXTrackSegment) Duration() float64 {
 	last := seg.Points[trksLen-1]
 
 	// NPE check
-	firstTimestamp := *(first.Timestamp)
-	lastTimestamp := *(last.Timestamp)
+	firstTimestamp := first.Timestamp
+	lastTimestamp := last.Timestamp
 
 	if firstTimestamp.Equal(lastTimestamp) {
 		return 0.0
@@ -656,8 +657,8 @@ func (seg *GPXTrackSegment) LocationAt(t time.Time) int {
 	firstT := seg.Points[0]
 	lastT := seg.Points[lenPts-1]
 
-	firstTimestamp := *(firstT.Timestamp)
-	lastTimestamp := *(lastT.Timestamp)
+	firstTimestamp := firstT.Timestamp
+	lastTimestamp := lastT.Timestamp
 
 	if firstTimestamp.Equal(lastTimestamp) || firstTimestamp.After(lastTimestamp) {
 		return -1
@@ -665,7 +666,7 @@ func (seg *GPXTrackSegment) LocationAt(t time.Time) int {
 
 	for i := 0; i < len(seg.Points); i++ {
 		pt := seg.Points[i]
-		if t.Before(*pt.Timestamp) {
+		if t.Before(pt.Timestamp) {
 			return i
 		}
 	}
@@ -690,7 +691,7 @@ func (seg *GPXTrackSegment) MovingData() *MovingData {
 
 		dist := pt.Distance3D(&prev.Point)
 
-		timedelta := (*pt.Timestamp).Sub(*prev.Timestamp)
+		timedelta := pt.Timestamp.Sub(prev.Timestamp)
 		seconds := timedelta.Seconds()
 		var speedKmh float64
 
@@ -728,8 +729,8 @@ func (seg *GPXTrackSegment) MovingData() *MovingData {
 
 // TimeDiff returns the time difference of two GpxWpts in seconds.
 func (pt *GPXPoint) TimeDiff(pt2 *GPXPoint) float64 {
-	t1 := *pt.Timestamp
-	t2 := *pt2.Timestamp
+	t1 := pt.Timestamp
+	t2 := pt2.Timestamp
 
 	if t1.Equal(t2) {
 		return 0.0
