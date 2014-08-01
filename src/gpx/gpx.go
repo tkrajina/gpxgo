@@ -32,7 +32,7 @@ type ToXmlParams struct {
 /*
  * Params are optional, you can set null to use GPXs Version and no indentation.
  */
-func (g *GPX) ToXml(params ToXmlParams) ([]byte, error) {
+func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 	version := g.Version
 	if len(params.Version) > 0 {
 		version = params.Version

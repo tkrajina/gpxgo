@@ -104,6 +104,13 @@ type GPX struct {
 	Tracks     []*GPXTrack
 }
 
+/*
+ * Params are optional, you can set null to use GPXs Version and no indentation.
+ */
+func (g *GPX) ToXml(params ToXmlParams) ([]byte, error) {
+	return ToXml(g, params)
+}
+
 // Length2D returns the 2D length of all tracks in a Gpx.
 func (g *GPX) Length2D() float64 {
 	var length2d float64
