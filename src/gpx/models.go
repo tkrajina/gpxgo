@@ -596,7 +596,6 @@ func (seg *GPXTrackSegment) Duration() float64 {
 	first := seg.Points[0]
 	last := seg.Points[trksLen-1]
 
-	// NPE check
 	firstTimestamp := first.Timestamp
 	lastTimestamp := last.Timestamp
 
@@ -604,7 +603,7 @@ func (seg *GPXTrackSegment) Duration() float64 {
 		return 0.0
 	}
 
-	if firstTimestamp.Before(lastTimestamp) {
+	if lastTimestamp.Before(firstTimestamp) {
 		return 0.0
 	}
 	dur := lastTimestamp.Sub(firstTimestamp)
