@@ -10,8 +10,8 @@ import (
 	"time"
 	//"fmt"
 
-	"gpx/gpx10"
-	"gpx/gpx11"
+	"github.com/tkrajina/gpxgo/gpx/gpx10"
+	"github.com/tkrajina/gpxgo/gpx/gpx11"
 
 	//"fmt"
 )

@@ -1,9 +1,11 @@
 package gpx
 
 import (
-	"gpx/gpx10"
-	"gpx/gpx11"
 	"strings"
+
+	"github.com/tkrajina/gpxgo/gpx/gpx10"
+	"github.com/tkrajina/gpxgo/gpx/gpx11"
+
 	//    "fmt"
 )
 
