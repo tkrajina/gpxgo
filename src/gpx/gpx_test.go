@@ -476,7 +476,6 @@ func TestTimeBoundsSeg(t *testing.T) {
 	}
 }
 
-/* TODO: Bounds
 func TestBoundsSeg(t *testing.T) {
 	g, _ := ParseFile("../../test_files/file.gpx")
 
@@ -491,6 +490,7 @@ func TestBoundsSeg(t *testing.T) {
 	}
 }
 
+/* TODO: Bounds
 func TestBoundsGpx(t *testing.T) {
 	boundsA := g.Bounds()
 	boundsE := GpxBounds{

@@ -15,6 +15,15 @@ type GpxBounds struct {
 	MaxLon float64
 }
 
+// Equals returns true if two Bounds objects are equal
+func (b *GpxBounds) Equals(b2 *GpxBounds) bool {
+	return b.MinLon == b2.MinLon && b.MaxLat == b2.MaxLat && b.MinLon == b2.MinLon && b.MaxLon == b.MaxLon
+}
+
+func (b *GpxBounds) String() string {
+	return fmt.Sprintf("Max: %+v, %+v Min: %+v, %+v", b.MinLat, b.MinLon, b.MaxLat, b.MaxLon)
+}
+
 type Point struct {
 	Latitude  float64
 	Longitue  float64
