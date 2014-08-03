@@ -164,7 +164,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	// Waypoints:
 	assertEquals(t, len(gpxDoc.Waypoints), 2)
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
-	assertEquals(t, gpxDoc.Waypoints[0].Longitue, 45.6)
+	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
 	assertEquals(t, gpxDoc.Waypoints[0].Elevation, 75.1)
 	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
@@ -187,7 +187,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	// TODO: Extensions
 
 	assertEquals(t, gpxDoc.Waypoints[1].Latitude, 13.4)
-	assertEquals(t, gpxDoc.Waypoints[1].Longitue, 46.7)
+	assertEquals(t, gpxDoc.Waypoints[1].Longitude, 46.7)
 
 	// Routes:
 	assertEquals(t, len(gpxDoc.Routes), 2)
@@ -325,7 +325,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	// Waypoints:
 	assertEquals(t, len(gpxDoc.Waypoints), 2)
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
-	assertEquals(t, gpxDoc.Waypoints[0].Longitue, 45.6)
+	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
 	assertEquals(t, gpxDoc.Waypoints[0].Elevation, 75.1)
 	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
@@ -348,7 +348,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	// TODO: Extensions
 
 	assertEquals(t, gpxDoc.Waypoints[1].Latitude, 13.4)
-	assertEquals(t, gpxDoc.Waypoints[1].Longitue, 46.7)
+	assertEquals(t, gpxDoc.Waypoints[1].Longitude, 46.7)
 
 	// Routes:
 	assertEquals(t, len(gpxDoc.Routes), 2)
@@ -620,9 +620,9 @@ func TestNewXml(t *testing.T) {
 	gpxTrack := new(GPXTrack)
 
 	gpxSegment := new(GPXTrackSegment)
-	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1234, Longitue: 5.1234, Elevation: 1234}})
-	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1233, Longitue: 5.1235, Elevation: 1235}})
-	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1235, Longitue: 5.1236, Elevation: 1236}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: 1234}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: 1235}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: 1236}})
 
 	gpxTrack.Segments = append(gpxTrack.Segments, gpxSegment)
 	gpx.Tracks = append(gpx.Tracks, gpxTrack)
