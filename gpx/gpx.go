@@ -8,12 +8,11 @@ import (
 	"os"
 	"strings"
 	"time"
-	//"fmt"
 
 	"github.com/tkrajina/gpxgo/gpx/gpx10"
 	"github.com/tkrajina/gpxgo/gpx/gpx11"
 
-	//"fmt"
+	"fmt"
 )
 
 // An array cannot be constant :( The first one if the default layout:
@@ -22,6 +21,12 @@ var TIMELAYOUTS = []string{
 	"2006-01-02T15:04:05",
 	"2006-01-02 15:04:05Z",
 	"2006-01-02 15:04:05",
+}
+
+func init() {
+	fmt.Println("----------------------------------------------------------------------------------------------------")
+	fmt.Println("This API is experimental, it *will* change")
+	fmt.Println("----------------------------------------------------------------------------------------------------")
 }
 
 type ToXmlParams struct {
