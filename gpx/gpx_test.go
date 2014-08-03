@@ -712,3 +712,15 @@ func TestAddElevation(t *testing.T) {
     assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 90.0)
     assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, -10.0) // TODO: this should be nil!
 }
+
+func TestRemoveElevation(t *testing.T) {
+	g, _ := ParseFile("../test_files/file.gpx")
+
+    g.RemoveElevation()
+
+    xml, _ := g.ToXml(ToXmlParams{})
+
+    if strings.Contains(string(xml), "<ele") {
+        t.Error("Elevation still there!")
+    }
+}

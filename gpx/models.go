@@ -188,6 +188,12 @@ func (g *GPX) AddElevation(elevation float64) {
     }
 }
 
+func (g *GPX) RemoveElevation() {
+    for _, track := range g.Tracks {
+        track.RemoveElevation()
+    }
+}
+
 func (g *GPX) AppendTrack(t *GPXTrack) {
     g.Tracks = append(g.Tracks, t)
 }
@@ -549,6 +555,13 @@ func (seg *GPXTrackSegment) AddElevation(elevation float64) {
     }
 }
 
+func (seg *GPXTrackSegment) RemoveElevation() {
+    for _, point := range seg.Points {
+        // TODO: nil !
+        point.Elevation = 0
+    }
+}
+
 // Split splits a GPX segment at point index pt. Point pt remains in
 // first part.
 func (seg *GPXTrackSegment) Split(pt int) (*GPXTrackSegment, *GPXTrackSegment) {
@@ -730,6 +743,12 @@ func (trk *GPXTrack) Split(segNo, ptNo int) {
 func (trk *GPXTrack) AddElevation(elevation float64) {
     for _, segment := range trk.Segments {
         segment.AddElevation(elevation)
+    }
+}
+
+func (trk *GPXTrack) RemoveElevation() {
+    for _, segment := range trk.Segments {
+        segment.RemoveElevation()
     }
 }
 
