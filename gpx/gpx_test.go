@@ -732,3 +732,25 @@ func TestExecuteOnAllPoints(t *testing.T) {
 	g.ExecuteOnAllPoints(func(*GPXPoint) {
 	})
 }
+
+func TestEmptyElevation(t *testing.T) {
+	gpx := new(GPX)
+	gpx.AppendTrack(new(GPXTrack))
+	gpx.Tracks[0].AppendSegment(new(GPXTrackSegment))
+	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: 100}})
+	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 13, Longitude: 14, Elevation: 0}})
+	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 14, Longitude: 15}})
+
+	xmlBytes, _ := gpx.ToXml(ToXmlParams{Indent: false})
+	xml := string(xmlBytes)
+
+	if !strings.Contains(xml, `<trkpt lat="12" lon="13"><ele>100</ele></trkpt>`) {
+		t.Error("Invalid elevation 100 serialization:" + xml)
+	}
+	if !strings.Contains(xml, `<trkpt lat="13" lon="14"><ele>0</ele></trkpt>`) {
+		t.Error("Invalid elevation 0 serialization:" + xml)
+	}
+	if !strings.Contains(xml, `<trkpt lat="14" lon="15"></trkpt>`) {
+		t.Error("Invalid empty elevation serialization:" + xml)
+	}
+}
