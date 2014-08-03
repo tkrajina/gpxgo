@@ -182,6 +182,19 @@ func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
 	return results
 }
 
+func (g *GPX) AppendTrack(t *GPXTrack) {
+    g.Tracks = append(g.Tracks, t)
+}
+
+func (g *GPX) AppendRoute(r *GPXRoute) {
+    g.Routes = append(g.Routes, r)
+}
+
+func (g *GPX) AppendWaypoint(w *GPXPoint) {
+    g.Waypoints = append(g.Waypoints, w)
+}
+
+
 // ----------------------------------------------------------------------------------------------------
 
 type GpxBounds struct {
@@ -615,6 +628,10 @@ func (seg *GPXTrackSegment) MovingData() *MovingData {
 	}
 }
 
+func (seg *GPXTrackSegment) AppendPoint(p *GPXPoint) {
+    seg.Points = append(seg.Points, p)
+}
+
 // ----------------------------------------------------------------------------------------------------
 
 type GPXTrack struct {
@@ -805,6 +822,10 @@ func (trk *GPXTrack) LocationAt(t time.Time) []LocationsResultPair {
 		}
 	}
 	return results
+}
+
+func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
+    trk.Segments = append(trk.Segments, s)
 }
 
 // ----------------------------------------------------------------------------------------------------
