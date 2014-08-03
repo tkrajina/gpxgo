@@ -718,7 +718,8 @@ func TestRemoveElevation(t *testing.T) {
 
     g.RemoveElevation()
 
-    xml, _ := g.ToXml(ToXmlParams{})
+    xml, _ := g.ToXml(ToXmlParams{Indent: true})
+
 
     if strings.Contains(string(xml), "<ele") {
         t.Error("Elevation still there!")
