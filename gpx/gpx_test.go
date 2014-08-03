@@ -653,3 +653,14 @@ func TestNewXml(t *testing.T) {
 
 	assertLinesEquals(t, expectedXml, actualXml)
 }
+
+func TestInvalidXML(t *testing.T) {
+	xml := "<gpx></gpx"
+	gpx, err := ParseString(xml)
+	if err == nil {
+		t.Error("No error for invalid XML!")
+	}
+	if gpx != nil {
+		t.Error("No gpx should be returned for invalid XML")
+	}
+}
