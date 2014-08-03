@@ -661,6 +661,22 @@ func TestInvalidXML(t *testing.T) {
 		t.Error("No error for invalid XML!")
 	}
 	if gpx != nil {
-		t.Error("No gpx should be returned for invalid XML")
+		t.Error("No gpx should be returned for invalid XMLs")
 	}
+}
+
+func TestAddElevation(t *testing.T) {
+    gpx := new(GPX)
+    gpx.AppendTrack(new(GPXTrack))
+    gpx.Tracks[0].AppendSegment(new(GPXTrackSegment))
+    gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: 100}})
+    gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13}})
+
+    gpx.AddElevation(10)
+    assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 110.0)
+    assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, 10.0) // TODO: this should be nil!
+
+    gpx.AddElevation(-20)
+    assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 90.0)
+    assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, -10.0) // TODO: this should be nil!
 }

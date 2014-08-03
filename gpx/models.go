@@ -182,6 +182,12 @@ func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
 	return results
 }
 
+func (g *GPX) AddElevation(elevation float64) {
+    for _, track := range g.Tracks {
+        track.AddElevation(elevation)
+    }
+}
+
 func (g *GPX) AppendTrack(t *GPXTrack) {
     g.Tracks = append(g.Tracks, t)
 }
@@ -537,6 +543,12 @@ func (seg *GPXTrackSegment) UphillDownhill() *UphillDownhill {
 	return &UphillDownhill{Uphill: uphill, Downhill: downhill}
 }
 
+func (seg *GPXTrackSegment) AddElevation(elevation float64) {
+    for _, point := range seg.Points {
+        point.Elevation += elevation
+    }
+}
+
 // Split splits a GPX segment at point index pt. Point pt remains in
 // first part.
 func (seg *GPXTrackSegment) Split(pt int) (*GPXTrackSegment, *GPXTrackSegment) {
@@ -713,6 +725,12 @@ func (trk *GPXTrack) Split(segNo, ptNo int) {
 		}
 	}
 	trk.Segments = newSegs
+}
+
+func (trk *GPXTrack) AddElevation(elevation float64) {
+    for _, segment := range trk.Segments {
+        segment.AddElevation(elevation)
+    }
 }
 
 // Join joins two GPX segments in a GPX track.
