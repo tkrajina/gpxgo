@@ -121,7 +121,7 @@ func TestParseAndReparseGPX11(t *testing.T) {
 		if err != nil {
 			t.Error("Error serializing to XML:" + err.Error())
 		}
-		gpxDoc2, err := ParseString(xml)
+		gpxDoc2, err := ParseBytes(xml)
 		assertEquals(t, gpxDoc2.Version, "1.1")
 		if err != nil {
 			t.Error("Error parsing XML:" + err.Error())
@@ -280,7 +280,7 @@ func TestParseAndReparseGPX10(t *testing.T) {
 		if err != nil {
 			t.Error("Error serializing to XML:" + err.Error())
 		}
-		gpxDoc2, err := ParseString(xml)
+		gpxDoc2, err := ParseBytes(xml)
 		assertEquals(t, gpxDoc2.Version, "1.0")
 		if err != nil {
 			t.Error("Error parsing XML:" + err.Error())
