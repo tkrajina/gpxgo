@@ -189,6 +189,12 @@ func (g *GPX) AddElevation(elevation float64) {
 }
 
 func (g *GPX) RemoveElevation() {
+    for _, waypoint := range g.Waypoints {
+        waypoint.RemoveElevation()
+    }
+    for _, route := range g.Routes {
+        route.RemoveElevation()
+    }
     for _, track := range g.Tracks {
         track.RemoveElevation()
     }
@@ -242,6 +248,11 @@ func (pt *Point) Distance2D(pt2 *Point) float64 {
 // Distance3D returns the 3D distance of two GpxWpts.
 func (pt *Point) Distance3D(pt2 *Point) float64 {
 	return Distance3D(pt.Latitude, pt.Longitude, pt.Elevation, pt2.Latitude, pt2.Longitude, pt2.Elevation, false)
+}
+
+func (pt *Point) RemoveElevation() {
+    // TODO: This should be nil!
+    pt.Elevation = 0
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -396,6 +407,12 @@ func (rte *GPXRoute) Center() (float64, float64) {
 
 	n := float64(lenRtePts)
 	return sumLat / n, sumLon / n
+}
+
+func (rte *GPXRoute) RemoveElevation() {
+    for _, point := range rte.Points {
+        point.RemoveElevation()
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -557,8 +574,7 @@ func (seg *GPXTrackSegment) AddElevation(elevation float64) {
 
 func (seg *GPXTrackSegment) RemoveElevation() {
     for _, point := range seg.Points {
-        // TODO: nil !
-        point.Elevation = 0
+        point.RemoveElevation()
     }
 }
 
