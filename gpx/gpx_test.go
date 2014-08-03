@@ -514,14 +514,46 @@ func TestSpeedSeg(t *testing.T) {
 	}
 }
 
-func TestDurationSeg(t *testing.T) {
-	g, _ := ParseFile("../test_files/file.gpx")
-	durA := g.Tracks[0].Segments[0].Duration()
-	durE := 64.0
+func TestSegmentDuration(t *testing.T) {
+    g, _ := ParseFile("../test_files/file.gpx")
+    durE := 64.0
+    durA := g.Tracks[0].Segments[0].Duration()
+    if durE != durA {
+        t.Errorf("Duration expected: %f, actual: %f", durE, durA)
+    }
+}
 
-	if durE != durA {
-		t.Errorf("Duration expected: %f, actual: %f", durE, durA)
-	}
+func TestTrackDuration(t *testing.T) {
+    g, _ := ParseFile("../test_files/file.gpx")
+    durE := 64.0
+    durA := g.Duration()
+    if durE != durA {
+        t.Errorf("Duration expected: %f, actual: %f", durE, durA)
+    }
+}
+
+func TestMultiSegmentDuration(t *testing.T) {
+    g, _ := ParseFile("../test_files/file.gpx")
+    g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
+    durE := 64.0 * 2
+    durA := g.Duration()
+    if durE != durA {
+        t.Errorf("Duration expected: %f, actual: %f", durE, durA)
+    }
+}
+
+func TestMultiTrackDuration(t *testing.T) {
+    g, _ := ParseFile("../test_files/file.gpx")
+
+    g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
+    g.AppendTrack(g.Tracks[0])
+    g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
+
+    durE := 384.0
+    durA := g.Duration()
+    if durE != durA {
+        t.Errorf("Duration expected: %f, actual: %f", durE, durA)
+    }
 }
 
 func TestUphillDownHillSeg(t *testing.T) {
