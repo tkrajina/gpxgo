@@ -129,10 +129,10 @@ func ParseFile(fileName string) (*GPX, error) {
 		return nil, err
 	}
 
-	return ParseString(bytes)
+	return ParseBytes(bytes)
 }
 
-func ParseString(bytes []byte) (*GPX, error) {
+func ParseBytes(bytes []byte) (*GPX, error) {
 	version, _ := guessGPXVersion(bytes)
 	if version == "1.0" {
 		g := gpx10.NewGpx()
@@ -153,4 +153,8 @@ func ParseString(bytes []byte) (*GPX, error) {
 	} else {
 		return nil, errors.New("Invalid version:" + version)
 	}
+}
+
+func ParseString(str string) (*GPX, error) {
+	return ParseBytes([]byte(str))
 }
