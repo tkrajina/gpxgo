@@ -135,6 +135,8 @@ func ParseFile(fileName string) (*GPX, error) {
 		return nil, err
 	}
 
+	defer f.Close()
+
 	bytes, err := ioutil.ReadAll(f)
 	if err != nil {
 		return nil, err
