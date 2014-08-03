@@ -67,7 +67,12 @@ func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 }
 
 func guessGPXVersion(bytes []byte) (string, error) {
-	startOfDocument := string(bytes[:1000])
+	bytesCount := 1000
+	if len(bytes) < 1000 {
+		bytesCount = len(bytes)
+	}
+
+	startOfDocument := string(bytes[:bytesCount])
 
 	parts := strings.Split(startOfDocument, "<gpx")
 	if len(parts) <= 1 {
