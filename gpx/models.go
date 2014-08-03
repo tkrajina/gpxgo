@@ -31,9 +31,9 @@ type GPX struct {
 
 	// TODO
 	//Extensions []byte
-	Waypoints  []*GPXPoint
-	Routes     []*GPXRoute
-	Tracks     []*GPXTrack
+	Waypoints []*GPXPoint
+	Routes    []*GPXRoute
+	Tracks    []*GPXTrack
 }
 
 /*
@@ -822,4 +822,3 @@ func getMinimaMaximaStart() *GpxBounds {
 		MinLon: math.MaxFloat64,
 	}
 }
-
