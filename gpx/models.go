@@ -218,18 +218,18 @@ func (b *GpxBounds) String() string {
 // Generic point data
 type Point struct {
 	Latitude  float64
-	Longitue  float64
+	Longitude  float64
 	Elevation float64
 }
 
 // Distance2D returns the 2D distance of two GpxWpts.
 func (pt *Point) Distance2D(pt2 *Point) float64 {
-	return Distance2D(pt.Latitude, pt.Longitue, pt2.Latitude, pt2.Longitue, false)
+	return Distance2D(pt.Latitude, pt.Longitude, pt2.Latitude, pt2.Longitude, false)
 }
 
 // Distance3D returns the 3D distance of two GpxWpts.
 func (pt *Point) Distance3D(pt2 *Point) float64 {
-	return Distance3D(pt.Latitude, pt.Longitue, pt.Elevation, pt2.Latitude, pt2.Longitue, pt2.Elevation, false)
+	return Distance3D(pt.Latitude, pt.Longitude, pt.Elevation, pt2.Latitude, pt2.Longitude, pt2.Elevation, false)
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -379,7 +379,7 @@ func (rte *GPXRoute) Center() (float64, float64) {
 
 	for _, pt := range rte.Points {
 		sumLat += pt.Latitude
-		sumLon += pt.Longitue
+		sumLon += pt.Longitude
 	}
 
 	n := float64(lenRtePts)
@@ -436,8 +436,8 @@ func (seg *GPXTrackSegment) Bounds() *GpxBounds {
 	for _, pt := range seg.Points {
 		minmax.MaxLat = math.Max(pt.Latitude, minmax.MaxLat)
 		minmax.MinLat = math.Min(pt.Latitude, minmax.MinLat)
-		minmax.MaxLon = math.Max(pt.Longitue, minmax.MaxLon)
-		minmax.MinLon = math.Min(pt.Longitue, minmax.MinLon)
+		minmax.MaxLon = math.Max(pt.Longitude, minmax.MaxLon)
+		minmax.MinLon = math.Min(pt.Longitude, minmax.MinLon)
 	}
 	return minmax
 }

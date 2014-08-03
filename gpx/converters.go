@@ -203,7 +203,7 @@ func convertFromGpx10Models(gpx10Doc *gpx10.Gpx) *GPX {
 func convertPointToGpx10(original *GPXPoint) *gpx10.GpxPoint {
 	result := new(gpx10.GpxPoint)
 	result.Lat = original.Latitude
-	result.Lon = original.Longitue
+	result.Lon = original.Longitude
 	result.Ele = original.Elevation
 	result.Timestamp = formatGPXTime(&original.Timestamp)
 	result.MagVar = original.MagneticVariation
@@ -229,7 +229,7 @@ func convertPointToGpx10(original *GPXPoint) *gpx10.GpxPoint {
 func convertPointFromGpx10(original *gpx10.GpxPoint) *GPXPoint {
 	result := new(GPXPoint)
 	result.Latitude = original.Lat
-	result.Longitue = original.Lon
+	result.Longitude = original.Lon
 	result.Elevation = original.Ele
 	time, _ := parseGPXTime(original.Timestamp)
 	result.Timestamp = *time
@@ -485,7 +485,7 @@ func convertFromGpx11Models(gpx11Doc *gpx11.Gpx) *GPX {
 func convertPointToGpx11(original *GPXPoint) *gpx11.GpxPoint {
 	result := new(gpx11.GpxPoint)
 	result.Lat = original.Latitude
-	result.Lon = original.Longitue
+	result.Lon = original.Longitude
 	result.Ele = original.Elevation
 	result.Timestamp = formatGPXTime(&original.Timestamp)
 	result.MagVar = original.MagneticVariation
@@ -511,7 +511,7 @@ func convertPointToGpx11(original *GPXPoint) *gpx11.GpxPoint {
 func convertPointFromGpx11(original *gpx11.GpxPoint) *GPXPoint {
 	result := new(GPXPoint)
 	result.Latitude = original.Lat
-	result.Longitue = original.Lon
+	result.Longitude = original.Lon
 	result.Elevation = original.Ele
 	time, _ := parseGPXTime(original.Timestamp)
 	result.Timestamp = *time
