@@ -515,45 +515,45 @@ func TestSpeedSeg(t *testing.T) {
 }
 
 func TestSegmentDuration(t *testing.T) {
-    g, _ := ParseFile("../test_files/file.gpx")
-    durE := 64.0
-    durA := g.Tracks[0].Segments[0].Duration()
-    if durE != durA {
-        t.Errorf("Duration expected: %f, actual: %f", durE, durA)
-    }
+	g, _ := ParseFile("../test_files/file.gpx")
+	durE := 64.0
+	durA := g.Tracks[0].Segments[0].Duration()
+	if durE != durA {
+		t.Errorf("Duration expected: %f, actual: %f", durE, durA)
+	}
 }
 
 func TestTrackDuration(t *testing.T) {
-    g, _ := ParseFile("../test_files/file.gpx")
-    durE := 64.0
-    durA := g.Duration()
-    if durE != durA {
-        t.Errorf("Duration expected: %f, actual: %f", durE, durA)
-    }
+	g, _ := ParseFile("../test_files/file.gpx")
+	durE := 64.0
+	durA := g.Duration()
+	if durE != durA {
+		t.Errorf("Duration expected: %f, actual: %f", durE, durA)
+	}
 }
 
 func TestMultiSegmentDuration(t *testing.T) {
-    g, _ := ParseFile("../test_files/file.gpx")
-    g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
-    durE := 64.0 * 2
-    durA := g.Duration()
-    if durE != durA {
-        t.Errorf("Duration expected: %f, actual: %f", durE, durA)
-    }
+	g, _ := ParseFile("../test_files/file.gpx")
+	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
+	durE := 64.0 * 2
+	durA := g.Duration()
+	if durE != durA {
+		t.Errorf("Duration expected: %f, actual: %f", durE, durA)
+	}
 }
 
 func TestMultiTrackDuration(t *testing.T) {
-    g, _ := ParseFile("../test_files/file.gpx")
+	g, _ := ParseFile("../test_files/file.gpx")
 
-    g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
-    g.AppendTrack(g.Tracks[0])
-    g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
+	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
+	g.AppendTrack(g.Tracks[0])
+	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
 
-    durE := 384.0
-    durA := g.Duration()
-    if durE != durA {
-        t.Errorf("Duration expected: %f, actual: %f", durE, durA)
-    }
+	durE := 384.0
+	durA := g.Duration()
+	if durE != durA {
+		t.Errorf("Duration expected: %f, actual: %f", durE, durA)
+	}
 }
 
 func TestUphillDownHillSeg(t *testing.T) {
@@ -698,30 +698,37 @@ func TestInvalidXML(t *testing.T) {
 }
 
 func TestAddElevation(t *testing.T) {
-    gpx := new(GPX)
-    gpx.AppendTrack(new(GPXTrack))
-    gpx.Tracks[0].AppendSegment(new(GPXTrackSegment))
-    gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: 100}})
-    gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13}})
+	gpx := new(GPX)
+	gpx.AppendTrack(new(GPXTrack))
+	gpx.Tracks[0].AppendSegment(new(GPXTrackSegment))
+	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: 100}})
+	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13}})
 
-    gpx.AddElevation(10)
-    assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 110.0)
-    assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, 10.0) // TODO: this should be nil!
+	gpx.AddElevation(10)
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 110.0)
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, 10.0) // TODO: this should be nil!
 
-    gpx.AddElevation(-20)
-    assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 90.0)
-    assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, -10.0) // TODO: this should be nil!
+	gpx.AddElevation(-20)
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 90.0)
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, -10.0) // TODO: this should be nil!
 }
 
 func TestRemoveElevation(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
-    g.RemoveElevation()
+	g.RemoveElevation()
 
-    xml, _ := g.ToXml(ToXmlParams{Indent: true})
+	xml, _ := g.ToXml(ToXmlParams{Indent: true})
 
+	//fmt.Println(string(xml))
 
-    if strings.Contains(string(xml), "<ele") {
-        t.Error("Elevation still there!")
-    }
+	if strings.Contains(string(xml), "<ele") {
+		t.Error("Elevation still there!")
+	}
+}
+
+func TestExecuteOnAllPoints(t *testing.T) {
+	g, _ := ParseFile("../test_files/file.gpx")
+	g.ExecuteOnAllPoints(func(*GPXPoint) {
+	})
 }

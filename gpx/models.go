@@ -182,36 +182,59 @@ func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
 	return results
 }
 
+func (g *GPX) ExecuteOnAllPoints(executor func(*GPXPoint)) {
+	g.ExecuteOnWaypoints(executor)
+	g.ExecuteOnRoutePoints(executor)
+	g.ExecuteOnTrackPoints(executor)
+}
+
+func (g *GPX) ExecuteOnWaypoints(executor func(*GPXPoint)) {
+	for _, waypoint := range g.Waypoints {
+		executor(waypoint)
+	}
+}
+
+func (g *GPX) ExecuteOnRoutePoints(executor func(*GPXPoint)) {
+	for _, route := range g.Routes {
+		route.ExecuteOnPoints(executor)
+	}
+}
+
+func (g *GPX) ExecuteOnTrackPoints(executor func(*GPXPoint)) {
+	for _, track := range g.Tracks {
+		track.ExecuteOnPoints(executor)
+	}
+}
+
 func (g *GPX) AddElevation(elevation float64) {
-    for _, track := range g.Tracks {
-        track.AddElevation(elevation)
-    }
+	g.ExecuteOnAllPoints(func(point *GPXPoint) {
+		point.Elevation += elevation
+	})
 }
 
 func (g *GPX) RemoveElevation() {
-    for _, waypoint := range g.Waypoints {
-        waypoint.RemoveElevation()
-    }
-    for _, route := range g.Routes {
-        route.RemoveElevation()
-    }
-    for _, track := range g.Tracks {
-        track.RemoveElevation()
-    }
+	for _, waypoint := range g.Waypoints {
+		waypoint.RemoveElevation()
+	}
+	for _, route := range g.Routes {
+		route.RemoveElevation()
+	}
+	for _, track := range g.Tracks {
+		track.RemoveElevation()
+	}
 }
 
 func (g *GPX) AppendTrack(t *GPXTrack) {
-    g.Tracks = append(g.Tracks, t)
+	g.Tracks = append(g.Tracks, t)
 }
 
 func (g *GPX) AppendRoute(r *GPXRoute) {
-    g.Routes = append(g.Routes, r)
+	g.Routes = append(g.Routes, r)
 }
 
 func (g *GPX) AppendWaypoint(w *GPXPoint) {
-    g.Waypoints = append(g.Waypoints, w)
+	g.Waypoints = append(g.Waypoints, w)
 }
-
 
 // ----------------------------------------------------------------------------------------------------
 
@@ -236,7 +259,7 @@ func (b *GpxBounds) String() string {
 // Generic point data
 type Point struct {
 	Latitude  float64
-	Longitude  float64
+	Longitude float64
 	Elevation float64
 }
 
@@ -251,8 +274,8 @@ func (pt *Point) Distance3D(pt2 *Point) float64 {
 }
 
 func (pt *Point) RemoveElevation() {
-    // TODO: This should be nil!
-    pt.Elevation = 0
+	// TODO: This should be nil!
+	pt.Elevation = 0
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -409,10 +432,16 @@ func (rte *GPXRoute) Center() (float64, float64) {
 	return sumLat / n, sumLon / n
 }
 
+func (rte *GPXRoute) ExecuteOnPoints(executor func(*GPXPoint)) {
+	for _, point := range rte.Points {
+		executor(point)
+	}
+}
+
 func (rte *GPXRoute) RemoveElevation() {
-    for _, point := range rte.Points {
-        point.RemoveElevation()
-    }
+	for _, point := range rte.Points {
+		point.RemoveElevation()
+	}
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -566,16 +595,22 @@ func (seg *GPXTrackSegment) UphillDownhill() *UphillDownhill {
 	return &UphillDownhill{Uphill: uphill, Downhill: downhill}
 }
 
+func (seg *GPXTrackSegment) ExecuteOnPoints(executor func(*GPXPoint)) {
+	for _, point := range seg.Points {
+		executor(point)
+	}
+}
+
 func (seg *GPXTrackSegment) AddElevation(elevation float64) {
-    for _, point := range seg.Points {
-        point.Elevation += elevation
-    }
+	for _, point := range seg.Points {
+		point.Elevation += elevation
+	}
 }
 
 func (seg *GPXTrackSegment) RemoveElevation() {
-    for _, point := range seg.Points {
-        point.RemoveElevation()
-    }
+	for _, point := range seg.Points {
+		point.RemoveElevation()
+	}
 }
 
 // Split splits a GPX segment at point index pt. Point pt remains in
@@ -670,7 +705,7 @@ func (seg *GPXTrackSegment) MovingData() *MovingData {
 }
 
 func (seg *GPXTrackSegment) AppendPoint(p *GPXPoint) {
-    seg.Points = append(seg.Points, p)
+	seg.Points = append(seg.Points, p)
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -756,16 +791,22 @@ func (trk *GPXTrack) Split(segNo, ptNo int) {
 	trk.Segments = newSegs
 }
 
+func (trk *GPXTrack) ExecuteOnPoints(executor func(*GPXPoint)) {
+	for _, segment := range trk.Segments {
+		segment.ExecuteOnPoints(executor)
+	}
+}
+
 func (trk *GPXTrack) AddElevation(elevation float64) {
-    for _, segment := range trk.Segments {
-        segment.AddElevation(elevation)
-    }
+	for _, segment := range trk.Segments {
+		segment.AddElevation(elevation)
+	}
 }
 
 func (trk *GPXTrack) RemoveElevation() {
-    for _, segment := range trk.Segments {
-        segment.RemoveElevation()
-    }
+	for _, segment := range trk.Segments {
+		segment.RemoveElevation()
+	}
 }
 
 // Join joins two GPX segments in a GPX track.
@@ -878,7 +919,7 @@ func (trk *GPXTrack) LocationAt(t time.Time) []LocationsResultPair {
 }
 
 func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
-    trk.Segments = append(trk.Segments, s)
+	trk.Segments = append(trk.Segments, s)
 }
 
 // ----------------------------------------------------------------------------------------------------
