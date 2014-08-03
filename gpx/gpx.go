@@ -50,7 +50,8 @@ func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 	} else if version == "1.1" {
 		gpxDoc = convertToGpx11Models(g)
 	} else {
-		return nil, errors.New("Invalid version " + version)
+		g.Version = "1.1"
+		gpxDoc = convertToGpx11Models(g)
 	}
 
 	var buffer bytes.Buffer
