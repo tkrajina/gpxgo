@@ -22,6 +22,8 @@ func (n *NullableString) SetValue(data string) {
 }
 
 func (n *NullableString) SetNull() {
+	var defaultValue string
+	n.data = defaultValue
 	n.null = true
 }
 

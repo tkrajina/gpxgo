@@ -22,6 +22,8 @@ func (n *NullableFloat64) SetValue(data float64) {
 }
 
 func (n *NullableFloat64) SetNull() {
+	var defaultValue float64
+	n.data = defaultValue
 	n.null = true
 }
 
