@@ -165,7 +165,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Waypoints), 2)
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
 	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
-	assertEquals(t, gpxDoc.Waypoints[0].Elevation, 75.1)
+	assertEquals(t, gpxDoc.Waypoints[0].Elevation.Value(), 75.1)
 	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
 	assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
@@ -200,7 +200,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
 	// TODO: Link
 	// TODO: Points
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation, 75.1)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation.Value(), 75.1)
 	fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:03Z")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
@@ -242,7 +242,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation, 11.1)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation.Value(), 11.1)
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-01T12:00:04Z")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
@@ -326,7 +326,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Waypoints), 2)
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
 	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
-	assertEquals(t, gpxDoc.Waypoints[0].Elevation, 75.1)
+	assertEquals(t, gpxDoc.Waypoints[0].Elevation.Value(), 75.1)
 	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
 	assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
@@ -361,7 +361,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
 	// TODO: Link
 	// TODO: Points
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation, 75.1)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation.Value(), 75.1)
 	fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:03Z")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
@@ -403,7 +403,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation, 11.1)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation.Value(), 11.1)
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-01T12:00:04Z")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
@@ -705,26 +705,39 @@ func TestAddElevation(t *testing.T) {
 	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13}})
 
 	gpx.AddElevation(10)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 110.0)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, 10.0) // TODO: this should be nil!
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation.Value(), 110.0)
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), 10.0) // TODO: this should be nil!
 
 	gpx.AddElevation(-20)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 90.0)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, -10.0) // TODO: this should be nil!
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation.Value(), 90.0)
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), -10.0) // TODO: this should be nil!
 }
 
 func TestRemoveElevation(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
+    // Remove elevations don't work on waypoints and routes, so just remove them for this test (TODO)
+    g.Waypoints = make([]GPXPoint, 0)
+    g.Routes = make([]GPXRoute, 0)
+
+    {
+        xml, _ := g.ToXml(ToXmlParams{Indent: true})
+        if !strings.Contains(string(xml), "<ele") {
+            t.Error("No elevations for the test")
+        }
+    }
+
 	g.RemoveElevation()
 
-	xml, _ := g.ToXml(ToXmlParams{Indent: true})
+    {
+        xml, _ := g.ToXml(ToXmlParams{Indent: true})
 
-	//fmt.Println(string(xml))
+        fmt.Println(string(xml))
 
-	if strings.Contains(string(xml), "<ele") {
-		t.Error("Elevation still there!")
-	}
+        if strings.Contains(string(xml), "<ele") {
+            t.Error("Elevation still there!")
+        }
+    }
 }
 
 func TestExecuteOnAllPoints(t *testing.T) {
