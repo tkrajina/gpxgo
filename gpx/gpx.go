@@ -12,7 +12,7 @@ import (
 	"github.com/tkrajina/gpxgo/gpx/gpx10"
 	"github.com/tkrajina/gpxgo/gpx/gpx11"
 
-	"fmt"
+	//"fmt"
 )
 
 // An array cannot be constant :( The first one if the default layout:
@@ -24,9 +24,11 @@ var TIMELAYOUTS = []string{
 }
 
 func init() {
+    /*
 	fmt.Println("----------------------------------------------------------------------------------------------------")
 	fmt.Println("This API is experimental, it *will* change")
 	fmt.Println("----------------------------------------------------------------------------------------------------")
+    */
 }
 
 type ToXmlParams struct {
