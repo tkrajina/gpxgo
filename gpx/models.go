@@ -168,6 +168,15 @@ func (g *GPX) UphillDownhill() *UphillDownhill {
 	}
 }
 
+// Checks if *tracks* and segments have time information. Routes and Waypoints are ignored.
+func (g *GPX) HasTimes() bool {
+    result := true
+    for _, track := range g.Tracks {
+        result = result && track.HasTimes()
+    }
+    return result
+}
+
 // LocationAt returns a LocationResultsPair consisting the segment index
 // and the GpxWpt at a certain time.
 func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
@@ -500,6 +509,19 @@ func (seg *GPXTrackSegment) Bounds() *GpxBounds {
 	return minmax
 }
 
+func (seg *GPXTrackSegment) HasTimes() bool {
+    return false
+    /*
+    withTimes := 0
+    for _, point := range seg.Points {
+        if point.Timestamp != nil {
+            withTimes += 1
+        }
+    }
+    return withTimes / len(seg.Points) >= 0.75
+    */
+}
+
 // Speed returns the speed at point number in a GPX segment.
 func (seg *GPXTrackSegment) Speed(pointIdx int) float64 {
 	trkptsLen := len(seg.Points)
@@ -768,6 +790,14 @@ func (trk *GPXTrack) Bounds() *GpxBounds {
 		minmax.MinLon = math.Min(bnds.MinLon, minmax.MinLon)
 	}
 	return minmax
+}
+
+func (trk *GPXTrack) HasTimes() bool {
+    result := true
+    for _, segment := range trk.Segments {
+        result = result && segment.HasTimes()
+    }
+    return result
 }
 
 // Split splits a GPX segment at a point number ptNo in a GPX track.

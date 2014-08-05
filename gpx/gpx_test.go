@@ -756,3 +756,34 @@ func TestEmptyElevation(t *testing.T) {
 	}
 }
 */
+
+// TODO:
+// RemoveTime
+
+func TestTrackWithoutTimes(t *testing.T) {
+	g, _ := ParseFile("../test_files/cerknicko-without-times.gpx")
+    if g.HasTimes() {
+        t.Error("Track should not have times")
+    }
+}
+
+/*
+    def test_has_times_false(self):
+        gpx = self.parse('cerknicko-without-times.gpx')
+        self.assertFalse(gpx.has_times())
+
+    def test_has_times(self):
+        gpx = self.parse('korita-zbevnica.gpx')
+        self.assertTrue(len(gpx.tracks) == 4)
+        # Empty -- True
+        self.assertTrue(gpx.tracks[0].has_times())
+        # Not times ...
+        self.assertTrue(not gpx.tracks[1].has_times())
+
+        # Times OK
+        self.assertTrue(gpx.tracks[2].has_times())
+        self.assertTrue(gpx.tracks[3].has_times())
+
+*/
+
+//func TestHasTimes(t *testing.T) {}
