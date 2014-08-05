@@ -21,8 +21,13 @@ func (n *NullableFloat64) SetValue(data float64) {
 	n.data = data
 }
 
+func (n *NullableFloat64) SetNull() {
+	n.null = true
+}
+
 func NewNullableFloat64(data float64) *NullableFloat64 {
 	result := new(NullableFloat64)
 	result.data = data
+	result.null = false
 	return result
 }

@@ -21,8 +21,13 @@ func (n *NullableInt) SetValue(data int) {
 	n.data = data
 }
 
+func (n *NullableInt) SetNull() {
+	n.null = true
+}
+
 func NewNullableInt(data int) *NullableInt {
 	result := new(NullableInt)
 	result.data = data
+	result.null = false
 	return result
 }

@@ -25,8 +25,13 @@ func (n *NullableGeneric) SetValue(data generic.T) {
     n.data = data
 }
 
+func (n *NullableGeneric) SetNull() {
+    n.null = true
+}
+
 func NewNullableGeneric(data generic.T) (*NullableGeneric) {
     result := new(NullableGeneric)
     result.data = data
+    result.null = false
     return result
 }
