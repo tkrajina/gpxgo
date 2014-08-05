@@ -545,11 +545,15 @@ func TestMultiSegmentDuration(t *testing.T) {
 func TestMultiTrackDuration(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
+
 	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
 	g.AppendTrack(&g.Tracks[0])
 	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
 
-	durE := 384.0
+    //xml, _ := g.ToXml(ToXmlParams{Indent: true})
+    //fmt.Println(string(xml))
+
+	durE := 320.0
 	durA := g.Duration()
 	if durE != durA {
 		t.Errorf("Duration expected: %f, actual: %f", durE, durA)
@@ -732,7 +736,7 @@ func TestRemoveElevation(t *testing.T) {
     {
         xml, _ := g.ToXml(ToXmlParams{Indent: true})
 
-        fmt.Println(string(xml))
+        //fmt.Println(string(xml))
 
         if strings.Contains(string(xml), "<ele") {
             t.Error("Elevation still there!")
