@@ -26,6 +26,8 @@ func (n *NullableGeneric) SetValue(data generic.T) {
 }
 
 func (n *NullableGeneric) SetNull() {
+    var defaultValue generic.T
+    n.data = defaultValue
     n.null = true
 }
 

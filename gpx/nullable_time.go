@@ -26,6 +26,8 @@ func (n *NullableTime) SetValue(data time.Time) {
 }
 
 func (n *NullableTime) SetNull() {
+	var defaultValue time.Time
+	n.data = defaultValue
 	n.null = true
 }
 
