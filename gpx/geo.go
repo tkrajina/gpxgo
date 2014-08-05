@@ -122,22 +122,22 @@ func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 	return speedsSorted[maxIdx]
 }
 
-func CalcUphillDownhill(elevations []float64) (float64, float64) {
+func CalcUphillDownhill(elevations []NullableFloat64) (float64, float64) {
 	elevsLen := len(elevations)
 	if elevsLen == 0 {
 		return 0.0, 0.0
 	}
 
-	smooth_elevations := make([]float64, elevsLen)
+	smooth_elevations := make([]NullableFloat64, elevsLen)
 
 	for i, elev := range elevations {
-		var currEle float64
+		currEle := elev
 		if 0 < i && i < elevsLen-1 {
-			prevEle := elevations[i-1]
-			nextEle := elevations[i+1]
-			currEle = prevEle*0.3 + elev*0.4 + nextEle*0.3
-		} else {
-			currEle = elev
+            prevEle := elevations[i-1]
+            nextEle := elevations[i+1]
+            if prevEle.NotNull() && nextEle.NotNull() && elev.NotNull() {
+                currEle = *NewNullableFloat64(prevEle.Value()*0.3 + elev.Value()*0.4 + nextEle.Value()*0.3)
+            }
 		}
 		smooth_elevations[i] = currEle
 	}
@@ -146,19 +146,20 @@ func CalcUphillDownhill(elevations []float64) (float64, float64) {
 	var downhill float64
 
 	for i := 1; i < len(smooth_elevations); i++ {
-		d := smooth_elevations[i] - smooth_elevations[i-1]
-		if d > 0.0 {
-			uphill += d
-		} else {
-			downhill -= d
-		}
+        if smooth_elevations[i].NotNull() && smooth_elevations[i-1].NotNull() {
+            d := smooth_elevations[i].Value() - smooth_elevations[i-1].Value()
+            if d > 0.0 {
+                uphill += d
+            } else {
+                downhill -= d
+            }
+        }
 	}
 
 	return uphill, downhill
 }
 
-func distance(lat1, lon1, ele1, lat2, lon2, ele2 float64, threeD, haversine bool) float64 {
-
+func distance(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, ele2 NullableFloat64, threeD, haversine bool) float64 {
 	absLat := math.Abs(lat1 - lat2)
 	absLon := math.Abs(lon1 - lon2)
 	if haversine || absLat > 0.2 || absLon > 0.2 {
@@ -175,18 +176,29 @@ func distance(lat1, lon1, ele1, lat2, lon2, ele2 float64, threeD, haversine bool
 		return distance2d
 	}
 
-	return math.Sqrt(math.Pow(distance2d, 2) + math.Pow((ele1-ele2), 2))
-}
-func Distance2D(lat1, lon1, lat2, lon2 float64, haversine bool) float64 {
-	return distance(lat1, lon1, 0.0, lat2, lon2, 0.0, false, haversine)
+    eleDiff := 0.0
+    if ele1.NotNull() && ele2.NotNull() {
+        eleDiff = ele1.Value() - ele2.Value()
+    }
+
+	return math.Sqrt(math.Pow(distance2d, 2) + math.Pow(eleDiff, 2))
 }
 
-func Distance3D(lat1, lon1, ele1, lat2, lon2, ele2 float64, haversine bool) float64 {
+func Distance2D(lat1, lon1, lat2, lon2 float64, haversine bool) float64 {
+	return distance(lat1, lon1, *new(NullableFloat64), lat2, lon2, *new(NullableFloat64), false, haversine)
+}
+
+func Distance3D(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, ele2 NullableFloat64, haversine bool) float64 {
 	return distance(lat1, lon1, ele1, lat2, lon2, ele2, true, haversine)
 }
 
 func ElevationAngle(loc1, loc2 *Point, radians bool) float64 {
-	b := loc2.Elevation - loc1.Elevation
+
+    if loc1.Elevation.Null() || loc2.Elevation.Null() {
+        return 0.0
+    }
+
+	b := loc2.Elevation.Value() - loc1.Elevation.Value()
 	a := loc2.Distance2D(loc1)
 
 	if a == 0.0 {

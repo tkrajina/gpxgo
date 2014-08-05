@@ -546,7 +546,7 @@ func TestMultiTrackDuration(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
 	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
-	g.AppendTrack(g.Tracks[0])
+	g.AppendTrack(&g.Tracks[0])
 	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
 
 	durE := 384.0
@@ -652,12 +652,12 @@ func TestNewXml(t *testing.T) {
 	gpxTrack := new(GPXTrack)
 
 	gpxSegment := new(GPXTrackSegment)
-	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: 1234}})
-	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: 1235}})
-	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: 1236}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: *NewNullableFloat64(1234.0)}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: *NewNullableFloat64(1235.0)}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: *NewNullableFloat64(1236.0)}})
 
 	gpxTrack.Segments = append(gpxTrack.Segments, gpxSegment)
-	gpx.Tracks = append(gpx.Tracks, gpxTrack)
+	gpx.Tracks = append(gpx.Tracks, *gpxTrack)
 
 	xml, _ := gpx.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 	actualXml := string(xml)
@@ -701,7 +701,7 @@ func TestAddElevation(t *testing.T) {
 	gpx := new(GPX)
 	gpx.AppendTrack(new(GPXTrack))
 	gpx.Tracks[0].AppendSegment(new(GPXTrackSegment))
-	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: 100}})
+	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: *NewNullableFloat64(100)}})
 	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13}})
 
 	gpx.AddElevation(10)

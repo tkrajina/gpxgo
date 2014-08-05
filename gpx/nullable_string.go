@@ -21,8 +21,13 @@ func (n *NullableString) SetValue(data string) {
 	n.data = data
 }
 
+func (n *NullableString) SetNull() {
+	n.null = true
+}
+
 func NewNullableString(data string) *NullableString {
 	result := new(NullableString)
 	result.data = data
+	result.null = false
 	return result
 }
