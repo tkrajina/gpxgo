@@ -31,9 +31,9 @@ type GPX struct {
 
 	// TODO
 	//Extensions []byte
-	Waypoints []*GPXPoint
-	Routes    []*GPXRoute
-	Tracks    []*GPXTrack
+	Waypoints []GPXPoint
+	Routes    []GPXRoute
+	Tracks    []GPXTrack
 }
 
 /*
@@ -199,7 +199,7 @@ func (g *GPX) ExecuteOnAllPoints(executor func(*GPXPoint)) {
 
 func (g *GPX) ExecuteOnWaypoints(executor func(*GPXPoint)) {
 	for _, waypoint := range g.Waypoints {
-		executor(waypoint)
+		executor(&waypoint)
 	}
 }
 
@@ -234,15 +234,15 @@ func (g *GPX) RemoveElevation() {
 }
 
 func (g *GPX) AppendTrack(t *GPXTrack) {
-	g.Tracks = append(g.Tracks, t)
+	g.Tracks = append(g.Tracks, *t)
 }
 
 func (g *GPX) AppendRoute(r *GPXRoute) {
-	g.Routes = append(g.Routes, r)
+	g.Routes = append(g.Routes, *r)
 }
 
 func (g *GPX) AppendWaypoint(w *GPXPoint) {
-	g.Waypoints = append(g.Waypoints, w)
+	g.Waypoints = append(g.Waypoints, *w)
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -407,7 +407,7 @@ type GPXRoute struct {
 	Number int
 	Type   string
 	// TODO
-	Points []*GPXPoint
+	Points []GPXPoint
 }
 
 // Length returns the length of a GPX route.
@@ -443,7 +443,7 @@ func (rte *GPXRoute) Center() (float64, float64) {
 
 func (rte *GPXRoute) ExecuteOnPoints(executor func(*GPXPoint)) {
 	for _, point := range rte.Points {
-		executor(point)
+		executor(&point)
 	}
 }
 

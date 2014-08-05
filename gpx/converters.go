@@ -48,7 +48,7 @@ func convertToGpx10Models(gpxDoc *GPX) *gpx10.Gpx {
 	if gpxDoc.Waypoints != nil {
 		gpx10Doc.Waypoints = make([]*gpx10.GpxPoint, len(gpxDoc.Waypoints))
 		for waypointNo, waypoint := range gpxDoc.Waypoints {
-			gpx10Doc.Waypoints[waypointNo] = convertPointToGpx10(waypoint)
+			gpx10Doc.Waypoints[waypointNo] = convertPointToGpx10(&waypoint)
 		}
 	}
 
@@ -72,7 +72,7 @@ func convertToGpx10Models(gpxDoc *GPX) *gpx10.Gpx {
 			if route.Points != nil {
 				r.Points = make([]*gpx10.GpxPoint, len(route.Points))
 				for pointNo, point := range route.Points {
-					r.Points[pointNo] = convertPointToGpx10(point)
+					r.Points[pointNo] = convertPointToGpx10(&point)
 				}
 			}
 		}
@@ -135,15 +135,15 @@ func convertFromGpx10Models(gpx10Doc *gpx10.Gpx) *GPX {
 	gpxDoc.Keywords = gpx10Doc.Keywords
 
 	if gpx10Doc.Waypoints != nil {
-		waypoints := make([]*GPXPoint, len(gpx10Doc.Waypoints))
+		waypoints := make([]GPXPoint, len(gpx10Doc.Waypoints))
 		for waypointNo, waypoint := range gpx10Doc.Waypoints {
-			waypoints[waypointNo] = convertPointFromGpx10(waypoint)
+			waypoints[waypointNo] = *convertPointFromGpx10(waypoint)
 		}
 		gpxDoc.Waypoints = waypoints
 	}
 
 	if gpx10Doc.Routes != nil {
-		gpxDoc.Routes = make([]*GPXRoute, len(gpx10Doc.Routes))
+		gpxDoc.Routes = make([]GPXRoute, len(gpx10Doc.Routes))
 		for routeNo, route := range gpx10Doc.Routes {
 			r := new(GPXRoute)
 
@@ -159,18 +159,18 @@ func convertFromGpx10Models(gpx10Doc *gpx10.Gpx) *GPX {
 			//r.RoutePoints = route.RoutePoints
 
 			if route.Points != nil {
-				r.Points = make([]*GPXPoint, len(route.Points))
+				r.Points = make([]GPXPoint, len(route.Points))
 				for pointNo, point := range route.Points {
-					r.Points[pointNo] = convertPointFromGpx10(point)
+					r.Points[pointNo] = *convertPointFromGpx10(point)
 				}
 			}
 
-			gpxDoc.Routes[routeNo] = r
+			gpxDoc.Routes[routeNo] = *r
 		}
 	}
 
 	if gpx10Doc.Tracks != nil {
-		gpxDoc.Tracks = make([]*GPXTrack, len(gpx10Doc.Tracks))
+		gpxDoc.Tracks = make([]GPXTrack, len(gpx10Doc.Tracks))
 		for trackNo, track := range gpx10Doc.Tracks {
 			gpxTrack := new(GPXTrack)
 			gpxTrack.Name = track.Name
@@ -193,7 +193,7 @@ func convertFromGpx10Models(gpx10Doc *gpx10.Gpx) *GPX {
 					gpxTrack.Segments[segmentNo] = gpxSegment
 				}
 			}
-			gpxDoc.Tracks[trackNo] = gpxTrack
+			gpxDoc.Tracks[trackNo] = *gpxTrack
 		}
 	}
 
@@ -313,7 +313,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11.Gpx {
 	if gpxDoc.Waypoints != nil {
 		gpx11Doc.Waypoints = make([]*gpx11.GpxPoint, len(gpxDoc.Waypoints))
 		for waypointNo, waypoint := range gpxDoc.Waypoints {
-			gpx11Doc.Waypoints[waypointNo] = convertPointToGpx11(waypoint)
+			gpx11Doc.Waypoints[waypointNo] = convertPointToGpx11(&waypoint)
 		}
 	}
 
@@ -337,7 +337,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11.Gpx {
 			if route.Points != nil {
 				r.Points = make([]*gpx11.GpxPoint, len(route.Points))
 				for pointNo, point := range route.Points {
-					r.Points[pointNo] = convertPointToGpx11(point)
+					r.Points[pointNo] = convertPointToGpx11(&point)
 				}
 			}
 		}
@@ -417,15 +417,15 @@ func convertFromGpx11Models(gpx11Doc *gpx11.Gpx) *GPX {
 	gpxDoc.Keywords = gpx11Doc.Keywords
 
 	if gpx11Doc.Waypoints != nil {
-		waypoints := make([]*GPXPoint, len(gpx11Doc.Waypoints))
+		waypoints := make([]GPXPoint, len(gpx11Doc.Waypoints))
 		for waypointNo, waypoint := range gpx11Doc.Waypoints {
-			waypoints[waypointNo] = convertPointFromGpx11(waypoint)
+			waypoints[waypointNo] = *convertPointFromGpx11(waypoint)
 		}
 		gpxDoc.Waypoints = waypoints
 	}
 
 	if gpx11Doc.Routes != nil {
-		gpxDoc.Routes = make([]*GPXRoute, len(gpx11Doc.Routes))
+		gpxDoc.Routes = make([]GPXRoute, len(gpx11Doc.Routes))
 		for routeNo, route := range gpx11Doc.Routes {
 			r := new(GPXRoute)
 
@@ -441,18 +441,18 @@ func convertFromGpx11Models(gpx11Doc *gpx11.Gpx) *GPX {
 			//r.RoutePoints = route.RoutePoints
 
 			if route.Points != nil {
-				r.Points = make([]*GPXPoint, len(route.Points))
+				r.Points = make([]GPXPoint, len(route.Points))
 				for pointNo, point := range route.Points {
-					r.Points[pointNo] = convertPointFromGpx11(point)
+					r.Points[pointNo] = *convertPointFromGpx11(point)
 				}
 			}
 
-			gpxDoc.Routes[routeNo] = r
+			gpxDoc.Routes[routeNo] = *r
 		}
 	}
 
 	if gpx11Doc.Tracks != nil {
-		gpxDoc.Tracks = make([]*GPXTrack, len(gpx11Doc.Tracks))
+		gpxDoc.Tracks = make([]GPXTrack, len(gpx11Doc.Tracks))
 		for trackNo, track := range gpx11Doc.Tracks {
 			gpxTrack := new(GPXTrack)
 			gpxTrack.Name = track.Name
@@ -475,7 +475,7 @@ func convertFromGpx11Models(gpx11Doc *gpx11.Gpx) *GPX {
 					gpxTrack.Segments[segmentNo] = gpxSegment
 				}
 			}
-			gpxDoc.Tracks[trackNo] = gpxTrack
+			gpxDoc.Tracks[trackNo] = *gpxTrack
 		}
 	}
 
