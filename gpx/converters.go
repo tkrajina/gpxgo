@@ -491,7 +491,9 @@ func convertPointToGpx11(original *GPXPoint) *gpx11.GpxPoint {
 	result := new(gpx11.GpxPoint)
 	result.Lat = original.Latitude
 	result.Lon = original.Longitude
-    if original.Elevation.NotNull() {
+    if original.Elevation.Null() {
+        result.Ele = nil
+    } else {
         value := original.Elevation.Value()
         result.Ele = &value
     }
