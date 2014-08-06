@@ -31,9 +31,9 @@ type GPX struct {
 
 	// TODO
 	//Extensions []byte
-	Waypoints []*GPXPoint
-	Routes    []*GPXRoute
-	Tracks    []*GPXTrack
+	Waypoints []GPXPoint
+	Routes    []GPXRoute
+	Tracks    []GPXTrack
 }
 
 /*
@@ -41,6 +41,14 @@ type GPX struct {
  */
 func (g *GPX) ToXml(params ToXmlParams) ([]byte, error) {
 	return ToXml(g, params)
+}
+
+func (g *GPX) GetTrackPointsNo() int {
+    result := 0
+    for _, track := range g.Tracks {
+        result += track.GetTrackPointsNo()
+    }
+    return result
 }
 
 // Length2D returns the 2D length of all tracks in a Gpx.
@@ -116,6 +124,22 @@ func (g *GPX) MovingData() *MovingData {
 		StoppedDistance: stoppedDistance,
 		MaxSpeed:        maxSpeed,
 	}
+}
+
+func (g *GPX) ReduceTrackPoints(maxPointsNo int, minDistanceBetween float64) {
+    pointsNo := g.GetTrackPointsNo()
+
+    if pointsNo < maxPointsNo && minDistanceBetween <= 0 {
+        return
+    }
+
+    length := g.Length3D()
+
+    minDistance := math.Max(float64(minDistanceBetween), math.Ceil(length / float64(maxPointsNo)))
+
+    for _, track := range g.Tracks {
+        track.ReduceTrackPoints(minDistance)
+    }
 }
 
 // Split splits the Gpx segment segNo in a given track trackNo at
@@ -199,7 +223,7 @@ func (g *GPX) ExecuteOnAllPoints(executor func(*GPXPoint)) {
 
 func (g *GPX) ExecuteOnWaypoints(executor func(*GPXPoint)) {
 	for _, waypoint := range g.Waypoints {
-		executor(waypoint)
+		executor(&waypoint)
 	}
 }
 
@@ -217,7 +241,9 @@ func (g *GPX) ExecuteOnTrackPoints(executor func(*GPXPoint)) {
 
 func (g *GPX) AddElevation(elevation float64) {
 	g.ExecuteOnAllPoints(func(point *GPXPoint) {
-		point.Elevation += elevation
+        if point.Elevation.NotNull() {
+            point.Elevation.SetValue(point.Elevation.Value() + elevation)
+        }
 	})
 }
 
@@ -234,15 +260,15 @@ func (g *GPX) RemoveElevation() {
 }
 
 func (g *GPX) AppendTrack(t *GPXTrack) {
-	g.Tracks = append(g.Tracks, t)
+	g.Tracks = append(g.Tracks, *t)
 }
 
 func (g *GPX) AppendRoute(r *GPXRoute) {
-	g.Routes = append(g.Routes, r)
+	g.Routes = append(g.Routes, *r)
 }
 
 func (g *GPX) AppendWaypoint(w *GPXPoint) {
-	g.Waypoints = append(g.Waypoints, w)
+	g.Waypoints = append(g.Waypoints, *w)
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -269,7 +295,7 @@ func (b *GpxBounds) String() string {
 type Point struct {
 	Latitude  float64
 	Longitude float64
-	Elevation float64
+	Elevation NullableFloat64
 }
 
 // Distance2D returns the 2D distance of two GpxWpts.
@@ -283,8 +309,9 @@ func (pt *Point) Distance3D(pt2 *Point) float64 {
 }
 
 func (pt *Point) RemoveElevation() {
-	// TODO: This should be nil!
-	pt.Elevation = 0
+    if pt.Elevation.NotNull() {
+        pt.Elevation.SetNull()
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -407,7 +434,7 @@ type GPXRoute struct {
 	Number int
 	Type   string
 	// TODO
-	Points []*GPXPoint
+	Points []GPXPoint
 }
 
 // Length returns the length of a GPX route.
@@ -443,7 +470,7 @@ func (rte *GPXRoute) Center() (float64, float64) {
 
 func (rte *GPXRoute) ExecuteOnPoints(executor func(*GPXPoint)) {
 	for _, point := range rte.Points {
-		executor(point)
+		executor(&point)
 	}
 }
 
@@ -478,6 +505,10 @@ func (seg *GPXTrackSegment) Length3D() float64 {
 		points[pointNo] = &point.Point
 	}
 	return Length3D(points)
+}
+
+func (seg *GPXTrackSegment) GetTrackPointsNo() int {
+    return len(seg.Points)
 }
 
 // TimeBounds returns the time bounds of a GPX segment.
@@ -596,8 +627,8 @@ func (seg *GPXTrackSegment) Duration() float64 {
 }
 
 // Elevations returns a slice with the elevations in a GPX segment.
-func (seg *GPXTrackSegment) Elevations() []float64 {
-	elevations := make([]float64, len(seg.Points))
+func (seg *GPXTrackSegment) Elevations() []NullableFloat64 {
+	elevations := make([]NullableFloat64, len(seg.Points))
 	for i, trkpt := range seg.Points {
 		elevations[i] = trkpt.Elevation
 	}
@@ -623,9 +654,32 @@ func (seg *GPXTrackSegment) ExecuteOnPoints(executor func(*GPXPoint)) {
 	}
 }
 
+func (seg *GPXTrackSegment) ReduceTrackPoints(minDistance float64) {
+    if minDistance <= 0 {
+        return
+    }
+
+    newPoints := make([]*GPXPoint, 0)
+
+    for pointNo, point := range seg.Points {
+        if pointNo == 0 || pointNo == len(seg.Points) - 1 {
+            newPoints = append(newPoints, point)
+        } else if pointNo > 0 {
+            previousPoint := seg.Points[pointNo - 1]
+            if point.Distance3D(&previousPoint.Point) <= minDistance {
+                newPoints = append(newPoints, point)
+            }
+        }
+    }
+
+    seg.Points = newPoints
+}
+
 func (seg *GPXTrackSegment) AddElevation(elevation float64) {
 	for _, point := range seg.Points {
-		point.Elevation += elevation
+        if point.Elevation.NotNull() {
+            point.Elevation.SetValue(point.Elevation.Value() + elevation)
+        }
 	}
 }
 
@@ -764,6 +818,14 @@ func (trk *GPXTrack) Length3D() float64 {
 	return l
 }
 
+func (trk *GPXTrack) GetTrackPointsNo() int {
+    result := 0
+    for _, segment := range trk.Segments {
+        result += segment.GetTrackPointsNo()
+    }
+    return result
+}
+
 // TimeBounds returns the time bounds of a GPX track.
 func (trk *GPXTrack) TimeBounds() *TimeBounds {
 	var tbTrk *TimeBounds
@@ -798,6 +860,12 @@ func (trk *GPXTrack) HasTimes() bool {
         result = result && segment.HasTimes()
     }
     return result
+}
+
+func (trk *GPXTrack) ReduceTrackPoints(minDistance float64) {
+    for _, segment := range trk.Segments {
+        segment.ReduceTrackPoints(minDistance)
+    }
 }
 
 // Split splits a GPX segment at a point number ptNo in a GPX track.
