@@ -787,3 +787,45 @@ func TestTrackWithoutTimes(t *testing.T) {
 */
 
 //func TestHasTimes(t *testing.T) {}
+
+/*
+    def test_reduce_gpx_file(self):
+        f = open('test_files/Mojstrovka.gpx')
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        gpx = parser.parse()
+        f.close()
+
+        max_reduced_points_no = 50
+
+        started = mod_time.time()
+        points_original = gpx.get_track_points_no()
+        time_original = mod_time.time() - started
+
+        gpx.reduce_points(max_reduced_points_no)
+
+        points_reduced = gpx.get_track_points_no()
+
+        result = gpx.to_xml()
+        if mod_sys.version_info[0] != 3:
+            result = result.encode('utf-8')
+
+        started = mod_time.time()
+        parser = mod_parser.GPXParser(result, parser=self.get_parser_type())
+        parser.parse()
+        time_reduced = mod_time.time() - started
+
+        print(time_original)
+        print(points_original)
+
+        print(time_reduced)
+        print(points_reduced)
+
+        self.assertTrue(points_reduced < points_original)
+        self.assertTrue(points_reduced < max_reduced_points_no)
+*/
+
+func TestReducePoints(t *testing.T) {
+	g, _ := ParseFile("../test_files/Mojstrovka.gpx")
+
+    pointsNo := gpx.GetTrackPointsNo()
+}
