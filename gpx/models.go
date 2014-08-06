@@ -31,9 +31,9 @@ type GPX struct {
 
 	// TODO
 	//Extensions []byte
-	Waypoints []GPXPoint
-	Routes    []GPXRoute
-	Tracks    []GPXTrack
+	Waypoints []*GPXPoint
+	Routes    []*GPXRoute
+	Tracks    []*GPXTrack
 }
 
 /*
@@ -199,7 +199,7 @@ func (g *GPX) ExecuteOnAllPoints(executor func(*GPXPoint)) {
 
 func (g *GPX) ExecuteOnWaypoints(executor func(*GPXPoint)) {
 	for _, waypoint := range g.Waypoints {
-		executor(&waypoint)
+		executor(waypoint)
 	}
 }
 
@@ -217,9 +217,7 @@ func (g *GPX) ExecuteOnTrackPoints(executor func(*GPXPoint)) {
 
 func (g *GPX) AddElevation(elevation float64) {
 	g.ExecuteOnAllPoints(func(point *GPXPoint) {
-        if point.Elevation.NotNull() {
-            point.Elevation.SetValue(point.Elevation.Value() + elevation)
-        }
+		point.Elevation += elevation
 	})
 }
 
@@ -236,15 +234,15 @@ func (g *GPX) RemoveElevation() {
 }
 
 func (g *GPX) AppendTrack(t *GPXTrack) {
-	g.Tracks = append(g.Tracks, *t)
+	g.Tracks = append(g.Tracks, t)
 }
 
 func (g *GPX) AppendRoute(r *GPXRoute) {
-	g.Routes = append(g.Routes, *r)
+	g.Routes = append(g.Routes, r)
 }
 
 func (g *GPX) AppendWaypoint(w *GPXPoint) {
-	g.Waypoints = append(g.Waypoints, *w)
+	g.Waypoints = append(g.Waypoints, w)
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -271,7 +269,7 @@ func (b *GpxBounds) String() string {
 type Point struct {
 	Latitude  float64
 	Longitude float64
-	Elevation NullableFloat64
+	Elevation float64
 }
 
 // Distance2D returns the 2D distance of two GpxWpts.
@@ -285,9 +283,8 @@ func (pt *Point) Distance3D(pt2 *Point) float64 {
 }
 
 func (pt *Point) RemoveElevation() {
-    if pt.Elevation.NotNull() {
-        pt.Elevation.SetNull()
-    }
+	// TODO: This should be nil!
+	pt.Elevation = 0
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -410,7 +407,7 @@ type GPXRoute struct {
 	Number int
 	Type   string
 	// TODO
-	Points []GPXPoint
+	Points []*GPXPoint
 }
 
 // Length returns the length of a GPX route.
@@ -446,7 +443,7 @@ func (rte *GPXRoute) Center() (float64, float64) {
 
 func (rte *GPXRoute) ExecuteOnPoints(executor func(*GPXPoint)) {
 	for _, point := range rte.Points {
-		executor(&point)
+		executor(point)
 	}
 }
 
@@ -599,8 +596,8 @@ func (seg *GPXTrackSegment) Duration() float64 {
 }
 
 // Elevations returns a slice with the elevations in a GPX segment.
-func (seg *GPXTrackSegment) Elevations() []NullableFloat64 {
-	elevations := make([]NullableFloat64, len(seg.Points))
+func (seg *GPXTrackSegment) Elevations() []float64 {
+	elevations := make([]float64, len(seg.Points))
 	for i, trkpt := range seg.Points {
 		elevations[i] = trkpt.Elevation
 	}
@@ -628,9 +625,7 @@ func (seg *GPXTrackSegment) ExecuteOnPoints(executor func(*GPXPoint)) {
 
 func (seg *GPXTrackSegment) AddElevation(elevation float64) {
 	for _, point := range seg.Points {
-        if point.Elevation.NotNull() {
-            point.Elevation.SetValue(point.Elevation.Value() + elevation)
-        }
+		point.Elevation += elevation
 	}
 }
 

@@ -165,7 +165,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Waypoints), 2)
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
 	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
-	assertEquals(t, gpxDoc.Waypoints[0].Elevation.Value(), 75.1)
+	assertEquals(t, gpxDoc.Waypoints[0].Elevation, 75.1)
 	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
 	assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
@@ -200,7 +200,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
 	// TODO: Link
 	// TODO: Points
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation.Value(), 75.1)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation, 75.1)
 	fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:03Z")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
@@ -242,7 +242,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation.Value(), 11.1)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation, 11.1)
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-01T12:00:04Z")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
@@ -326,7 +326,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Waypoints), 2)
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
 	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
-	assertEquals(t, gpxDoc.Waypoints[0].Elevation.Value(), 75.1)
+	assertEquals(t, gpxDoc.Waypoints[0].Elevation, 75.1)
 	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
 	assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
@@ -361,7 +361,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
 	// TODO: Link
 	// TODO: Points
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation.Value(), 75.1)
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation, 75.1)
 	fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:03Z")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
@@ -403,7 +403,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation.Value(), 11.1)
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation, 11.1)
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-01T12:00:04Z")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
@@ -545,15 +545,11 @@ func TestMultiSegmentDuration(t *testing.T) {
 func TestMultiTrackDuration(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
-
 	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
-	g.AppendTrack(&g.Tracks[0])
+	g.AppendTrack(g.Tracks[0])
 	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
 
-    //xml, _ := g.ToXml(ToXmlParams{Indent: true})
-    //fmt.Println(string(xml))
-
-	durE := 320.0
+	durE := 384.0
 	durA := g.Duration()
 	if durE != durA {
 		t.Errorf("Duration expected: %f, actual: %f", durE, durA)
@@ -656,12 +652,12 @@ func TestNewXml(t *testing.T) {
 	gpxTrack := new(GPXTrack)
 
 	gpxSegment := new(GPXTrackSegment)
-	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: *NewNullableFloat64(1234.0)}})
-	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: *NewNullableFloat64(1235.0)}})
-	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: *NewNullableFloat64(1236.0)}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: 1234}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: 1235}})
+	gpxSegment.Points = append(gpxSegment.Points, &GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: 1236}})
 
 	gpxTrack.Segments = append(gpxTrack.Segments, gpxSegment)
-	gpx.Tracks = append(gpx.Tracks, *gpxTrack)
+	gpx.Tracks = append(gpx.Tracks, gpxTrack)
 
 	xml, _ := gpx.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 	actualXml := string(xml)
@@ -705,43 +701,30 @@ func TestAddElevation(t *testing.T) {
 	gpx := new(GPX)
 	gpx.AppendTrack(new(GPXTrack))
 	gpx.Tracks[0].AppendSegment(new(GPXTrackSegment))
-	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: *NewNullableFloat64(100)}})
+	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: 100}})
 	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13}})
 
 	gpx.AddElevation(10)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation.Value(), 110.0)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), 10.0) // TODO: this should be nil!
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 110.0)
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, 10.0) // TODO: this should be nil!
 
 	gpx.AddElevation(-20)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation.Value(), 90.0)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), -10.0) // TODO: this should be nil!
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation, 90.0)
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation, -10.0) // TODO: this should be nil!
 }
 
 func TestRemoveElevation(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
-    // Remove elevations don't work on waypoints and routes, so just remove them for this test (TODO)
-    g.Waypoints = make([]GPXPoint, 0)
-    g.Routes = make([]GPXRoute, 0)
-
-    {
-        xml, _ := g.ToXml(ToXmlParams{Indent: true})
-        if !strings.Contains(string(xml), "<ele") {
-            t.Error("No elevations for the test")
-        }
-    }
-
 	g.RemoveElevation()
 
-    {
-        xml, _ := g.ToXml(ToXmlParams{Indent: true})
+	xml, _ := g.ToXml(ToXmlParams{Indent: true})
 
-        //fmt.Println(string(xml))
+	//fmt.Println(string(xml))
 
-        if strings.Contains(string(xml), "<ele") {
-            t.Error("Elevation still there!")
-        }
-    }
+	if strings.Contains(string(xml), "<ele") {
+		t.Error("Elevation still there!")
+	}
 }
 
 func TestExecuteOnAllPoints(t *testing.T) {
@@ -804,3 +787,45 @@ func TestTrackWithoutTimes(t *testing.T) {
 */
 
 //func TestHasTimes(t *testing.T) {}
+
+/*
+    def test_reduce_gpx_file(self):
+        f = open('test_files/Mojstrovka.gpx')
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        gpx = parser.parse()
+        f.close()
+
+        max_reduced_points_no = 50
+
+        started = mod_time.time()
+        points_original = gpx.get_track_points_no()
+        time_original = mod_time.time() - started
+
+        gpx.reduce_points(max_reduced_points_no)
+
+        points_reduced = gpx.get_track_points_no()
+
+        result = gpx.to_xml()
+        if mod_sys.version_info[0] != 3:
+            result = result.encode('utf-8')
+
+        started = mod_time.time()
+        parser = mod_parser.GPXParser(result, parser=self.get_parser_type())
+        parser.parse()
+        time_reduced = mod_time.time() - started
+
+        print(time_original)
+        print(points_original)
+
+        print(time_reduced)
+        print(points_reduced)
+
+        self.assertTrue(points_reduced < points_original)
+        self.assertTrue(points_reduced < max_reduced_points_no)
+*/
+
+func TestReducePoints(t *testing.T) {
+	g, _ := ParseFile("../test_files/Mojstrovka.gpx")
+
+    pointsNo := gpx.GetTrackPointsNo()
+}
