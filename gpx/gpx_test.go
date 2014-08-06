@@ -800,7 +800,27 @@ func TestTrackWithoutTimes(t *testing.T) {
         # Times OK
         self.assertTrue(gpx.tracks[2].has_times())
         self.assertTrue(gpx.tracks[3].has_times())
-
 */
 
 //func TestHasTimes(t *testing.T) {}
+
+
+// TODO: More tests needed here both for max points and min distance between points
+func TestReduceTrack(t *testing.T) {
+	g, _ := ParseFile("../test_files/Mojstrovka.gpx")
+    pointsOriginal := g.GetTrackPointsNo()
+    if pointsOriginal != 184 {
+        t.Error("Invalid number of points!")
+    }
+
+    maxReducedPointsNo := 50
+    g.ReduceTrackPoints(maxReducedPointsNo, 0)
+
+    pointsReduced := g.GetTrackPointsNo()
+
+    fmt.Printf("Points before %d, now %d", pointsOriginal, pointsReduced)
+
+    if pointsOriginal <= pointsReduced {
+        t.Error("Reduced track has no reduced number of points")
+    }
+}
