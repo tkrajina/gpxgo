@@ -133,11 +133,11 @@ func CalcUphillDownhill(elevations []NullableFloat64) (float64, float64) {
 	for i, elev := range elevations {
 		currEle := elev
 		if 0 < i && i < elevsLen-1 {
-            prevEle := elevations[i-1]
-            nextEle := elevations[i+1]
-            if prevEle.NotNull() && nextEle.NotNull() && elev.NotNull() {
-                currEle = *NewNullableFloat64(prevEle.Value()*0.3 + elev.Value()*0.4 + nextEle.Value()*0.3)
-            }
+			prevEle := elevations[i-1]
+			nextEle := elevations[i+1]
+			if prevEle.NotNull() && nextEle.NotNull() && elev.NotNull() {
+				currEle = *NewNullableFloat64(prevEle.Value()*0.3 + elev.Value()*0.4 + nextEle.Value()*0.3)
+			}
 		}
 		smooth_elevations[i] = currEle
 	}
@@ -146,14 +146,14 @@ func CalcUphillDownhill(elevations []NullableFloat64) (float64, float64) {
 	var downhill float64
 
 	for i := 1; i < len(smooth_elevations); i++ {
-        if smooth_elevations[i].NotNull() && smooth_elevations[i-1].NotNull() {
-            d := smooth_elevations[i].Value() - smooth_elevations[i-1].Value()
-            if d > 0.0 {
-                uphill += d
-            } else {
-                downhill -= d
-            }
-        }
+		if smooth_elevations[i].NotNull() && smooth_elevations[i-1].NotNull() {
+			d := smooth_elevations[i].Value() - smooth_elevations[i-1].Value()
+			if d > 0.0 {
+				uphill += d
+			} else {
+				downhill -= d
+			}
+		}
 	}
 
 	return uphill, downhill
@@ -176,10 +176,10 @@ func distance(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, ele2
 		return distance2d
 	}
 
-    eleDiff := 0.0
-    if ele1.NotNull() && ele2.NotNull() {
-        eleDiff = ele1.Value() - ele2.Value()
-    }
+	eleDiff := 0.0
+	if ele1.NotNull() && ele2.NotNull() {
+		eleDiff = ele1.Value() - ele2.Value()
+	}
 
 	return math.Sqrt(math.Pow(distance2d, 2) + math.Pow(eleDiff, 2))
 }
@@ -194,9 +194,9 @@ func Distance3D(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, el
 
 func ElevationAngle(loc1, loc2 *Point, radians bool) float64 {
 
-    if loc1.Elevation.Null() || loc2.Elevation.Null() {
-        return 0.0
-    }
+	if loc1.Elevation.Null() || loc2.Elevation.Null() {
+		return 0.0
+	}
 
 	b := loc2.Elevation.Value() - loc1.Elevation.Value()
 	a := loc2.Distance2D(loc1)

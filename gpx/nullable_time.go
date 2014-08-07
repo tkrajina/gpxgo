@@ -1,7 +1,7 @@
 package gpx
 
 import (
-    "time"
+	"time"
 )
 
 type NullableTime struct {
