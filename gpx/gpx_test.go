@@ -76,6 +76,27 @@ func loadTestGPXs() []string {
     return gpxes
 }
 
+func getMinDistanceBetweenTrackPoints(g GPX) float64 {
+    result := -1.0
+    for _, track := range g.Tracks {
+        for _, segment := range track.Segments {
+            for pointNo, point := range segment.Points {
+                if pointNo > 0 {
+                    previousPoint := segment.Points[pointNo - 1]
+                    distance := point.Distance3D(&previousPoint.Point)
+                    if result == -1 || distance < result {
+                        result = distance
+                    }
+                }
+            }
+        }
+    }
+    if result == -1 {
+        return 0.0
+    }
+    return result
+}
+
 func TestParseGPXTimes(t *testing.T) {
 	datetimes := []string{
 		"2013-01-02T12:07:08Z",
@@ -822,15 +843,12 @@ func TestTrackWithoutTimes(t *testing.T) {
 
 //func TestHasTimes(t *testing.T) {}
 
-
-// TODO: More tests needed here both for max points and min distance between points
-func TestReduceTrackByMaxPoints(t *testing.T) {
+func testReduceTrackByMaxPoints(t *testing.T, maxReducedPointsNo int) {
     for _, gpxFile := range loadTestGPXs() {
         g, _ := ParseFile(gpxFile)
         pointsOriginal := g.GetTrackPointsNo()
 
-        maxReducedPointsNo := 50
-        fmt.Printf("reducing %s to %d points", gpxFile, maxReducedPointsNo)
+        //fmt.Printf("reducing %s to %d points", gpxFile, maxReducedPointsNo)
         g.ReduceTrackPoints(maxReducedPointsNo, 0)
 
         pointsReduced := g.GetTrackPointsNo()
@@ -840,4 +858,33 @@ func TestReduceTrackByMaxPoints(t *testing.T) {
             t.Error("Reduced track has no reduced number of points")
         }
     }
+}
+
+func testReduceTrackByMaxPointsAndMinDistance(t *testing.T, maxReducedPointsNo int, minDistance float64) {
+    for _, gpxFile := range loadTestGPXs() {
+        g, _ := ParseFile(gpxFile)
+        pointsOriginal := g.GetTrackPointsNo()
+
+        fmt.Printf("reducing %s to %d points and min distance %f\n", gpxFile, maxReducedPointsNo, minDistance)
+        g.ReduceTrackPoints(maxReducedPointsNo, minDistance)
+
+        pointsReduced := g.GetTrackPointsNo()
+        if pointsReduced > pointsOriginal {
+            fmt.Printf("Points before %d, now %d\n", pointsOriginal, pointsReduced)
+            t.Error("Reduced track has no reduced number of points")
+        }
+
+        actualMinDistance := getMinDistanceBetweenTrackPoints(*g)
+        fmt.Printf("fileName=%s after reducing pointsNo=%d, minDistance=%f\n", gpxFile, g.GetTrackPointsNo(), actualMinDistance)
+
+        if actualMinDistance < minDistance {
+            t.Error(fmt.Sprintf("actualMinDistance=%f, but minDistance should be=%f", actualMinDistance, minDistance))
+        }
+    }
+}
+
+func TestReduceTrackByMaxPointsAndMinDistance(t *testing.T) {
+    testReduceTrackByMaxPointsAndMinDistance(t, 100000, 10.0)
+    testReduceTrackByMaxPointsAndMinDistance(t, 100000, 50.0)
+    testReduceTrackByMaxPointsAndMinDistance(t, 100000, 200.0)
 }
