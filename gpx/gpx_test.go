@@ -9,7 +9,11 @@ import (
 	"time"
 )
 
-const TIME_FORMAT = "2006-01-02T15:04:05Z"
+const (
+    TIME_FORMAT = "2006-01-02T15:04:05Z"
+    TEST_FILES_DIR = "../test_files"
+
+)
 
 func min(x, y int) int {
 	if x < y {
@@ -56,6 +60,20 @@ func assertNotNil(t *testing.T, var1 interface{}) {
 		fmt.Println(var1)
 		t.Error("nil!")
 	}
+}
+
+func loadTestGPXs() []string {
+    gpxes := make([]string, 0)
+    dirs, _ := ioutil.ReadDir(TEST_FILES_DIR)
+    for _, fileInfo := range dirs {
+        if strings.HasSuffix(fileInfo.Name(), ".gpx") {
+            gpxes = append(gpxes, fmt.Sprintf("%s/%s", TEST_FILES_DIR, fileInfo.Name()))
+        }
+    }
+    if len(gpxes) == 0 {
+        panic("No GPX files found")
+    }
+    return gpxes
 }
 
 func TestParseGPXTimes(t *testing.T) {
@@ -806,21 +824,20 @@ func TestTrackWithoutTimes(t *testing.T) {
 
 
 // TODO: More tests needed here both for max points and min distance between points
-func TestReduceTrack(t *testing.T) {
-	g, _ := ParseFile("../test_files/Mojstrovka.gpx")
-    pointsOriginal := g.GetTrackPointsNo()
-    if pointsOriginal != 184 {
-        t.Error("Invalid number of points!")
-    }
+func TestReduceTrackByMaxPoints(t *testing.T) {
+    for _, gpxFile := range loadTestGPXs() {
+        g, _ := ParseFile(gpxFile)
+        pointsOriginal := g.GetTrackPointsNo()
 
-    maxReducedPointsNo := 50
-    g.ReduceTrackPoints(maxReducedPointsNo, 0)
+        maxReducedPointsNo := 50
+        fmt.Printf("reducing %s to %d points", gpxFile, maxReducedPointsNo)
+        g.ReduceTrackPoints(maxReducedPointsNo, 0)
 
-    pointsReduced := g.GetTrackPointsNo()
+        pointsReduced := g.GetTrackPointsNo()
 
-    fmt.Printf("Points before %d, now %d", pointsOriginal, pointsReduced)
-
-    if pointsOriginal <= pointsReduced {
-        t.Error("Reduced track has no reduced number of points")
+        if pointsReduced > pointsOriginal {
+            fmt.Printf("Points before %d, now %d\n", pointsOriginal, pointsReduced)
+            t.Error("Reduced track has no reduced number of points")
+        }
     }
 }
