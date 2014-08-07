@@ -220,12 +220,30 @@ func convertPointToGpx10(original *GPXPoint) *gpx10.GpxPoint {
 	result.Sym = original.Symbol
 	result.Type = original.Type
 	result.Fix = original.TypeOfGpsFix
-	result.Sat = original.Satellites
-	result.Hdop = original.HorizontalDilution
-	result.Vdop = original.VerticalDilution
-	result.Pdop = original.PositionalDilution
-	result.AgeOfDGpsData = original.AgeOfDGpsData
-	result.DGpsId = original.DGpsId
+	if original.Satellites.NotNull() {
+		value := original.Satellites.Value()
+		result.Sat = &value
+	}
+	if original.HorizontalDilution.NotNull() {
+		value := original.HorizontalDilution.Value()
+		result.Hdop = &value
+	}
+	if original.VerticalDilution.NotNull() {
+		value := original.VerticalDilution.Value()
+		result.Vdop = &value
+	}
+	if original.PositionalDilution.NotNull() {
+		value := original.PositionalDilution.Value()
+		result.Pdop = &value
+	}
+	if original.AgeOfDGpsData.NotNull() {
+		value := original.AgeOfDGpsData.Value()
+		result.AgeOfDGpsData = &value
+	}
+	if original.DGpsId.NotNull() {
+		value := original.DGpsId.Value()
+		result.DGpsId = &value
+	}
 	return result
 }
 
@@ -249,12 +267,24 @@ func convertPointFromGpx10(original *gpx10.GpxPoint) *GPXPoint {
 	result.Symbol = original.Sym
 	result.Type = original.Type
 	result.TypeOfGpsFix = original.Fix
-	result.Satellites = original.Sat
-	result.HorizontalDilution = original.Hdop
-	result.VerticalDilution = original.Vdop
-	result.PositionalDilution = original.Pdop
-	result.AgeOfDGpsData = original.AgeOfDGpsData
-	result.DGpsId = original.DGpsId
+	if original.Sat != nil {
+		result.Satellites = *NewNullableInt(*original.Sat)
+	}
+	if original.Hdop != nil {
+		result.HorizontalDilution = *NewNullableFloat64(*original.Hdop)
+	}
+	if original.Vdop != nil {
+		result.VerticalDilution = *NewNullableFloat64(*original.Vdop)
+	}
+	if original.Pdop != nil {
+		result.PositionalDilution = *NewNullableFloat64(*original.Pdop)
+	}
+	if original.AgeOfDGpsData != nil {
+		result.AgeOfDGpsData = *NewNullableFloat64(*original.AgeOfDGpsData)
+	}
+	if original.DGpsId != nil {
+		result.DGpsId = *NewNullableInt(*original.DGpsId)
+	}
 	return result
 }
 
@@ -491,9 +521,7 @@ func convertPointToGpx11(original *GPXPoint) *gpx11.GpxPoint {
 	result := new(gpx11.GpxPoint)
 	result.Lat = original.Latitude
 	result.Lon = original.Longitude
-	if original.Elevation.Null() {
-		result.Ele = nil
-	} else {
+	if original.Elevation.NotNull() {
 		value := original.Elevation.Value()
 		result.Ele = &value
 	}
@@ -509,12 +537,30 @@ func convertPointToGpx11(original *GPXPoint) *gpx11.GpxPoint {
 	result.Sym = original.Symbol
 	result.Type = original.Type
 	result.Fix = original.TypeOfGpsFix
-	result.Sat = original.Satellites
-	result.Hdop = original.HorizontalDilution
-	result.Vdop = original.VerticalDilution
-	result.Pdop = original.PositionalDilution
-	result.AgeOfDGpsData = original.AgeOfDGpsData
-	result.DGpsId = original.DGpsId
+	if original.Satellites.NotNull() {
+		value := original.Satellites.Value()
+		result.Sat = &value
+	}
+	if original.HorizontalDilution.NotNull() {
+		value := original.HorizontalDilution.Value()
+		result.Hdop = &value
+	}
+	if original.VerticalDilution.NotNull() {
+		value := original.VerticalDilution.Value()
+		result.Vdop = &value
+	}
+	if original.PositionalDilution.NotNull() {
+		value := original.PositionalDilution.Value()
+		result.Pdop = &value
+	}
+	if original.AgeOfDGpsData.NotNull() {
+		value := original.AgeOfDGpsData.Value()
+		result.AgeOfDGpsData = &value
+	}
+	if original.DGpsId.NotNull() {
+		value := original.DGpsId.Value()
+		result.DGpsId = &value
+	}
 	return result
 }
 
@@ -538,11 +584,23 @@ func convertPointFromGpx11(original *gpx11.GpxPoint) *GPXPoint {
 	result.Symbol = original.Sym
 	result.Type = original.Type
 	result.TypeOfGpsFix = original.Fix
-	result.Satellites = original.Sat
-	result.HorizontalDilution = original.Hdop
-	result.VerticalDilution = original.Vdop
-	result.PositionalDilution = original.Pdop
-	result.AgeOfDGpsData = original.AgeOfDGpsData
-	result.DGpsId = original.DGpsId
+	if original.Sat != nil {
+		result.Satellites = *NewNullableInt(*original.Sat)
+	}
+	if original.Hdop != nil {
+		result.HorizontalDilution = *NewNullableFloat64(*original.Hdop)
+	}
+	if original.Vdop != nil {
+		result.VerticalDilution = *NewNullableFloat64(*original.Vdop)
+	}
+	if original.Pdop != nil {
+		result.PositionalDilution = *NewNullableFloat64(*original.Pdop)
+	}
+	if original.AgeOfDGpsData != nil {
+		result.AgeOfDGpsData = *NewNullableFloat64(*original.AgeOfDGpsData)
+	}
+	if original.DGpsId != nil {
+		result.DGpsId = *NewNullableInt(*original.DGpsId)
+	}
 	return result
 }

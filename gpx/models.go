@@ -377,12 +377,12 @@ type GPXPoint struct {
 	Type   string
 	// Accuracy info
 	TypeOfGpsFix       string
-	Satellites         int
-	HorizontalDilution float64
-	VerticalDilution   float64
-	PositionalDilution float64
-	AgeOfDGpsData      float64
-	DGpsId             int
+	Satellites         NullableInt
+	HorizontalDilution NullableFloat64
+	VerticalDilution   NullableFloat64
+	PositionalDilution NullableFloat64
+	AgeOfDGpsData      NullableFloat64
+	DGpsId             NullableInt
 }
 
 // SpeedBetween calculates the speed between two GpxWpts.
@@ -419,7 +419,7 @@ func (pt *GPXPoint) TimeDiff(pt2 *GPXPoint) float64 {
 
 // MaxDilutionOfPrecision returns the dilution precision of a GpxWpt.
 func (pt *GPXPoint) MaxDilutionOfPrecision() float64 {
-	return math.Max(pt.HorizontalDilution, math.Max(pt.VerticalDilution, pt.PositionalDilution))
+	return math.Max(pt.HorizontalDilution.Value(), math.Max(pt.VerticalDilution.Value(), pt.PositionalDilution.Value()))
 }
 
 // ----------------------------------------------------------------------------------------------------

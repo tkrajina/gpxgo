@@ -235,13 +235,13 @@ type GpxPoint struct {
 	Sym   string    `xml:"sym,omitempty"`
 	Type  string    `xml:"type,omitempty"`
 	// Accuracy info
-	Fix           string  `xml:"fix,omitempty"`
-	Sat           int     `xml:"sat,omitempty"`
-	Hdop          float64 `xml:"hdop,omitempty"`
-	Vdop          float64 `xml:"vdop,omitempty"`
-	Pdop          float64 `xml:"pdop,omitempty"`
-	AgeOfDGpsData float64 `xml:"ageofdgpsdata,omitempty"`
-	DGpsId        int     `xml:"dgpsid,omitempty"`
+	Fix           string   `xml:"fix,omitempty"`
+	Sat           *int     `xml:"sat,omitempty"`
+	Hdop          *float64 `xml:"hdop,omitempty"`
+	Vdop          *float64 `xml:"vdop,omitempty"`
+	Pdop          *float64 `xml:"pdop,omitempty"`
+	AgeOfDGpsData *float64 `xml:"ageofdgpsdata,omitempty"`
+	DGpsId        *int     `xml:"dgpsid,omitempty"`
 }
 
 type GpxRte struct {
