@@ -10,9 +10,8 @@ import (
 )
 
 const (
-    TIME_FORMAT = "2006-01-02T15:04:05Z"
-    TEST_FILES_DIR = "../test_files"
-
+	TIME_FORMAT    = "2006-01-02T15:04:05Z"
+	TEST_FILES_DIR = "../test_files"
 )
 
 func min(x, y int) int {
@@ -63,38 +62,41 @@ func assertNotNil(t *testing.T, var1 interface{}) {
 }
 
 func loadTestGPXs() []string {
-    gpxes := make([]string, 0)
-    dirs, _ := ioutil.ReadDir(TEST_FILES_DIR)
-    for _, fileInfo := range dirs {
-        if strings.HasSuffix(fileInfo.Name(), ".gpx") {
-            gpxes = append(gpxes, fmt.Sprintf("%s/%s", TEST_FILES_DIR, fileInfo.Name()))
-        }
-    }
-    if len(gpxes) == 0 {
-        panic("No GPX files found")
-    }
-    return gpxes
+	gpxes := make([]string, 0)
+	dirs, _ := ioutil.ReadDir(TEST_FILES_DIR)
+	for _, fileInfo := range dirs {
+		if strings.HasSuffix(fileInfo.Name(), ".gpx") {
+			gpxes = append(gpxes, fmt.Sprintf("%s/%s", TEST_FILES_DIR, fileInfo.Name()))
+		}
+	}
+	if len(gpxes) == 0 {
+		panic("No GPX files found")
+	}
+	return gpxes
 }
 
 func getMinDistanceBetweenTrackPoints(g GPX) float64 {
-    result := -1.0
-    for _, track := range g.Tracks {
-        for _, segment := range track.Segments {
-            for pointNo, point := range segment.Points {
-                if pointNo > 0 {
-                    previousPoint := segment.Points[pointNo - 1]
-                    distance := point.Distance3D(&previousPoint.Point)
-                    if result == -1 || distance < result {
-                        result = distance
-                    }
-                }
-            }
-        }
-    }
-    if result == -1 {
-        return 0.0
-    }
-    return result
+	result := -1.0
+	for _, track := range g.Tracks {
+		for _, segment := range track.Segments {
+			if len(segment.Points) > 1 {
+				for pointNo, point := range segment.Points {
+					if pointNo > 0 {
+						previousPoint := segment.Points[pointNo-1]
+						distance := point.Distance3D(&previousPoint.Point)
+                        //fmt.Printf("distance=%f\n", distance)
+						if result < 0.0 || distance < result {
+							result = distance
+						}
+					}
+				}
+			}
+		}
+	}
+	if result < 0.0 {
+		return 0.0
+	}
+	return result
 }
 
 func TestParseGPXTimes(t *testing.T) {
@@ -584,13 +586,12 @@ func TestMultiSegmentDuration(t *testing.T) {
 func TestMultiTrackDuration(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
-
 	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
 	g.AppendTrack(&g.Tracks[0])
 	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
 
-    //xml, _ := g.ToXml(ToXmlParams{Indent: true})
-    //fmt.Println(string(xml))
+	//xml, _ := g.ToXml(ToXmlParams{Indent: true})
+	//fmt.Println(string(xml))
 
 	durE := 320.0
 	durA := g.Duration()
@@ -759,28 +760,28 @@ func TestAddElevation(t *testing.T) {
 func TestRemoveElevation(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
-    // Remove elevations don't work on waypoints and routes, so just remove them for this test (TODO)
-    g.Waypoints = make([]GPXPoint, 0)
-    g.Routes = make([]GPXRoute, 0)
+	// Remove elevations don't work on waypoints and routes, so just remove them for this test (TODO)
+	g.Waypoints = make([]GPXPoint, 0)
+	g.Routes = make([]GPXRoute, 0)
 
-    {
-        xml, _ := g.ToXml(ToXmlParams{Indent: true})
-        if !strings.Contains(string(xml), "<ele") {
-            t.Error("No elevations for the test")
-        }
-    }
+	{
+		xml, _ := g.ToXml(ToXmlParams{Indent: true})
+		if !strings.Contains(string(xml), "<ele") {
+			t.Error("No elevations for the test")
+		}
+	}
 
 	g.RemoveElevation()
 
-    {
-        xml, _ := g.ToXml(ToXmlParams{Indent: true})
+	{
+		xml, _ := g.ToXml(ToXmlParams{Indent: true})
 
-        //fmt.Println(string(xml))
+		//fmt.Println(string(xml))
 
-        if strings.Contains(string(xml), "<ele") {
-            t.Error("Elevation still there!")
-        }
-    }
+		if strings.Contains(string(xml), "<ele") {
+			t.Error("Elevation still there!")
+		}
+	}
 }
 
 func TestExecuteOnAllPoints(t *testing.T) {
@@ -818,73 +819,85 @@ func TestEmptyElevation(t *testing.T) {
 
 func TestTrackWithoutTimes(t *testing.T) {
 	g, _ := ParseFile("../test_files/cerknicko-without-times.gpx")
-    if g.HasTimes() {
-        t.Error("Track should not have times")
-    }
+	if g.HasTimes() {
+		t.Error("Track should not have times")
+	}
 }
 
 /*
-    def test_has_times_false(self):
-        gpx = self.parse('cerknicko-without-times.gpx')
-        self.assertFalse(gpx.has_times())
+   def test_has_times_false(self):
+       gpx = self.parse('cerknicko-without-times.gpx')
+       self.assertFalse(gpx.has_times())
 
-    def test_has_times(self):
-        gpx = self.parse('korita-zbevnica.gpx')
-        self.assertTrue(len(gpx.tracks) == 4)
-        # Empty -- True
-        self.assertTrue(gpx.tracks[0].has_times())
-        # Not times ...
-        self.assertTrue(not gpx.tracks[1].has_times())
+   def test_has_times(self):
+       gpx = self.parse('korita-zbevnica.gpx')
+       self.assertTrue(len(gpx.tracks) == 4)
+       # Empty -- True
+       self.assertTrue(gpx.tracks[0].has_times())
+       # Not times ...
+       self.assertTrue(not gpx.tracks[1].has_times())
 
-        # Times OK
-        self.assertTrue(gpx.tracks[2].has_times())
-        self.assertTrue(gpx.tracks[3].has_times())
+       # Times OK
+       self.assertTrue(gpx.tracks[2].has_times())
+       self.assertTrue(gpx.tracks[3].has_times())
 */
 
 //func TestHasTimes(t *testing.T) {}
 
 func testReduceTrackByMaxPoints(t *testing.T, maxReducedPointsNo int) {
-    for _, gpxFile := range loadTestGPXs() {
-        g, _ := ParseFile(gpxFile)
-        pointsOriginal := g.GetTrackPointsNo()
+	for _, gpxFile := range loadTestGPXs() {
+		g, _ := ParseFile(gpxFile)
+		pointsOriginal := g.GetTrackPointsNo()
 
-        //fmt.Printf("reducing %s to %d points", gpxFile, maxReducedPointsNo)
-        g.ReduceTrackPoints(maxReducedPointsNo, 0)
+		//fmt.Printf("reducing %s to %d points", gpxFile, maxReducedPointsNo)
+		g.ReduceTrackPoints(maxReducedPointsNo, 0)
 
-        pointsReduced := g.GetTrackPointsNo()
+		pointsReduced := g.GetTrackPointsNo()
 
-        if pointsReduced > pointsOriginal {
-            fmt.Printf("Points before %d, now %d\n", pointsOriginal, pointsReduced)
-            t.Error("Reduced track has no reduced number of points")
-        }
-    }
+		if pointsReduced > pointsOriginal {
+			//fmt.Printf("Points before %d, now %d\n", pointsOriginal, pointsReduced)
+			t.Error("Reduced track has no reduced number of points")
+		}
+	}
 }
 
 func testReduceTrackByMaxPointsAndMinDistance(t *testing.T, maxReducedPointsNo int, minDistance float64) {
-    for _, gpxFile := range loadTestGPXs() {
-        g, _ := ParseFile(gpxFile)
-        pointsOriginal := g.GetTrackPointsNo()
+	for _, gpxFile := range loadTestGPXs() {
+		g, _ := ParseFile(gpxFile)
+		pointsOriginal := g.GetTrackPointsNo()
 
-        fmt.Printf("reducing %s to %d points and min distance %f\n", gpxFile, maxReducedPointsNo, minDistance)
-        g.ReduceTrackPoints(maxReducedPointsNo, minDistance)
+		//fmt.Printf("reducing %s to %d points and min distance %f\n", gpxFile, maxReducedPointsNo, minDistance)
+		g.ReduceTrackPoints(maxReducedPointsNo, minDistance)
 
-        pointsReduced := g.GetTrackPointsNo()
-        if pointsReduced > pointsOriginal {
-            fmt.Printf("Points before %d, now %d\n", pointsOriginal, pointsReduced)
-            t.Error("Reduced track has no reduced number of points")
+        minDistanceOriginal := getMinDistanceBetweenTrackPoints(*g)
+
+		pointsReduced := g.GetTrackPointsNo()
+		if pointsReduced > pointsOriginal {
+			//fmt.Printf("Points before %d, now %d\n", pointsOriginal, pointsReduced)
+			t.Error("Reduced track has no reduced number of points")
+		}
+
+		reducedMinDistance := getMinDistanceBetweenTrackPoints(*g)
+		//fmt.Printf("fileName=%s after reducing pointsNo=%d, minDistance=%f\n", gpxFile, g.GetTrackPointsNo(), reducedMinDistance)
+
+        if minDistanceOriginal > 0.0 {
+            if reducedMinDistance < minDistance {
+                t.Error(fmt.Sprintf("reducedMinDistance=%f, but minDistance should be=%f", reducedMinDistance, minDistance))
+            }
         }
-
-        actualMinDistance := getMinDistanceBetweenTrackPoints(*g)
-        fmt.Printf("fileName=%s after reducing pointsNo=%d, minDistance=%f\n", gpxFile, g.GetTrackPointsNo(), actualMinDistance)
-
-        if actualMinDistance < minDistance {
-            t.Error(fmt.Sprintf("actualMinDistance=%f, but minDistance should be=%f", actualMinDistance, minDistance))
-        }
-    }
+	}
 }
 
 func TestReduceTrackByMaxPointsAndMinDistance(t *testing.T) {
-    testReduceTrackByMaxPointsAndMinDistance(t, 100000, 10.0)
-    testReduceTrackByMaxPointsAndMinDistance(t, 100000, 50.0)
-    testReduceTrackByMaxPointsAndMinDistance(t, 100000, 200.0)
+	testReduceTrackByMaxPointsAndMinDistance(t, 100000, 10.0)
+	testReduceTrackByMaxPointsAndMinDistance(t, 100000, 50.0)
+	testReduceTrackByMaxPointsAndMinDistance(t, 100000, 200.0)
+
+	testReduceTrackByMaxPointsAndMinDistance(t, 10, 0.0)
+	testReduceTrackByMaxPointsAndMinDistance(t, 100, 0.0)
+	testReduceTrackByMaxPointsAndMinDistance(t, 1000, 0.0)
+
+	testReduceTrackByMaxPointsAndMinDistance(t, 10, 10.0)
+	testReduceTrackByMaxPointsAndMinDistance(t, 100, 10.0)
+	testReduceTrackByMaxPointsAndMinDistance(t, 1000, 20.0)
 }
