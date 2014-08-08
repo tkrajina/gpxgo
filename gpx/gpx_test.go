@@ -901,3 +901,43 @@ func TestReduceTrackByMaxPointsAndMinDistance(t *testing.T) {
 	testReduceTrackByMaxPointsAndMinDistance(t, 100, 10.0)
 	testReduceTrackByMaxPointsAndMinDistance(t, 1000, 20.0)
 }
+
+func TestSimplify(t *testing.T) {
+	for _, gpxFile := range loadTestGPXs() {
+		g, _ := ParseFile(gpxFile)
+        length2DOriginal := g.Length2D()
+
+        g.SimplifyTracks(50)
+    }
+}
+
+/*
+    def test_simplify(self):
+        for gpx_file in mod_os.listdir('test_files'):
+            print('Parsing:', gpx_file)
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
+
+            length_2d_original = gpx.length_2d()
+
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file))
+            gpx.simplify(max_distance=50)
+            length_2d_after_distance_50 = gpx.length_2d()
+
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file))
+            gpx.simplify(max_distance=10)
+            length_2d_after_distance_10 = gpx.length_2d()
+
+            print(length_2d_original, length_2d_after_distance_10, length_2d_after_distance_50)
+
+            # When simplifying the resulting disnatce should alway be less than the original:
+            self.assertTrue(length_2d_original >= length_2d_after_distance_10)
+            self.assertTrue(length_2d_original >= length_2d_after_distance_50)
+
+            # Simplify with bigger max_distance and => bigger error from original
+            self.assertTrue(length_2d_after_distance_10 >= length_2d_after_distance_50)
+
+            # The resulting distance usually shouldn't be too different from
+            # the orignial (here check for 80% and 70%)
+            self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .6)
+            self.assertTrue(length_2d_after_distance_50 >= length_2d_original * .5)
+*/
