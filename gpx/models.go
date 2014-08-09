@@ -143,9 +143,9 @@ func (g *GPX) ReduceTrackPoints(maxPointsNo int, minDistanceBetween float64) {
 }
 
 func (g *GPX) SimplifyTracks(maxDistance float64) {
-    for _, track := range g.Tracks {
-        track.SimplifyTracks(maxDistance)
-    }
+	for _, track := range g.Tracks {
+		track.SimplifyTracks(maxDistance)
+	}
 }
 
 // Split splits the Gpx segment segNo in a given track trackNo at
@@ -702,74 +702,9 @@ def distance_from_line(point, line_point_1, line_point_2):
 
 */
 
-// Distance of point from a line given with two points.
-func distanceFromLine(point Point, linePoint1, linePoint2 GPXPoint) float64 {
-    a := linePoint1.Distance2D(&linePoint2.Point)
-
-    if a == 0 {
-        return linePoint1.Distance2D(&point)
-    }
-
-    b := linePoint1.Distance2D(&point)
-    c := linePoint2.Distance2D(&point)
-
-    s := (a + b + c) / 2.
-
-    return 2.0 * math.Sqrt(math.Abs((s * (s - a) * (s - b) * (s - c)))) / a
-}
-
-func getLineEquationCoefficients(location1, location2 Point) (float64, float64, float64) {
-    if location1.Longitude == location2.Longitude {
-        // Vertical line:
-        return 0.0, 1.0, -location1.Longitude
-    } else {
-        a := (location1.Latitude - location2.Latitude) / (location1.Longitude - location2.Longitude)
-        b := location1.Latitude - location1.Longitude * a
-        return 1.0, -a, -b
-    }
-}
-
 // Does Ramer-Douglas-Peucker algorithm for simplification of polyline
 func (seg *GPXTrackSegment) SimplifyTracks(maxDistance float64) {
-    if len(seg.Points) < 3 {
-        return
-    }
-
-    begin, end := seg.Points[0], seg.Points[len(seg.Points) - 1]
-
-    /*
-    Use a "normal" line just to detect the most distant point (not its real distance)
-    this is because this is faster to compute than calling distance_from_line() for
-    every point.
-
-    This is an approximation and may have some errors near the poles and if
-    the points are too distant, but it should be good enough for most use
-    cases...
-    */
-    a, b, c := getLineEquationCoefficients(begin.Point, end.Point)
-
-    tmpMaxDistance := -1000000000.0
-    tmpMaxDistancePosition := 0
-    for pointNo, point := range seg.Points {
-        d := math.Abs(a * point.Latitude + b * point.Longitude + c)
-        if d > tmpMaxDistance {
-            tmpMaxDistance = d
-            tmpMaxDistancePosition = pointNo
-        }
-    }
-
-    realMaxDistance := distanceFromLine(seg.Points[tmpMaxDistancePosition].Point, *begin, *end)
-
-    if realMaxDistance < maxDistance {
-        return
-    }
-/*
-    if real_max_distance < max_distance:
-        return [begin, end]
-
-    return (simplify_polyline(points[:tmp_max_distance_position + 2], max_distance) +
-            simplify_polyline(points[tmp_max_distance_position + 1:], max_distance)[1:])
-*/
+	seg.Points = simplifyPoints(seg.Points, maxDistance)
 }
 
 func (seg *GPXTrackSegment) AddElevation(elevation float64) {
@@ -966,9 +901,9 @@ func (trk *GPXTrack) ReduceTrackPoints(minDistance float64) {
 }
 
 func (trk *GPXTrack) SimplifyTracks(maxDistance float64) {
-    for _, segment := range trk.Segments {
-        segment.SimplifyTracks(maxDistance)
-    }
+	for _, segment := range trk.Segments {
+		segment.SimplifyTracks(maxDistance)
+	}
 }
 
 // Split splits a GPX segment at a point number ptNo in a GPX track.

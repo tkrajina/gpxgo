@@ -193,7 +193,6 @@ func Distance3D(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, el
 }
 
 func ElevationAngle(loc1, loc2 *Point, radians bool) float64 {
-
 	if loc1.Elevation.Null() || loc2.Elevation.Null() {
 		return 0.0
 	}
@@ -212,4 +211,85 @@ func ElevationAngle(loc1, loc2 *Point, radians bool) float64 {
 	}
 
 	return 180 * angle / math.Pi
+}
+
+// Distance of point from a line given with two points.
+func distanceFromLine(point Point, linePoint1, linePoint2 GPXPoint) float64 {
+	a := linePoint1.Distance2D(&linePoint2.Point)
+
+	if a == 0 {
+		return linePoint1.Distance2D(&point)
+	}
+
+	b := linePoint1.Distance2D(&point)
+	c := linePoint2.Distance2D(&point)
+
+	s := (a + b + c) / 2.
+
+	return 2.0 * math.Sqrt(math.Abs((s * (s - a) * (s - b) * (s - c)))) / a
+}
+
+func getLineEquationCoefficients(location1, location2 Point) (float64, float64, float64) {
+	if location1.Longitude == location2.Longitude {
+		// Vertical line:
+		return 0.0, 1.0, -location1.Longitude
+	} else {
+		a := (location1.Latitude - location2.Latitude) / (location1.Longitude - location2.Longitude)
+		b := location1.Latitude - location1.Longitude*a
+		return 1.0, -a, -b
+	}
+}
+
+func simplifyPoints(points []*GPXPoint, maxDistance float64) []*GPXPoint {
+	if len(points) < 3 {
+		return points
+	}
+
+	begin, end := points[0], points[len(points)-1]
+
+	/*
+	   Use a "normal" line just to detect the most distant point (not its real distance)
+	   this is because this is faster to compute than calling distance_from_line() for
+	   every point.
+
+	   This is an approximation and may have some errors near the poles and if
+	   the points are too distant, but it should be good enough for most use
+	   cases...
+	*/
+	a, b, c := getLineEquationCoefficients(begin.Point, end.Point)
+
+	tmpMaxDistance := -1000000000.0
+	tmpMaxDistancePosition := 0
+	for pointNo, point := range points {
+		d := math.Abs(a*point.Latitude + b*point.Longitude + c)
+		if d > tmpMaxDistance {
+			tmpMaxDistance = d
+			tmpMaxDistancePosition = pointNo
+		}
+	}
+
+	//fmt.Println()
+
+	//fmt.Println("tmpMaxDistancePosition=", tmpMaxDistancePosition, " len(points)=", len(points))
+
+	realMaxDistance := distanceFromLine(points[tmpMaxDistancePosition].Point, *begin, *end)
+	//fmt.Println("realMaxDistance=", realMaxDistance, " len(points)=", len(points))
+
+	if realMaxDistance < maxDistance {
+		return []*GPXPoint{begin, end}
+	}
+
+	points1 := points[:tmpMaxDistancePosition]
+	point := points[tmpMaxDistancePosition]
+	points2 := points[tmpMaxDistancePosition+1:]
+
+	//fmt.Println("before simplify: len_points=", len(points), " l_points1=", len(points1), " l_points2=", len(points2))
+
+	points1 = simplifyPoints(points1, maxDistance)
+	points2 = simplifyPoints(points2, maxDistance)
+
+	//fmt.Println("after simplify: len_points=", len(points), " l_points1=", len(points1), " l_points2=", len(points2))
+
+	result := append(points1, point)
+	return append(result, points2...)
 }
