@@ -556,6 +556,32 @@ func TestBoundsGpx(t *testing.T) {
 	}
 }
 
+func TestElevationBoundsSeg(t *testing.T) {
+	g, _ := ParseFile("../test_files/file.gpx")
+
+	boundsA := g.Tracks[0].Segments[0].ElevationBounds()
+	boundsE := ElevationBounds{
+		MaxElevation: 65.99, MinElevation: 59.26,
+	}
+
+	if !boundsE.Equals(boundsA) {
+		t.Errorf("Bounds expected: %s, actual: %s", boundsE.String(), boundsA.String())
+	}
+}
+
+func TestElevationBoundsGpx(t *testing.T) {
+	g, _ := ParseFile("../test_files/file.gpx")
+
+	boundsA := g.ElevationBounds()
+	boundsE := ElevationBounds{
+		MaxElevation: 65.99, MinElevation: 59.26,
+	}
+
+	if !boundsE.Equals(boundsA) {
+		t.Errorf("Bounds expected: %s, actual: %s", boundsE.String(), boundsA.String())
+	}
+}
+
 func TestSpeedSeg(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 	speedA := g.Tracks[0].Segments[0].Speed(2)
