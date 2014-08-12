@@ -533,8 +533,8 @@ func TestBoundsSeg(t *testing.T) {
 
 	boundsA := g.Tracks[0].Segments[0].Bounds()
 	boundsE := GpxBounds{
-		MaxLat: 52.5117189623, MinLat: 52.5113534275,
-		MaxLon: 13.4571944922, MinLon: 13.4567520116,
+		MaxLatitude: 52.5117189623, MinLatitude: 52.5113534275,
+		MaxLongitude: 13.4571944922, MinLongitude: 13.4567520116,
 	}
 
 	if !boundsE.Equals(boundsA) {
@@ -547,8 +547,8 @@ func TestBoundsGpx(t *testing.T) {
 
 	boundsA := g.Bounds()
 	boundsE := GpxBounds{
-		MaxLat: 52.5117189623, MinLat: 52.5113534275,
-		MaxLon: 13.4571944922, MinLon: 13.4567520116,
+		MaxLatitude: 52.5117189623, MinLatitude: 52.5113534275,
+		MaxLongitude: 13.4571944922, MinLongitude: 13.4567520116,
 	}
 
 	if !boundsE.Equals(boundsA) {
