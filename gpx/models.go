@@ -88,10 +88,10 @@ func (g *GPX) Bounds() *GpxBounds {
 	minmax := getMinimaMaximaStart()
 	for _, trk := range g.Tracks {
 		bnds := trk.Bounds()
-		minmax.MaxLat = math.Max(bnds.MaxLat, minmax.MaxLat)
-		minmax.MinLat = math.Min(bnds.MinLat, minmax.MinLat)
-		minmax.MaxLon = math.Max(bnds.MaxLon, minmax.MaxLon)
-		minmax.MinLon = math.Min(bnds.MinLon, minmax.MinLon)
+		minmax.MaxLatitude = math.Max(bnds.MaxLatitude, minmax.MaxLatitude)
+		minmax.MinLatitude = math.Min(bnds.MinLatitude, minmax.MinLatitude)
+		minmax.MaxLongitude = math.Max(bnds.MaxLongitude, minmax.MaxLongitude)
+		minmax.MinLongitude = math.Min(bnds.MinLongitude, minmax.MinLongitude)
 	}
 	return minmax
 }
@@ -280,19 +280,19 @@ func (g *GPX) AppendWaypoint(w *GPXPoint) {
 // ----------------------------------------------------------------------------------------------------
 
 type GpxBounds struct {
-	MinLat float64
-	MaxLat float64
-	MinLon float64
-	MaxLon float64
+	MinLatitude float64
+	MaxLatitude float64
+	MinLongitude float64
+	MaxLongitude float64
 }
 
 // Equals returns true if two Bounds objects are equal
 func (b *GpxBounds) Equals(b2 *GpxBounds) bool {
-	return b.MinLon == b2.MinLon && b.MaxLat == b2.MaxLat && b.MinLon == b2.MinLon && b.MaxLon == b.MaxLon
+	return b.MinLongitude == b2.MinLongitude && b.MaxLatitude == b2.MaxLatitude && b.MinLongitude == b2.MinLongitude && b.MaxLongitude == b2.MaxLongitude
 }
 
 func (b *GpxBounds) String() string {
-	return fmt.Sprintf("Max: %+v, %+v Min: %+v, %+v", b.MinLat, b.MinLon, b.MaxLat, b.MaxLon)
+	return fmt.Sprintf("Max: %+v, %+v Min: %+v, %+v", b.MinLatitude, b.MinLongitude, b.MaxLatitude, b.MaxLongitude)
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -538,10 +538,10 @@ func (seg *GPXTrackSegment) TimeBounds() *TimeBounds {
 func (seg *GPXTrackSegment) Bounds() *GpxBounds {
 	minmax := getMinimaMaximaStart()
 	for _, pt := range seg.Points {
-		minmax.MaxLat = math.Max(pt.Latitude, minmax.MaxLat)
-		minmax.MinLat = math.Min(pt.Latitude, minmax.MinLat)
-		minmax.MaxLon = math.Max(pt.Longitude, minmax.MaxLon)
-		minmax.MinLon = math.Min(pt.Longitude, minmax.MinLon)
+		minmax.MaxLatitude = math.Max(pt.Latitude, minmax.MaxLatitude)
+		minmax.MinLatitude = math.Min(pt.Latitude, minmax.MinLatitude)
+		minmax.MaxLongitude = math.Max(pt.Longitude, minmax.MaxLongitude)
+		minmax.MinLongitude = math.Min(pt.Longitude, minmax.MinLongitude)
 	}
 	return minmax
 }
@@ -878,10 +878,10 @@ func (trk *GPXTrack) Bounds() *GpxBounds {
 	minmax := getMinimaMaximaStart()
 	for _, seg := range trk.Segments {
 		bnds := seg.Bounds()
-		minmax.MaxLat = math.Max(bnds.MaxLat, minmax.MaxLat)
-		minmax.MinLat = math.Min(bnds.MinLat, minmax.MinLat)
-		minmax.MaxLon = math.Max(bnds.MaxLon, minmax.MaxLon)
-		minmax.MinLon = math.Min(bnds.MinLon, minmax.MinLon)
+		minmax.MaxLatitude = math.Max(bnds.MaxLatitude, minmax.MaxLatitude)
+		minmax.MinLatitude = math.Min(bnds.MinLatitude, minmax.MinLatitude)
+		minmax.MaxLongitude = math.Max(bnds.MaxLongitude, minmax.MaxLongitude)
+		minmax.MinLongitude = math.Min(bnds.MinLongitude, minmax.MinLongitude)
 	}
 	return minmax
 }
@@ -1067,9 +1067,9 @@ func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
  */
 func getMinimaMaximaStart() *GpxBounds {
 	return &GpxBounds{
-		MaxLat: -math.MaxFloat64,
-		MinLat: math.MaxFloat64,
-		MaxLon: -math.MaxFloat64,
-		MinLon: math.MaxFloat64,
+		MaxLatitude: -math.MaxFloat64,
+		MinLatitude: math.MaxFloat64,
+		MaxLongitude: -math.MaxFloat64,
+		MinLongitude: math.MaxFloat64,
 	}
 }
