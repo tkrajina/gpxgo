@@ -85,13 +85,23 @@ func (g *GPX) TimeBounds() *TimeBounds {
 
 // Bounds returns the bounds of all tracks in a Gpx.
 func (g *GPX) Bounds() *GpxBounds {
-	minmax := getMinimaMaximaStart()
+	minmax := getMaximalGpxBounds()
 	for _, trk := range g.Tracks {
 		bnds := trk.Bounds()
 		minmax.MaxLatitude = math.Max(bnds.MaxLatitude, minmax.MaxLatitude)
 		minmax.MinLatitude = math.Min(bnds.MinLatitude, minmax.MinLatitude)
 		minmax.MaxLongitude = math.Max(bnds.MaxLongitude, minmax.MaxLongitude)
 		minmax.MinLongitude = math.Min(bnds.MinLongitude, minmax.MinLongitude)
+	}
+	return minmax
+}
+
+func (g *GPX) ElevationBounds() *ElevationBounds {
+	minmax := getMaximalElevationBounds()
+	for _, trk := range g.Tracks {
+		bnds := trk.ElevationBounds()
+		minmax.MaxElevation = math.Max(bnds.MaxElevation, minmax.MaxElevation)
+		minmax.MinElevation = math.Min(bnds.MinElevation, minmax.MinElevation)
 	}
 	return minmax
 }
@@ -279,9 +289,25 @@ func (g *GPX) AppendWaypoint(w *GPXPoint) {
 
 // ----------------------------------------------------------------------------------------------------
 
+type ElevationBounds struct {
+	MinElevation float64
+	MaxElevation float64
+}
+
+// Equals returns true if two Bounds objects are equal
+func (b *ElevationBounds) Equals(b2 *ElevationBounds) bool {
+	return b.MinElevation == b2.MinElevation && b.MaxElevation == b2.MaxElevation
+}
+
+func (b *ElevationBounds) String() string {
+	return fmt.Sprintf("Max: %+v Min: %+v", b.MinElevation, b.MaxElevation)
+}
+
+// ----------------------------------------------------------------------------------------------------
+
 type GpxBounds struct {
-	MinLatitude float64
-	MaxLatitude float64
+	MinLatitude  float64
+	MaxLatitude  float64
 	MinLongitude float64
 	MaxLongitude float64
 }
@@ -536,12 +562,23 @@ func (seg *GPXTrackSegment) TimeBounds() *TimeBounds {
 
 // Bounds returns the bounds of a GPX segment.
 func (seg *GPXTrackSegment) Bounds() *GpxBounds {
-	minmax := getMinimaMaximaStart()
+	minmax := getMaximalGpxBounds()
 	for _, pt := range seg.Points {
 		minmax.MaxLatitude = math.Max(pt.Latitude, minmax.MaxLatitude)
 		minmax.MinLatitude = math.Min(pt.Latitude, minmax.MinLatitude)
 		minmax.MaxLongitude = math.Max(pt.Longitude, minmax.MaxLongitude)
 		minmax.MinLongitude = math.Min(pt.Longitude, minmax.MinLongitude)
+	}
+	return minmax
+}
+
+func (seg *GPXTrackSegment) ElevationBounds() *ElevationBounds {
+	minmax := getMaximalElevationBounds()
+	for _, pt := range seg.Points {
+		if pt.Elevation.NotNull() {
+			minmax.MaxElevation = math.Max(pt.Elevation.Value(), minmax.MaxElevation)
+			minmax.MinElevation = math.Min(pt.Elevation.Value(), minmax.MinElevation)
+		}
 	}
 	return minmax
 }
@@ -875,13 +912,23 @@ func (trk *GPXTrack) TimeBounds() *TimeBounds {
 
 // Bounds returns the bounds of a GPX track.
 func (trk *GPXTrack) Bounds() *GpxBounds {
-	minmax := getMinimaMaximaStart()
+	minmax := getMaximalGpxBounds()
 	for _, seg := range trk.Segments {
 		bnds := seg.Bounds()
 		minmax.MaxLatitude = math.Max(bnds.MaxLatitude, minmax.MaxLatitude)
 		minmax.MinLatitude = math.Min(bnds.MinLatitude, minmax.MinLatitude)
 		minmax.MaxLongitude = math.Max(bnds.MaxLongitude, minmax.MaxLongitude)
 		minmax.MinLongitude = math.Min(bnds.MinLongitude, minmax.MinLongitude)
+	}
+	return minmax
+}
+
+func (trk *GPXTrack) ElevationBounds() *ElevationBounds {
+	minmax := getMaximalElevationBounds()
+	for _, seg := range trk.Segments {
+		bnds := seg.ElevationBounds()
+		minmax.MaxElevation = math.Max(bnds.MaxElevation, minmax.MaxElevation)
+		minmax.MinElevation = math.Min(bnds.MinElevation, minmax.MinElevation)
 	}
 	return minmax
 }
@@ -1065,11 +1112,18 @@ func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
  *
  * TODO does it work is region is between 179E and 179W?
  */
-func getMinimaMaximaStart() *GpxBounds {
+func getMaximalGpxBounds() *GpxBounds {
 	return &GpxBounds{
-		MaxLatitude: -math.MaxFloat64,
-		MinLatitude: math.MaxFloat64,
+		MaxLatitude:  -math.MaxFloat64,
+		MinLatitude:  math.MaxFloat64,
 		MaxLongitude: -math.MaxFloat64,
 		MinLongitude: math.MaxFloat64,
+	}
+}
+
+func getMaximalElevationBounds() *ElevationBounds {
+	return &ElevationBounds{
+		MaxElevation: -math.MaxFloat64,
+		MinElevation: math.MaxFloat64,
 	}
 }
