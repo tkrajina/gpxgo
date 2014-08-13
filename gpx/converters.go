@@ -96,7 +96,7 @@ func convertToGpx10Models(gpxDoc *GPX) *gpx10.Gpx {
 					if segment.Points != nil {
 						gpx10Segment.Points = make([]*gpx10.GpxPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
-							gpx10Point := convertPointToGpx10(point)
+							gpx10Point := convertPointToGpx10(&point)
 							// TODO
 							//gpx10Point.Speed = point.Speed
 							//gpx10Point.Speed = point.Speed
@@ -185,9 +185,9 @@ func convertFromGpx10Models(gpx10Doc *gpx10.Gpx) *GPX {
 				for segmentNo, segment := range track.Segments {
 					gpxSegment := new(GPXTrackSegment)
 					if segment.Points != nil {
-						gpxSegment.Points = make([]*GPXPoint, len(segment.Points))
+						gpxSegment.Points = make([]GPXPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
-							gpxSegment.Points[pointNo] = convertPointFromGpx10(point)
+							gpxSegment.Points[pointNo] = *convertPointFromGpx10(point)
 						}
 					}
 					gpxTrack.Segments[segmentNo] = gpxSegment
@@ -396,7 +396,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11.Gpx {
 					if segment.Points != nil {
 						gpx11Segment.Points = make([]*gpx11.GpxPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
-							gpx11Segment.Points[pointNo] = convertPointToGpx11(point)
+							gpx11Segment.Points[pointNo] = convertPointToGpx11(&point)
 						}
 					}
 					gpx11Track.Segments[segmentNo] = gpx11Segment
@@ -502,9 +502,9 @@ func convertFromGpx11Models(gpx11Doc *gpx11.Gpx) *GPX {
 				for segmentNo, segment := range track.Segments {
 					gpxSegment := new(GPXTrackSegment)
 					if segment.Points != nil {
-						gpxSegment.Points = make([]*GPXPoint, len(segment.Points))
+						gpxSegment.Points = make([]GPXPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
-							gpxSegment.Points[pointNo] = convertPointFromGpx11(point)
+							gpxSegment.Points[pointNo] = *convertPointFromGpx11(point)
 						}
 					}
 					gpxTrack.Segments[segmentNo] = gpxSegment

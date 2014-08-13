@@ -240,7 +240,7 @@ func getLineEquationCoefficients(location1, location2 Point) (float64, float64, 
 	}
 }
 
-func simplifyPoints(points []*GPXPoint, maxDistance float64) []*GPXPoint {
+func simplifyPoints(points []GPXPoint, maxDistance float64) []GPXPoint {
 	if len(points) < 3 {
 		return points
 	}
@@ -272,11 +272,11 @@ func simplifyPoints(points []*GPXPoint, maxDistance float64) []*GPXPoint {
 
 	//fmt.Println("tmpMaxDistancePosition=", tmpMaxDistancePosition, " len(points)=", len(points))
 
-	realMaxDistance := distanceFromLine(points[tmpMaxDistancePosition].Point, *begin, *end)
+	realMaxDistance := distanceFromLine(points[tmpMaxDistancePosition].Point, begin, end)
 	//fmt.Println("realMaxDistance=", realMaxDistance, " len(points)=", len(points))
 
 	if realMaxDistance < maxDistance {
-		return []*GPXPoint{begin, end}
+		return []GPXPoint{begin, end}
 	}
 
 	points1 := points[:tmpMaxDistancePosition]
