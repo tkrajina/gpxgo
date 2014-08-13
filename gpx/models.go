@@ -238,8 +238,8 @@ func (g *GPX) ExecuteOnAllPoints(executor func(*GPXPoint)) {
 }
 
 func (g *GPX) ExecuteOnWaypoints(executor func(*GPXPoint)) {
-	for _, waypoint := range g.Waypoints {
-		executor(&waypoint)
+	for waypointNo, _ := range g.Waypoints {
+		executor(&g.Waypoints[waypointNo])
 	}
 }
 
@@ -264,15 +264,9 @@ func (g *GPX) AddElevation(elevation float64) {
 }
 
 func (g *GPX) RemoveElevation() {
-	for _, waypoint := range g.Waypoints {
-		waypoint.RemoveElevation()
-	}
-	for _, route := range g.Routes {
-		route.RemoveElevation()
-	}
-	for _, track := range g.Tracks {
-		track.RemoveElevation()
-	}
+    g.ExecuteOnAllPoints(func(point *GPXPoint) {
+        point.Elevation.SetNull()
+	})
 }
 
 func (g *GPX) AppendTrack(t *GPXTrack) {
@@ -338,12 +332,6 @@ func (pt *Point) Distance2D(pt2 *Point) float64 {
 // Distance3D returns the 3D distance of two GpxWpts.
 func (pt *Point) Distance3D(pt2 *Point) float64 {
 	return Distance3D(pt.Latitude, pt.Longitude, pt.Elevation, pt2.Latitude, pt2.Longitude, pt2.Elevation, false)
-}
-
-func (pt *Point) RemoveElevation() {
-	if pt.Elevation.NotNull() {
-		pt.Elevation.SetNull()
-	}
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -501,14 +489,8 @@ func (rte *GPXRoute) Center() (float64, float64) {
 }
 
 func (rte *GPXRoute) ExecuteOnPoints(executor func(*GPXPoint)) {
-	for _, point := range rte.Points {
-		executor(&point)
-	}
-}
-
-func (rte *GPXRoute) RemoveElevation() {
-	for _, point := range rte.Points {
-		point.RemoveElevation()
+	for pointNo, _ := range rte.Points {
+		executor(&rte.Points[pointNo])
 	}
 }
 
@@ -692,8 +674,8 @@ func (seg *GPXTrackSegment) UphillDownhill() *UphillDownhill {
 }
 
 func (seg *GPXTrackSegment) ExecuteOnPoints(executor func(*GPXPoint)) {
-	for _, point := range seg.Points {
-		executor(&point)
+	for pointNo, _ := range seg.Points {
+		executor(&seg.Points[pointNo])
 	}
 }
 
@@ -749,12 +731,6 @@ func (seg *GPXTrackSegment) AddElevation(elevation float64) {
 		if point.Elevation.NotNull() {
 			point.Elevation.SetValue(point.Elevation.Value() + elevation)
 		}
-	}
-}
-
-func (seg *GPXTrackSegment) RemoveElevation() {
-	for _, point := range seg.Points {
-		point.RemoveElevation()
 	}
 }
 
@@ -983,12 +959,6 @@ func (trk *GPXTrack) ExecuteOnPoints(executor func(*GPXPoint)) {
 func (trk *GPXTrack) AddElevation(elevation float64) {
 	for _, segment := range trk.Segments {
 		segment.AddElevation(elevation)
-	}
-}
-
-func (trk *GPXTrack) RemoveElevation() {
-	for _, segment := range trk.Segments {
-		segment.RemoveElevation()
 	}
 }
 
