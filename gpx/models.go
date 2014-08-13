@@ -515,7 +515,7 @@ func (rte *GPXRoute) RemoveElevation() {
 // ----------------------------------------------------------------------------------------------------
 
 type GPXTrackSegment struct {
-	Points []*GPXPoint
+	Points []GPXPoint
 	// TODO extensions
 }
 
@@ -611,12 +611,12 @@ func (seg *GPXTrackSegment) Speed(pointIdx int) float64 {
 	havePrev := false
 	haveNext := false
 	if 0 < pointIdx && pointIdx < trkptsLen {
-		prevPt = seg.Points[pointIdx-1]
+		prevPt = &seg.Points[pointIdx-1]
 		havePrev = true
 	}
 
 	if 0 < pointIdx && pointIdx < trkptsLen-1 {
-		nextPt = seg.Points[pointIdx+1]
+		nextPt = &seg.Points[pointIdx+1]
 		haveNext = true
 	}
 
@@ -693,7 +693,7 @@ func (seg *GPXTrackSegment) UphillDownhill() *UphillDownhill {
 
 func (seg *GPXTrackSegment) ExecuteOnPoints(executor func(*GPXPoint)) {
 	for _, point := range seg.Points {
-		executor(point)
+		executor(&point)
 	}
 }
 
@@ -706,7 +706,7 @@ func (seg *GPXTrackSegment) ReduceTrackPoints(minDistance float64) {
 		return
 	}
 
-	newPoints := make([]*GPXPoint, 0)
+	newPoints := make([]GPXPoint, 0)
 	newPoints = append(newPoints, seg.Points[0])
 
 	for _, point := range seg.Points {
@@ -850,7 +850,7 @@ func (seg *GPXTrackSegment) MovingData() *MovingData {
 }
 
 func (seg *GPXTrackSegment) AppendPoint(p *GPXPoint) {
-	seg.Points = append(seg.Points, p)
+	seg.Points = append(seg.Points, *p)
 }
 
 // ----------------------------------------------------------------------------------------------------
