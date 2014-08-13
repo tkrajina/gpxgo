@@ -28,8 +28,7 @@ func cca(x, y float64) bool {
 
 func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
 	if var1 != var2 {
-		fmt.Println(var1, "not equals to", var2)
-		t.Error("Not equals")
+		t.Error(fmt.Sprintf("%v not equals to %v", var1, var2))
 	}
 }
 
