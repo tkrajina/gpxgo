@@ -53,12 +53,12 @@ func HaversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	return d
 }
 
-func length(locs []*Point, threeD bool) float64 {
+func length(locs []Point, threeD bool) float64 {
 	var previousLoc *Point
 	var res float64
 	for k, v := range locs {
 		if k > 0 {
-			previousLoc = locs[k-1]
+			previousLoc = &locs[k-1]
 			var d float64
 			if threeD {
 				d = v.Distance3D(previousLoc)
@@ -71,11 +71,11 @@ func length(locs []*Point, threeD bool) float64 {
 	return res
 }
 
-func Length2D(locs []*Point) float64 {
+func Length2D(locs []Point) float64 {
 	return length(locs, false)
 }
 
-func Length3D(locs []*Point) float64 {
+func Length3D(locs []Point) float64 {
 	return length(locs, true)
 }
 
