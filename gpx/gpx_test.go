@@ -995,3 +995,74 @@ func TestSimplify(t *testing.T) {
 		assertTrue(t, "Bigger maxDistance => smaller simplified track", length2dAfterMaxDistance5 <= length2dAfterMaxDistance0000001)
 	}
 }
+
+func TestAppendPoint(t *testing.T) {
+	g := new(GPX)
+	g.AppendPoint(new(GPXPoint))
+
+	if len(g.Tracks) != 1 {
+		t.Error(fmt.Sprintf("Should be only 1 track, found %d", len(g.Tracks)))
+	}
+	if len(g.Tracks[0].Segments) != 1 {
+		t.Error(fmt.Sprintf("Should be only 1 segment, found %d", len(g.Tracks)))
+	}
+	if len(g.Tracks[0].Segments[0].Points) != 1 {
+		t.Error(fmt.Sprintf("Should be only 1 point, found %d", len(g.Tracks)))
+	}
+}
+
+func TestAppendSegment(t *testing.T) {
+	g := new(GPX)
+	g.AppendSegment(new(GPXTrackSegment))
+	if len(g.Tracks) != 1 {
+		t.Error(fmt.Sprintf("Should be only 1 track, found %d", len(g.Tracks)))
+	}
+	if len(g.Tracks[0].Segments) != 1 {
+		t.Error(fmt.Sprintf("Should be only 1 segment, found %d", len(g.Tracks)))
+	}
+}
+
+func TestReduceToSingleTrack(t *testing.T) {
+	g, _ := ParseFile("../test_files/korita-zbevnica.gpx")
+
+	if len(g.Tracks) <= 1 {
+		t.Error("Invalid track for testing track reduction")
+	}
+
+	pointsNoBefore := g.GetTrackPointsNo()
+	g.ReduceGpxToSingleTrack()
+	pointsNoAfter := g.GetTrackPointsNo()
+
+	if len(g.Tracks) != 1 {
+		t.Error(fmt.Sprintf("Tracks length should be 1 but is %d", len(g.Tracks)))
+	}
+	if pointsNoBefore != pointsNoAfter {
+		t.Error(fmt.Sprintf("pointsNoBefore != pointsNoAfter -> %d != %d", pointsNoBefore, pointsNoAfter))
+	}
+}
+
+func TestRemoveEmpty(t *testing.T) {
+	g := new(GPX)
+
+	// Empty track
+	g.AppendTrack(new(GPXTrack))
+
+	// Track with one empty and one nonempty segment
+	g.AppendTrack(new(GPXTrack))
+	g.Tracks[len(g.Tracks)-1].AppendSegment(new(GPXTrackSegment))
+	g.Tracks[len(g.Tracks)-1].AppendSegment(new(GPXTrackSegment))
+	g.Tracks[len(g.Tracks)-1].Segments[0].AppendPoint(new(GPXPoint))
+
+	// Track with one empty segmen
+	g.AppendTrack(new(GPXTrack))
+	g.Tracks[len(g.Tracks)-1].AppendSegment(new(GPXTrackSegment))
+
+	g.RemoveEmpty()
+
+	if len(g.Tracks) != 1 {
+		t.Error(fmt.Sprintf("Only one track should be left!, found %d", len(g.Tracks)))
+	}
+	if len(g.Tracks[0].Segments) != 1 {
+		t.Error(fmt.Sprintf("Only one segment should be left, found %d", len(g.Tracks[0].Segments)))
+	}
+}

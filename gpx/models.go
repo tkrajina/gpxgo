@@ -264,13 +264,79 @@ func (g *GPX) AddElevation(elevation float64) {
 }
 
 func (g *GPX) RemoveElevation() {
-    g.ExecuteOnAllPoints(func(point *GPXPoint) {
-        point.Elevation.SetNull()
+	g.ExecuteOnAllPoints(func(point *GPXPoint) {
+		point.Elevation.SetNull()
 	})
+}
+
+func (g *GPX) ReduceGpxToSingleTrack() {
+	if len(g.Tracks) <= 1 {
+		return
+	}
+
+	firstTrack := &g.Tracks[0]
+	for _, track := range g.Tracks[1:] {
+		for _, segment := range track.Segments {
+			firstTrack.AppendSegment(segment)
+		}
+	}
+
+	g.Tracks = []GPXTrack{*firstTrack}
+}
+
+// Removes all a) segments without points and b) tracks without segments
+func (g *GPX) RemoveEmpty() {
+	if len(g.Tracks) == 0 {
+		return
+	}
+
+	for trackNo, track := range g.Tracks {
+		nonEmptySegments := make([]*GPXTrackSegment, 0)
+		for _, segment := range track.Segments {
+			if len(segment.Points) > 0 {
+				//fmt.Printf("Valid segment, because of %d points!\n", len(segment.Points))
+				nonEmptySegments = append(nonEmptySegments, segment)
+			}
+		}
+		g.Tracks[trackNo].Segments = nonEmptySegments
+	}
+
+	nonEmptyTracks := make([]GPXTrack, 0)
+	for _, track := range g.Tracks {
+		if len(track.Segments) > 0 {
+			//fmt.Printf("Valid track, baceuse of %d segments!\n", len(track.Segments))
+			nonEmptyTracks = append(nonEmptyTracks, track)
+		}
+	}
+	g.Tracks = nonEmptyTracks
 }
 
 func (g *GPX) AppendTrack(t *GPXTrack) {
 	g.Tracks = append(g.Tracks, *t)
+}
+
+// Append segment on end of track, of not track exists an empty one will be added.
+func (g *GPX) AppendSegment(s *GPXTrackSegment) {
+	if len(g.Tracks) == 0 {
+		g.AppendTrack(new(GPXTrack))
+	}
+	g.Tracks[len(g.Tracks)-1].AppendSegment(s)
+}
+
+// Append segment on end of track, of not tracks/segments exists an empty one will be added.
+func (g *GPX) AppendPoint(p *GPXPoint) {
+	if len(g.Tracks) == 0 {
+		g.AppendTrack(new(GPXTrack))
+	}
+
+	lastTrack := &g.Tracks[len(g.Tracks)-1]
+	if len(lastTrack.Segments) == 0 {
+		lastTrack.AppendSegment(new(GPXTrackSegment))
+	}
+
+	lastSegment := lastTrack.Segments[len(lastTrack.Segments)-1]
+
+	lastSegment.AppendPoint(p)
 }
 
 func (g *GPX) AppendRoute(r *GPXRoute) {
