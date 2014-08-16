@@ -273,6 +273,30 @@ func (g *GPX) AppendTrack(t *GPXTrack) {
 	g.Tracks = append(g.Tracks, *t)
 }
 
+// Append segment on end of track, of not track exists an empty one will be added.
+func (g *GPX) AppendSegment(s *GPXTrackSegment) {
+    if len(g.Tracks) == 0 {
+        g.AppendTrack(new(GPXTrack))
+    }
+    g.Tracks[len(g.Tracks) - 1].AppendSegment(s)
+}
+
+// Append segment on end of track, of not tracks/segments exists an empty one will be added.
+func (g *GPX) AppendPoint(p *GPXPoint) {
+    if len(g.Tracks) == 0 {
+        g.AppendTrack(new(GPXTrack))
+    }
+
+    lastTrack := g.Tracks[len(g.Tracks) - 1]
+    if len(lastTrack.Segments) == 0 {
+        lastTrack.AppendSegment(new(GPXTrackSegment))
+    }
+
+    lastSegment := lastTrack.Segments[len(lastTrack.Segments) - 1]
+
+    lastSegment.AppendPoint(p)
+}
+
 func (g *GPX) AppendRoute(r *GPXRoute) {
 	g.Routes = append(g.Routes, *r)
 }

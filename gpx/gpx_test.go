@@ -995,3 +995,24 @@ func TestSimplify(t *testing.T) {
 		assertTrue(t, "Bigger maxDistance => smaller simplified track", length2dAfterMaxDistance5 <= length2dAfterMaxDistance0000001)
 	}
 }
+
+func TestAppendPoint(t *testing.T) {
+    g := new(GPX)
+    g.AppendPoint(new(GPXPoint))
+
+    if len(g.Tracks) != 1 {
+        t.Error(fmt.Sprintf("Should be only 1 track, found %d", len(g.Tracks)))
+    }
+    if len(g.Tracks[0].Segments) != 1 {
+        t.Error(fmt.Sprintf("Should be only 1 segment, found %d", len(g.Tracks)))
+    }
+    if len(g.Tracks[0].Segments[0].Points) != 1 {
+        t.Error(fmt.Sprintf("Should be only 1 point, found %d", len(g.Tracks)))
+    }
+}
+
+func TestAppendSegment(t *testing.T) {
+    // TODO
+}
+
+// TODO... prebaciti one dvije metode iz gpxutils ovdje
