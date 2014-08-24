@@ -1004,10 +1004,10 @@ func TestAppendPoint(t *testing.T) {
 		t.Error(fmt.Sprintf("Should be only 1 track, found %d", len(g.Tracks)))
 	}
 	if len(g.Tracks[0].Segments) != 1 {
-		t.Error(fmt.Sprintf("Should be only 1 segment, found %d", len(g.Tracks)))
+		t.Error(fmt.Sprintf("Should be only 1 segment, found %d", len(g.Tracks[0].Segments)))
 	}
 	if len(g.Tracks[0].Segments[0].Points) != 1 {
-		t.Error(fmt.Sprintf("Should be only 1 point, found %d", len(g.Tracks)))
+		t.Error(fmt.Sprintf("Should be only 1 point, found %d", len(g.Tracks[0].Segments[0].Points)))
 	}
 }
 
