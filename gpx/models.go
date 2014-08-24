@@ -334,7 +334,7 @@ func (g *GPX) AppendPoint(p *GPXPoint) {
 		lastTrack.AppendSegment(new(GPXTrackSegment))
 	}
 
-	lastSegment := lastTrack.Segments[len(lastTrack.Segments)-1]
+	lastSegment := &lastTrack.Segments[len(lastTrack.Segments)-1]
 
 	lastSegment.AppendPoint(p)
 }
