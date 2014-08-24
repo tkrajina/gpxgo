@@ -767,26 +767,6 @@ func (seg *GPXTrackSegment) ReduceTrackPoints(minDistance float64) {
 	seg.Points = newPoints
 }
 
-/*
-def distance_from_line(point, line_point_1, line_point_2):
-    assert point, point
-    assert line_point_1, line_point_1
-    assert line_point_2, line_point_2
-
-    a = line_point_1.distance_2d(line_point_2)
-
-    if a == 0:
-        return line_point_1.distance_2d(point)
-
-    b = line_point_1.distance_2d(point)
-    c = line_point_2.distance_2d(point)
-
-    s = (a + b + c) / 2.
-
-    return 2. * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
-
-*/
-
 // Does Ramer-Douglas-Peucker algorithm for simplification of polyline
 func (seg *GPXTrackSegment) SimplifyTracks(maxDistance float64) {
 	seg.Points = simplifyPoints(seg.Points, maxDistance)
