@@ -970,8 +970,8 @@ func (trk *GPXTrack) ReduceTrackPoints(minDistance float64) {
 }
 
 func (trk *GPXTrack) SimplifyTracks(maxDistance float64) {
-	for _, segment := range trk.Segments {
-		segment.SimplifyTracks(maxDistance)
+	for segmentNo, _ := range trk.Segments {
+		trk.Segments[segmentNo].SimplifyTracks(maxDistance)
 	}
 }
 
