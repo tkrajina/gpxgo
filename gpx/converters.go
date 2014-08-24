@@ -181,9 +181,9 @@ func convertFromGpx10Models(gpx10Doc *gpx10.Gpx) *GPX {
 			gpxTrack.Type = track.Type
 
 			if track.Segments != nil {
-				gpxTrack.Segments = make([]*GPXTrackSegment, len(track.Segments))
+				gpxTrack.Segments = make([]GPXTrackSegment, len(track.Segments))
 				for segmentNo, segment := range track.Segments {
-					gpxSegment := new(GPXTrackSegment)
+					gpxSegment := GPXTrackSegment{}
 					if segment.Points != nil {
 						gpxSegment.Points = make([]GPXPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
@@ -498,9 +498,9 @@ func convertFromGpx11Models(gpx11Doc *gpx11.Gpx) *GPX {
 			gpxTrack.Type = track.Type
 
 			if track.Segments != nil {
-				gpxTrack.Segments = make([]*GPXTrackSegment, len(track.Segments))
+				gpxTrack.Segments = make([]GPXTrackSegment, len(track.Segments))
 				for segmentNo, segment := range track.Segments {
-					gpxSegment := new(GPXTrackSegment)
+					gpxSegment := GPXTrackSegment{}
 					if segment.Points != nil {
 						gpxSegment.Points = make([]GPXPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {

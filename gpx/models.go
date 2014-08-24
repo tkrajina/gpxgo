@@ -277,7 +277,7 @@ func (g *GPX) ReduceGpxToSingleTrack() {
 	firstTrack := &g.Tracks[0]
 	for _, track := range g.Tracks[1:] {
 		for _, segment := range track.Segments {
-			firstTrack.AppendSegment(segment)
+			firstTrack.AppendSegment(&segment)
 		}
 	}
 
@@ -291,7 +291,7 @@ func (g *GPX) RemoveEmpty() {
 	}
 
 	for trackNo, track := range g.Tracks {
-		nonEmptySegments := make([]*GPXTrackSegment, 0)
+		nonEmptySegments := make([]GPXTrackSegment, 0)
 		for _, segment := range track.Segments {
 			if len(segment.Points) > 0 {
 				//fmt.Printf("Valid segment, because of %d points!\n", len(segment.Points))
@@ -906,7 +906,7 @@ type GPXTrack struct {
 	//Links    []Link
 	Number   int
 	Type     string
-	Segments []*GPXTrackSegment
+	Segments []GPXTrackSegment
 }
 
 // Length2D returns the 2D length of a GPX track.
@@ -1002,13 +1002,13 @@ func (trk *GPXTrack) Split(segNo, ptNo int) {
 		return
 	}
 
-	newSegs := make([]*GPXTrackSegment, 0)
+	newSegs := make([]GPXTrackSegment, 0)
 	for i := 0; i < lenSegs; i++ {
 		seg := trk.Segments[i]
 
 		if i == segNo && ptNo < len(seg.Points) {
 			seg1, seg2 := seg.Split(ptNo)
-			newSegs = append(newSegs, seg1, seg2)
+			newSegs = append(newSegs, *seg1, *seg2)
 		} else {
 			newSegs = append(newSegs, seg)
 		}
@@ -1017,14 +1017,14 @@ func (trk *GPXTrack) Split(segNo, ptNo int) {
 }
 
 func (trk *GPXTrack) ExecuteOnPoints(executor func(*GPXPoint)) {
-	for _, segment := range trk.Segments {
-		segment.ExecuteOnPoints(executor)
+	for segmentNo, _ := range trk.Segments {
+		trk.Segments[segmentNo].ExecuteOnPoints(executor)
 	}
 }
 
 func (trk *GPXTrack) AddElevation(elevation float64) {
-	for _, segment := range trk.Segments {
-		segment.AddElevation(elevation)
+	for segmentNo, _ := range trk.Segments {
+		trk.Segments[segmentNo].AddElevation(elevation)
 	}
 }
 
@@ -1034,12 +1034,12 @@ func (trk *GPXTrack) Join(segNo, segNo2 int) {
 	if segNo >= lenSegs && segNo2 >= lenSegs {
 		return
 	}
-	newSegs := make([]*GPXTrackSegment, 0)
+	newSegs := make([]GPXTrackSegment, 0)
 	for i := 0; i < lenSegs; i++ {
 		seg := trk.Segments[i]
 		if i == segNo {
 			secondSeg := trk.Segments[segNo2]
-			seg.Join(secondSeg)
+			seg.Join(&secondSeg)
 			newSegs = append(newSegs, seg)
 		} else if i == segNo2 {
 			// do nothing, its already joined
@@ -1138,7 +1138,7 @@ func (trk *GPXTrack) LocationAt(t time.Time) []LocationsResultPair {
 }
 
 func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
-	trk.Segments = append(trk.Segments, s)
+	trk.Segments = append(trk.Segments, *s)
 }
 
 // ----------------------------------------------------------------------------------------------------

@@ -611,7 +611,7 @@ func TestTrackDuration(t *testing.T) {
 
 func TestMultiSegmentDuration(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
-	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
+	g.Tracks[0].AppendSegment(&g.Tracks[0].Segments[0])
 	durE := 64.0 * 2
 	durA := g.Duration()
 	if durE != durA {
@@ -622,9 +622,9 @@ func TestMultiSegmentDuration(t *testing.T) {
 func TestMultiTrackDuration(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
-	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
+	g.Tracks[0].AppendSegment(&g.Tracks[0].Segments[0])
 	g.AppendTrack(&g.Tracks[0])
-	g.Tracks[0].AppendSegment(g.Tracks[0].Segments[0])
+	g.Tracks[0].AppendSegment(&g.Tracks[0].Segments[0])
 
 	//xml, _ := g.ToXml(ToXmlParams{Indent: true})
 	//fmt.Println(string(xml))
@@ -731,7 +731,7 @@ func TestNewXml(t *testing.T) {
 	gpx := new(GPX)
 	gpxTrack := new(GPXTrack)
 
-	gpxSegment := new(GPXTrackSegment)
+	gpxSegment := GPXTrackSegment{}
 	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: *NewNullableFloat64(1234.0)}})
 	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: *NewNullableFloat64(1235.0)}})
 	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: *NewNullableFloat64(1236.0)}})

@@ -1,3 +1,5 @@
+test:
+	go test ./gpx
 build:
 	 gengen generic/nullable.go string \
             | gofmt -r 'NullableGeneric -> NullableString' \

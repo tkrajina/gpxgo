@@ -1,8 +1,6 @@
 package gpx
 
-import (
-	"time"
-)
+import "time"
 
 type NullableTime struct {
 	data time.Time
