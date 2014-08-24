@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tkrajina/gpxgo/gpx/gpx10"
-	"github.com/tkrajina/gpxgo/gpx/gpx11"
+	"github.com/tkrajina/gpx.go/gpx/gpx10"
+	"github.com/tkrajina/gpx.go/gpx/gpx11"
 
 	//"fmt"
 )
