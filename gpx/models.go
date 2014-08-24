@@ -70,8 +70,8 @@ func (g *GPX) Length3D() float64 {
 }
 
 // TimeBounds returns the time bounds of all tacks in a Gpx.
-func (g *GPX) TimeBounds() *TimeBounds {
-	var tbGpx *TimeBounds
+func (g *GPX) TimeBounds() TimeBounds {
+	var tbGpx TimeBounds
 	for i, trk := range g.Tracks {
 		tbTrk := trk.TimeBounds()
 		if i == 0 {
@@ -84,7 +84,7 @@ func (g *GPX) TimeBounds() *TimeBounds {
 }
 
 // Bounds returns the bounds of all tracks in a Gpx.
-func (g *GPX) Bounds() *GpxBounds {
+func (g *GPX) Bounds() GpxBounds {
 	minmax := getMaximalGpxBounds()
 	for _, trk := range g.Tracks {
 		bnds := trk.Bounds()
@@ -96,7 +96,7 @@ func (g *GPX) Bounds() *GpxBounds {
 	return minmax
 }
 
-func (g *GPX) ElevationBounds() *ElevationBounds {
+func (g *GPX) ElevationBounds() ElevationBounds {
 	minmax := getMaximalElevationBounds()
 	for _, trk := range g.Tracks {
 		bnds := trk.ElevationBounds()
@@ -107,7 +107,7 @@ func (g *GPX) ElevationBounds() *ElevationBounds {
 }
 
 // MovingData returns the moving data for all tracks in a Gpx.
-func (g *GPX) MovingData() *MovingData {
+func (g *GPX) MovingData() MovingData {
 	var (
 		movingTime      float64
 		stoppedTime     float64
@@ -127,7 +127,7 @@ func (g *GPX) MovingData() *MovingData {
 			maxSpeed = md.MaxSpeed
 		}
 	}
-	return &MovingData{
+	return MovingData{
 		MovingTime:      movingTime,
 		MovingDistance:  movingDistance,
 		StoppedTime:     stoppedTime,
@@ -185,9 +185,12 @@ func (g *GPX) Duration() float64 {
 
 // UphillDownhill returns uphill and downhill values for all tracks in a
 // Gpx.
-func (g *GPX) UphillDownhill() *UphillDownhill {
+func (g *GPX) UphillDownhill() UphillDownhill {
 	if len(g.Tracks) == 0 {
-		return nil
+		return UphillDownhill{
+			Uphill:   0.0,
+			Downhill: 0.0,
+		}
 	}
 
 	var (
@@ -202,7 +205,7 @@ func (g *GPX) UphillDownhill() *UphillDownhill {
 		downhill += updo.Downhill
 	}
 
-	return &UphillDownhill{
+	return UphillDownhill{
 		Uphill:   uphill,
 		Downhill: downhill,
 	}
@@ -355,7 +358,7 @@ type ElevationBounds struct {
 }
 
 // Equals returns true if two Bounds objects are equal
-func (b *ElevationBounds) Equals(b2 *ElevationBounds) bool {
+func (b ElevationBounds) Equals(b2 ElevationBounds) bool {
 	return b.MinElevation == b2.MinElevation && b.MaxElevation == b2.MaxElevation
 }
 
@@ -373,7 +376,7 @@ type GpxBounds struct {
 }
 
 // Equals returns true if two Bounds objects are equal
-func (b *GpxBounds) Equals(b2 *GpxBounds) bool {
+func (b GpxBounds) Equals(b2 GpxBounds) bool {
 	return b.MinLongitude == b2.MinLongitude && b.MaxLatitude == b2.MaxLatitude && b.MinLongitude == b2.MinLongitude && b.MaxLongitude == b2.MaxLongitude
 }
 
@@ -407,10 +410,7 @@ type TimeBounds struct {
 	EndTime   time.Time
 }
 
-func (tb *TimeBounds) Equals(tb2 *TimeBounds) bool {
-	fmt.Println(tb.StartTime)
-	fmt.Println(tb2.StartTime)
-	fmt.Println(tb.EndTime.Equal(tb2.EndTime))
+func (tb TimeBounds) Equals(tb2 TimeBounds) bool {
 	if tb.StartTime == tb2.StartTime && tb.EndTime == tb2.EndTime {
 		return true
 	}
@@ -428,7 +428,7 @@ type UphillDownhill struct {
 	Downhill float64
 }
 
-func (ud *UphillDownhill) Equals(ud2 *UphillDownhill) bool {
+func (ud UphillDownhill) Equals(ud2 UphillDownhill) bool {
 	if ud.Uphill == ud2.Uphill && ud.Downhill == ud2.Downhill {
 		return true
 	}
@@ -592,7 +592,7 @@ func (seg *GPXTrackSegment) GetTrackPointsNo() int {
 }
 
 // TimeBounds returns the time bounds of a GPX segment.
-func (seg *GPXTrackSegment) TimeBounds() *TimeBounds {
+func (seg *GPXTrackSegment) TimeBounds() TimeBounds {
 	timeTuple := make([]time.Time, 0)
 
 	for _, trkpt := range seg.Points {
@@ -602,14 +602,16 @@ func (seg *GPXTrackSegment) TimeBounds() *TimeBounds {
 			timeTuple[1] = trkpt.Timestamp
 		}
 	}
+
 	if len(timeTuple) == 2 {
-		return &TimeBounds{StartTime: timeTuple[0], EndTime: timeTuple[1]}
+		return TimeBounds{StartTime: timeTuple[0], EndTime: timeTuple[1]}
 	}
-	return nil
+
+	return TimeBounds{StartTime: time.Time{}, EndTime: time.Time{}}
 }
 
 // Bounds returns the bounds of a GPX segment.
-func (seg *GPXTrackSegment) Bounds() *GpxBounds {
+func (seg *GPXTrackSegment) Bounds() GpxBounds {
 	minmax := getMaximalGpxBounds()
 	for _, pt := range seg.Points {
 		minmax.MaxLatitude = math.Max(pt.Latitude, minmax.MaxLatitude)
@@ -620,7 +622,7 @@ func (seg *GPXTrackSegment) Bounds() *GpxBounds {
 	return minmax
 }
 
-func (seg *GPXTrackSegment) ElevationBounds() *ElevationBounds {
+func (seg *GPXTrackSegment) ElevationBounds() ElevationBounds {
 	minmax := getMaximalElevationBounds()
 	for _, pt := range seg.Points {
 		if pt.Elevation.NotNull() {
@@ -727,16 +729,16 @@ func (seg *GPXTrackSegment) Elevations() []NullableFloat64 {
 }
 
 // UphillDownhill returns uphill and dowhill in a GPX segment.
-func (seg *GPXTrackSegment) UphillDownhill() *UphillDownhill {
+func (seg *GPXTrackSegment) UphillDownhill() UphillDownhill {
 	if len(seg.Points) == 0 {
-		return nil
+		return UphillDownhill{Uphill: 0.0, Downhill: 0.0}
 	}
 
 	elevations := seg.Elevations()
 
 	uphill, downhill := CalcUphillDownhill(elevations)
 
-	return &UphillDownhill{Uphill: uphill, Downhill: downhill}
+	return UphillDownhill{Uphill: uphill, Downhill: downhill}
 }
 
 func (seg *GPXTrackSegment) ExecuteOnPoints(executor func(*GPXPoint)) {
@@ -821,7 +823,7 @@ func (seg *GPXTrackSegment) LocationAt(t time.Time) int {
 }
 
 // MovingData returns the moving data of a GPX segment.
-func (seg *GPXTrackSegment) MovingData() *MovingData {
+func (seg *GPXTrackSegment) MovingData() MovingData {
 	var (
 		movingTime      float64
 		stoppedTime     float64
@@ -862,7 +864,7 @@ func (seg *GPXTrackSegment) MovingData() *MovingData {
 		maxSpeed = CalcMaxSpeed(speedsDistances)
 	}
 
-	return &MovingData{
+	return MovingData{
 		movingTime,
 		stoppedTime,
 		movingDistance,
@@ -918,8 +920,8 @@ func (trk *GPXTrack) GetTrackPointsNo() int {
 }
 
 // TimeBounds returns the time bounds of a GPX track.
-func (trk *GPXTrack) TimeBounds() *TimeBounds {
-	var tbTrk *TimeBounds
+func (trk *GPXTrack) TimeBounds() TimeBounds {
+	var tbTrk TimeBounds
 
 	for i, seg := range trk.Segments {
 		tbSeg := seg.TimeBounds()
@@ -933,7 +935,7 @@ func (trk *GPXTrack) TimeBounds() *TimeBounds {
 }
 
 // Bounds returns the bounds of a GPX track.
-func (trk *GPXTrack) Bounds() *GpxBounds {
+func (trk *GPXTrack) Bounds() GpxBounds {
 	minmax := getMaximalGpxBounds()
 	for _, seg := range trk.Segments {
 		bnds := seg.Bounds()
@@ -945,7 +947,7 @@ func (trk *GPXTrack) Bounds() *GpxBounds {
 	return minmax
 }
 
-func (trk *GPXTrack) ElevationBounds() *ElevationBounds {
+func (trk *GPXTrack) ElevationBounds() ElevationBounds {
 	minmax := getMaximalElevationBounds()
 	for _, seg := range trk.Segments {
 		bnds := seg.ElevationBounds()
@@ -1037,7 +1039,7 @@ func (trk *GPXTrack) JoinNext(segNo int) {
 }
 
 // MovingData returns the moving data of a GPX track.
-func (trk *GPXTrack) MovingData() *MovingData {
+func (trk *GPXTrack) MovingData() MovingData {
 	var (
 		movingTime      float64
 		stoppedTime     float64
@@ -1057,7 +1059,7 @@ func (trk *GPXTrack) MovingData() *MovingData {
 			maxSpeed = md.MaxSpeed
 		}
 	}
-	return &MovingData{
+	return MovingData{
 		MovingTime:      movingTime,
 		MovingDistance:  movingDistance,
 		StoppedTime:     stoppedTime,
@@ -1080,9 +1082,12 @@ func (trk *GPXTrack) Duration() float64 {
 }
 
 // UphillDownhill return the uphill and downhill values of a GPX track.
-func (trk *GPXTrack) UphillDownhill() *UphillDownhill {
+func (trk *GPXTrack) UphillDownhill() UphillDownhill {
 	if len(trk.Segments) == 0 {
-		return nil
+		return UphillDownhill{
+			Uphill:   0,
+			Downhill: 0,
+		}
 	}
 
 	var (
@@ -1097,7 +1102,7 @@ func (trk *GPXTrack) UphillDownhill() *UphillDownhill {
 		downhill += updo.Downhill
 	}
 
-	return &UphillDownhill{
+	return UphillDownhill{
 		Uphill:   uphill,
 		Downhill: downhill,
 	}
@@ -1128,8 +1133,8 @@ func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
  *
  * TODO does it work is region is between 179E and 179W?
  */
-func getMaximalGpxBounds() *GpxBounds {
-	return &GpxBounds{
+func getMaximalGpxBounds() GpxBounds {
+	return GpxBounds{
 		MaxLatitude:  -math.MaxFloat64,
 		MinLatitude:  math.MaxFloat64,
 		MaxLongitude: -math.MaxFloat64,
@@ -1137,8 +1142,8 @@ func getMaximalGpxBounds() *GpxBounds {
 	}
 }
 
-func getMaximalElevationBounds() *ElevationBounds {
-	return &ElevationBounds{
+func getMaximalElevationBounds() ElevationBounds {
+	return ElevationBounds{
 		MaxElevation: -math.MaxFloat64,
 		MinElevation: math.MaxFloat64,
 	}

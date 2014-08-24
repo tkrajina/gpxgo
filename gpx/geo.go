@@ -24,7 +24,7 @@ type MovingData struct {
 	MaxSpeed        float64
 }
 
-func (md *MovingData) Equals(md2 *MovingData) bool {
+func (md MovingData) Equals(md2 MovingData) bool {
 	return md.MovingTime == md2.MovingTime &&
 		md.MovingDistance == md2.MovingDistance &&
 		md.StoppedTime == md2.StoppedTime &&
