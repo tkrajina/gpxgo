@@ -964,8 +964,8 @@ func (trk *GPXTrack) HasTimes() bool {
 }
 
 func (trk *GPXTrack) ReduceTrackPoints(minDistance float64) {
-	for _, segment := range trk.Segments {
-		segment.ReduceTrackPoints(minDistance)
+	for segmentNo, _ := range trk.Segments {
+		trk.Segments[segmentNo].ReduceTrackPoints(minDistance)
 	}
 }
 
