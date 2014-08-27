@@ -10,6 +10,45 @@ const DEFAULT_STOPPED_SPEED_THRESHOLD = 1.0
 
 // ----------------------------------------------------------------------------------------------------
 
+// Some basic stats all common GPX elements (GPX, track and segment) must have
+type GPXElementInfo interface {
+	Length2D() float64
+	Length3D() float64
+	Bounds() GpxBounds
+	MovingData() MovingData
+	UphillDownhill() UphillDownhill
+	TimeBounds() TimeBounds
+	GetTrackPointsNo() int
+}
+
+// Pretty prints some basic information about this GPX elements
+func GetGpxElementInfo(prefix string, gpxDoc GPXElementInfo) string {
+	result := ""
+	result += fmt.Sprint(prefix, " Points: ", gpxDoc.GetTrackPointsNo(), "\n")
+	result += fmt.Sprint(prefix, " Length 2D: ", gpxDoc.Length2D()/1000.0, "\n")
+	result += fmt.Sprint(prefix, " Length 3D: ", gpxDoc.Length3D()/1000.0, "\n")
+
+	bounds := gpxDoc.Bounds()
+	result += fmt.Sprintf("%s Bounds: %f, %f, %f, %f\n", prefix, bounds.MinLatitude, bounds.MaxLatitude, bounds.MinLongitude, bounds.MaxLongitude)
+
+	md := gpxDoc.MovingData()
+	result += fmt.Sprint(prefix, " Moving time: ", md.MovingTime, "\n")
+	result += fmt.Sprint(prefix, " Stopped time: ", md.StoppedTime, "\n")
+
+	result += fmt.Sprintf("%s Max speed: %fm/s = %fkm/h\n", prefix, md.MaxSpeed, md.MaxSpeed*60*60/1000.0)
+
+	updo := gpxDoc.UphillDownhill()
+	result += fmt.Sprint(prefix, " Total uphill: ", updo.Uphill, "\n")
+	result += fmt.Sprint(prefix, " Total downhill: ", updo.Downhill, "\n")
+
+	timeBounds := gpxDoc.TimeBounds()
+	result += fmt.Sprint(prefix, " Started: ", timeBounds.StartTime, "\n")
+	result += fmt.Sprint(prefix, " Ended: ", timeBounds.EndTime, "\n")
+	return result
+}
+
+// ----------------------------------------------------------------------------------------------------
+
 type GPX struct {
 	Version          string
 	Creator          string
@@ -36,11 +75,34 @@ type GPX struct {
 	Tracks    []GPXTrack
 }
 
-/*
- * Params are optional, you can set null to use GPXs Version and no indentation.
- */
+// Params are optional, you can set null to use GPXs Version and no indentation.
 func (g *GPX) ToXml(params ToXmlParams) ([]byte, error) {
 	return ToXml(g, params)
+}
+
+// Pretty prints some basic information about this GPX, its track and segments
+func (g *GPX) GetGpxInfo() string {
+	result := ""
+	result += fmt.Sprint("GPX name: ", g.Name, "\n")
+	result += fmt.Sprint("GPX desctiption: ", g.Description, "\n")
+	result += fmt.Sprint("Author: ", g.AuthorName, "\n")
+	result += fmt.Sprint("Email: ", g.AuthorEmail, "\n\n")
+
+	result += fmt.Sprint("\nGlobal stats:", "\n")
+	result += GetGpxElementInfo("", g)
+	result += "\n"
+
+	for trackNo, track := range g.Tracks {
+		result += fmt.Sprintf("\nTrack #%d:\n", 1+trackNo)
+		result += GetGpxElementInfo("    ", &track)
+		result += "\n"
+		for segmentNo, segment := range track.Segments {
+			result += fmt.Sprintf("\nTrack #%d, segment #%d:\n", 1+trackNo, 1+segmentNo)
+			result += GetGpxElementInfo("        ", &segment)
+			result += "\n"
+		}
+	}
+	return result
 }
 
 func (g *GPX) GetTrackPointsNo() int {
