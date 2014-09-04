@@ -1066,3 +1066,30 @@ func TestRemoveEmpty(t *testing.T) {
 		t.Error(fmt.Sprintf("Only one segment should be left, found %d", len(g.Tracks[0].Segments)))
 	}
 }
+
+func TestPositionsAt(t *testing.T) {
+	g, _ := ParseFile("../test_files/visnjan.gpx")
+	{
+		wpt := g.Waypoints[0]
+		positions := g.GetPositionsOnTrack(wpt.Point)
+		if len(positions) != 2 {
+			t.Error("wpt1 should be in 2 positions:", positions)
+		}
+		if int(positions[0]) != 724 {
+			t.Error("Invalid position1:", positions)
+		}
+		if int(positions[1]) != 3635 {
+			t.Error("Invalid position2:", positions)
+		}
+	}
+	{
+		wpt := g.Waypoints[1]
+		positions := g.GetPositionsOnTrack(wpt.Point)
+		if len(positions) != 1 {
+			t.Error("wpt1 should be in 1 position:", positions)
+		}
+		if int(positions[0]) != 3110 {
+			t.Error("Invalid position1:", positions)
+		}
+	}
+}

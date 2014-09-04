@@ -2,6 +2,7 @@ package gpx
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"time"
 )
@@ -294,6 +295,58 @@ func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
 		}
 	}
 	return results
+}
+
+// Finds locations candidates where this location is on a track. Returns an
+// array of distances from start. Used (for example) for positioning waypoints
+// on the graph.
+func (g *GPX) GetPositionsOnTrack(location Point) []float64 {
+	if len(g.Tracks) == 0 {
+		return []float64{}
+	}
+
+	track := g.Tracks[0]
+
+	// The point must be closer than this value in order to be a candidate location:
+	minDistance := 0.01 * g.Length2D()
+	pointLocations := make([]float64, 0)
+
+	// True when we enter under the minDistance length
+	nearerThanMinDistance := false
+
+	var currentCandidate *GPXPoint
+	currentCandidateDistance := minDistance
+
+	fromStart := 0.0
+	var previousPoint GPXPoint
+	firstPoint := true
+	for _, segment := range track.Segments {
+		for _, point := range segment.Points {
+			if firstPoint {
+				previousPoint = point
+				firstPoint = false
+			}
+			log.Printf("%f,%f <-> %f,%f", point.Latitude, point.Longitude, previousPoint.Latitude, previousPoint.Longitude)
+			fromStart += point.Distance2D(&previousPoint.Point)
+			distance := point.Distance2D(&location)
+			nearerThanMinDistance = distance < minDistance
+			if nearerThanMinDistance {
+				if distance < currentCandidateDistance {
+					currentCandidate = &point
+					currentCandidateDistance = distance
+				}
+			} else {
+				if currentCandidate != nil {
+					pointLocations = append(pointLocations, fromStart)
+				}
+				currentCandidate = nil
+				currentCandidateDistance = minDistance
+			}
+			previousPoint = point
+		}
+	}
+
+	return pointLocations
 }
 
 func (g *GPX) ExecuteOnAllPoints(executor func(*GPXPoint)) {
