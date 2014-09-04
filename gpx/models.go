@@ -315,6 +315,7 @@ func (g *GPX) GetPositionsOnTrack(location Point) []float64 {
 	nearerThanMinDistance := false
 
 	var currentCandidate *GPXPoint
+	var currentCandidateFromStart float64
 	currentCandidateDistance := minDistance
 
 	fromStart := 0.0
@@ -334,16 +335,21 @@ func (g *GPX) GetPositionsOnTrack(location Point) []float64 {
 				if distance < currentCandidateDistance {
 					currentCandidate = &point
 					currentCandidateDistance = distance
+					currentCandidateFromStart = fromStart
 				}
 			} else {
 				if currentCandidate != nil {
-					pointLocations = append(pointLocations, fromStart)
+					pointLocations = append(pointLocations, currentCandidateFromStart)
 				}
 				currentCandidate = nil
 				currentCandidateDistance = minDistance
 			}
 			previousPoint = point
 		}
+	}
+
+	if currentCandidate != nil {
+		pointLocations = append(pointLocations, currentCandidateFromStart)
 	}
 
 	return pointLocations

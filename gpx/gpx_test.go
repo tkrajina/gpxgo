@@ -1075,10 +1075,10 @@ func TestPositionsAt(t *testing.T) {
 		if len(positions) != 2 {
 			t.Error("wpt1 should be in 2 positions:", positions)
 		}
-		if int(positions[0]) != 724 {
+		if int(positions[0]) != 678 {
 			t.Error("Invalid position1:", positions)
 		}
-		if int(positions[1]) != 3635 {
+		if int(positions[1]) != 3590 {
 			t.Error("Invalid position2:", positions)
 		}
 	}
@@ -1088,7 +1088,7 @@ func TestPositionsAt(t *testing.T) {
 		if len(positions) != 1 {
 			t.Error("wpt1 should be in 1 position:", positions)
 		}
-		if int(positions[0]) != 3110 {
+		if int(positions[0]) != 3053 {
 			t.Error("Invalid position1:", positions)
 		}
 	}
