@@ -2,7 +2,6 @@ package gpx
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"time"
 )
