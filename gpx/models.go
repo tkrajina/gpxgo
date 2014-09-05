@@ -327,7 +327,7 @@ func (g *GPX) GetPositionsOnTrack(location Point) []float64 {
 				previousPoint = point
 				firstPoint = false
 			}
-			log.Printf("%f,%f <-> %f,%f", point.Latitude, point.Longitude, previousPoint.Latitude, previousPoint.Longitude)
+			//log.Printf("%f,%f <-> %f,%f", point.Latitude, point.Longitude, previousPoint.Latitude, previousPoint.Longitude)
 			fromStart += point.Distance2D(&previousPoint.Point)
 			distance := point.Distance2D(&location)
 			nearerThanMinDistance = distance < minDistance
