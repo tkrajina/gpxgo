@@ -128,7 +128,7 @@ func CalcUphillDownhill(elevations []NullableFloat64) (float64, float64) {
 		return 0.0, 0.0
 	}
 
-	smooth_elevations := make([]NullableFloat64, elevsLen)
+	smoothElevations := make([]NullableFloat64, elevsLen)
 
 	for i, elev := range elevations {
 		currEle := elev
@@ -139,15 +139,15 @@ func CalcUphillDownhill(elevations []NullableFloat64) (float64, float64) {
 				currEle = *NewNullableFloat64(prevEle.Value()*0.3 + elev.Value()*0.4 + nextEle.Value()*0.3)
 			}
 		}
-		smooth_elevations[i] = currEle
+		smoothElevations[i] = currEle
 	}
 
 	var uphill float64
 	var downhill float64
 
-	for i := 1; i < len(smooth_elevations); i++ {
-		if smooth_elevations[i].NotNull() && smooth_elevations[i-1].NotNull() {
-			d := smooth_elevations[i].Value() - smooth_elevations[i-1].Value()
+	for i := 1; i < len(smoothElevations); i++ {
+		if smoothElevations[i].NotNull() && smoothElevations[i-1].NotNull() {
+			d := smoothElevations[i].Value() - smoothElevations[i-1].Value()
 			if d > 0.0 {
 				uphill += d
 			} else {
