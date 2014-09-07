@@ -21,8 +21,6 @@ build:
             | gofmt -r 'NullableGeneric -> NullableTime' \
             | gofmt -r 'NewNullableGeneric -> NewNullableTime' \
                     > gpx/nullable_time.go
-install:
-	go install ./gpx
 prepare:
 	go get
 clean:
