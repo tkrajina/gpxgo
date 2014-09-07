@@ -1151,8 +1151,50 @@ func TestSmoothVertical(t *testing.T) {
 	}
 }
 
+func getGpxWith3Extreemes() GPX {
+	gpxDoc := GPX{}
+	pointsNo := 100
+	for i := 0; i < pointsNo; i++ {
+		point := GPXPoint{}
+		point.Latitude = 45.0 + float64(i)*0.0001
+		point.Longitude = 13.0 + float64(i)*0.0001
+		point.Elevation = *NewNullableFloat64(100.0 + float64(i)*1.0)
+		gpxDoc.AppendPoint(&point)
+
+		// Two points to be removed later:
+		if i == 25 || i == 50 || i == 79 {
+			point := GPXPoint{}
+			point.Latitude = float64(i)
+			point.Longitude = float64(i)
+			point.Elevation = *NewNullableFloat64(2000.0)
+			gpxDoc.AppendPoint(&point)
+		}
+	}
+	return gpxDoc
+}
+
 func TestSmoothAndRemoveExtreemesHorizontal(t *testing.T) {
+	gpxDoc := getGpxWith3Extreemes()
+
+	if gpxDoc.GetTrackPointsNo() != 103 {
+		t.Errorf("Should be %d, but found %d", 103, gpxDoc.GetTrackPointsNo())
+	}
+
+	gpxDoc.SmoothHorizontal(true)
+	if gpxDoc.GetTrackPointsNo() != 100 {
+		t.Errorf("Should be %d, but found %d", 100, gpxDoc.GetTrackPointsNo())
+	}
 }
 
 func TestSmoothAndRemoveExtreemesVertical(t *testing.T) {
+	gpxDoc := getGpxWith3Extreemes()
+
+	if gpxDoc.GetTrackPointsNo() != 103 {
+		t.Errorf("Should be %d, but found %d", 103, gpxDoc.GetTrackPointsNo())
+	}
+
+	gpxDoc.SmoothVertical(true)
+	if gpxDoc.GetTrackPointsNo() != 100 {
+		t.Errorf("Should be %d, but found %d", 100, gpxDoc.GetTrackPointsNo())
+	}
 }
