@@ -1093,3 +1093,66 @@ func TestPositionsAt(t *testing.T) {
 		}
 	}
 }
+
+func TestSmoothHorizontal(t *testing.T) {
+	original, _ := ParseFile("../test_files/visnjan.gpx")
+	g, _ := ParseFile("../test_files/visnjan.gpx")
+
+	// TODO: Better checks here!
+	originalLength := g.Length2D()
+	g.SmoothHorizontal(false)
+	if !(g.Length2D() < originalLength) {
+		t.Errorf("After smooth the length should (probably!) me smaller")
+	}
+	if g.GetTrackPointsNo() != original.GetTrackPointsNo() {
+		t.Errorf("Points no should be the same")
+	}
+	for trackNo, _ := range g.Tracks {
+		for segmentNo, _ := range g.Tracks[trackNo].Segments {
+			for pointNo, _ := range g.Tracks[trackNo].Segments[segmentNo].Points {
+				point := g.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
+				originalPoint := original.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
+				if point.Elevation.Value() != originalPoint.Elevation.Value() {
+					t.Error("Elevation must be unchanged!")
+				}
+			}
+		}
+	}
+}
+
+func TestSmoothVertical(t *testing.T) {
+	original, _ := ParseFile("../test_files/visnjan.gpx")
+	g, _ := ParseFile("../test_files/visnjan.gpx")
+
+	// TODO: Better checks here!
+	original2dLength := g.Length2D()
+	original3dLength := g.Length3D()
+	g.SmoothVertical(false)
+
+	if !(g.Length2D() == original2dLength) {
+		t.Errorf("After vertical smooth 2D elevation must be the same!")
+	}
+	if !(g.Length3D() < original3dLength) {
+		t.Errorf("After vertical smooth 3D elevation be smaller!")
+	}
+	if g.GetTrackPointsNo() != original.GetTrackPointsNo() {
+		t.Errorf("Points no should be the same")
+	}
+	for trackNo, _ := range g.Tracks {
+		for segmentNo, _ := range g.Tracks[trackNo].Segments {
+			for pointNo, _ := range g.Tracks[trackNo].Segments[segmentNo].Points {
+				point := g.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
+				originalPoint := original.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
+				if point.Latitude != originalPoint.Latitude || point.Longitude != originalPoint.Longitude {
+					t.Error("Coordinates must be unchanged!")
+				}
+			}
+		}
+	}
+}
+
+func TestSmoothAndRemoveExtreemesHorizontal(t *testing.T) {
+}
+
+func TestSmoothAndRemoveExtreemesVertical(t *testing.T) {
+}
