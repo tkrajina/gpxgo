@@ -2,7 +2,6 @@ package gpx
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"time"
 )
@@ -1040,7 +1039,7 @@ func (seg *GPXTrackSegment) SmoothVertical(removeExtreemes bool) {
 			nextPointElevation := elevations[pointNo+1]
 			if previousPointElevation.NotNull() && point.Elevation.NotNull() && nextPointElevation.NotNull() {
 				seg.Points[pointNo].Elevation = *NewNullableFloat64(previousPointElevation.Value()*0.4 + point.Elevation.Value()*0.2 + nextPointElevation.Value()*0.4)
-				log.Println("->%f", seg.Points[pointNo].Elevation.Value())
+				//log.Println("->%f", seg.Points[pointNo].Elevation.Value())
 			}
 		}
 	}
@@ -1051,8 +1050,8 @@ func (seg *GPXTrackSegment) SmoothVertical(removeExtreemes bool) {
 
 	newPoints := make([]GPXPoint, 0)
 	for pointNo, point := range seg.Points {
-		previousPoint := seg.Points[pointNo-1]
 		if pointNo > 0 {
+			previousPoint := seg.Points[pointNo-1]
 			if point.Elevation.NotNull() && previousPoint.Elevation.NotNull() {
 				if math.Abs(point.Elevation.Value()-previousPoint.Elevation.Value()) < removeElevationExtremesThreshold {
 					newPoints = append(newPoints, point)
@@ -1092,7 +1091,7 @@ func (seg *GPXTrackSegment) SmoothHorizontal(removeExtreemes bool) {
 			nextPoint := originalPoints[pointNo+1]
 			seg.Points[pointNo].Latitude = previousPoint.Latitude*0.4 + point.Latitude*0.2 + nextPoint.Latitude*0.4
 			seg.Points[pointNo].Longitude = previousPoint.Longitude*0.4 + point.Longitude*0.2 + nextPoint.Longitude*0.4
-			log.Println("->(%f, %f)", seg.Points[pointNo].Latitude, seg.Points[pointNo].Longitude)
+			//log.Println("->(%f, %f)", seg.Points[pointNo].Latitude, seg.Points[pointNo].Longitude)
 		}
 	}
 
@@ -1108,7 +1107,7 @@ func (seg *GPXTrackSegment) SmoothHorizontal(removeExtreemes bool) {
 			d2 := originalPoints[pointNo].Distance2D(&originalPoints[pointNo+1].Point)
 			if d1+d2 > d*1.5 {
 				pointMovedBy := originalPoints[pointNo].Distance2D(&point.Point)
-				if pointMovedBy > remove2dExtremesThreshold {
+				if pointMovedBy < remove2dExtremesThreshold {
 					newPoints = append(newPoints, point)
 				}
 			}
