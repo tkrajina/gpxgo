@@ -7,7 +7,10 @@ import (
 	"time"
 )
 
-const DEFAULT_STOPPED_SPEED_THRESHOLD = 1.0
+const (
+	DEFAULT_STOPPED_SPEED_THRESHOLD = 1.0
+	REMOVE_EXTREEMES_TRESHOLD       = 10
+)
 
 // ----------------------------------------------------------------------------------------------------
 
@@ -435,15 +438,15 @@ func (g *GPX) RemoveEmpty() {
 	g.Tracks = nonEmptyTracks
 }
 
-func (g *GPX) SmoothVertical() {
+func (g *GPX) SmoothVertical(removeExtreemes bool) {
 	for trackNo, _ := range g.Tracks {
-		g.Tracks[trackNo].SmoothVertical()
+		g.Tracks[trackNo].SmoothVertical(removeExtreemes)
 	}
 }
 
-func (g *GPX) SmoothHorizontal() {
+func (g *GPX) SmoothHorizontal(removeExtreemes bool) {
 	for trackNo, _ := range g.Tracks {
-		g.Tracks[trackNo].SmoothHorizontal()
+		g.Tracks[trackNo].SmoothHorizontal(removeExtreemes)
 	}
 }
 
@@ -1010,11 +1013,26 @@ func (seg *GPXTrackSegment) AppendPoint(p *GPXPoint) {
 	seg.Points = append(seg.Points, *p)
 }
 
-func (seg *GPXTrackSegment) SmoothVertical() {
+func (seg *GPXTrackSegment) SmoothVertical(removeExtreemes bool) {
 	elevations := make([]NullableFloat64, len(seg.Points))
 	for pointNo, point := range seg.Points {
 		elevations[pointNo] = point.Elevation
 	}
+
+	removeExtreemes = removeExtreemes && len(seg.Points) > REMOVE_EXTREEMES_TRESHOLD
+	var avgElevationDelta float64
+	if removeExtreemes {
+		elevationDeltaSum := 0.0
+		elevationDeltaNo := 0
+		for pointNo, point := range seg.Points {
+			if pointNo > 0 && point.Elevation.NotNull() && seg.Points[pointNo-1].Elevation.NotNull() {
+				elevationDeltaSum += math.Abs(point.Elevation.Value() - seg.Points[pointNo-1].Elevation.Value())
+				elevationDeltaNo += 1
+			}
+		}
+		avgElevationDelta = elevationDeltaSum / float64(elevationDeltaNo)
+	}
+	removeElevationExtremesThreshold := avgElevationDelta * 5.0
 
 	for pointNo, point := range seg.Points {
 		if 1 <= pointNo && pointNo <= len(seg.Points)-2 {
@@ -1026,13 +1044,47 @@ func (seg *GPXTrackSegment) SmoothVertical() {
 			}
 		}
 	}
+
+	if !removeExtreemes {
+		return
+	}
+
+	newPoints := make([]GPXPoint, 0)
+	for pointNo, point := range seg.Points {
+		previousPoint := seg.Points[pointNo-1]
+		if pointNo > 0 {
+			if point.Elevation.NotNull() && previousPoint.Elevation.NotNull() {
+				if math.Abs(point.Elevation.Value()-previousPoint.Elevation.Value()) < removeElevationExtremesThreshold {
+					newPoints = append(newPoints, point)
+				}
+			}
+		}
+	}
+	seg.Points = newPoints
 }
 
-func (seg *GPXTrackSegment) SmoothHorizontal() {
+func (seg *GPXTrackSegment) SmoothHorizontal(removeExtreemes bool) {
 	originalPoints := make([]GPXPoint, len(seg.Points))
 	for pointNo, point := range seg.Points {
 		originalPoints[pointNo] = point
 	}
+
+	// Dont't remove extreemes if segment too small
+	removeExtreemes = removeExtreemes && len(seg.Points) > REMOVE_EXTREEMES_TRESHOLD
+
+	var avgDistanceBetweenPoints float64
+	if removeExtreemes {
+		var sum float64
+		for pointNo, point := range seg.Points {
+			if pointNo > 0 {
+				sum += point.Distance2D(&seg.Points[pointNo-1].Point)
+			}
+		}
+		// Division by zero not a problems since this is not computed on zero-length segments:
+		avgDistanceBetweenPoints = float64(sum) / float64(len(seg.Points)-1)
+	}
+
+	remove2dExtremesThreshold := 1.75 * avgDistanceBetweenPoints
 
 	for pointNo, point := range seg.Points {
 		if 1 <= pointNo && pointNo <= len(seg.Points)-2 {
@@ -1043,6 +1095,26 @@ func (seg *GPXTrackSegment) SmoothHorizontal() {
 			log.Println("->(%f, %f)", seg.Points[pointNo].Latitude, seg.Points[pointNo].Longitude)
 		}
 	}
+
+	if !removeExtreemes {
+		return
+	}
+
+	newPoints := make([]GPXPoint, 0)
+	for pointNo, point := range seg.Points {
+		if 0 < pointNo && pointNo < len(seg.Points)-1 {
+			d := originalPoints[pointNo-1].Distance2D(&originalPoints[pointNo+1].Point)
+			d1 := originalPoints[pointNo].Distance2D(&originalPoints[pointNo-1].Point)
+			d2 := originalPoints[pointNo].Distance2D(&originalPoints[pointNo+1].Point)
+			if d1+d2 > d*1.5 {
+				pointMovedBy := originalPoints[pointNo].Distance2D(&point.Point)
+				if pointMovedBy > remove2dExtremesThreshold {
+					newPoints = append(newPoints, point)
+				}
+			}
+		}
+	}
+	seg.Points = newPoints
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1294,15 +1366,15 @@ func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
 	trk.Segments = append(trk.Segments, *s)
 }
 
-func (trk *GPXTrack) SmoothVertical() {
+func (trk *GPXTrack) SmoothVertical(removeExtreemes bool) {
 	for segmentNo, _ := range trk.Segments {
-		trk.Segments[segmentNo].SmoothVertical()
+		trk.Segments[segmentNo].SmoothVertical(removeExtreemes)
 	}
 }
 
-func (trk *GPXTrack) SmoothHorizontal() {
+func (trk *GPXTrack) SmoothHorizontal(removeExtreemes bool) {
 	for segmentNo, _ := range trk.Segments {
-		trk.Segments[segmentNo].SmoothHorizontal()
+		trk.Segments[segmentNo].SmoothHorizontal(removeExtreemes)
 	}
 }
 
