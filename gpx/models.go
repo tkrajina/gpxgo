@@ -2,7 +2,6 @@ package gpx
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"time"
 )
@@ -433,18 +432,6 @@ func (g *GPX) RemoveEmpty() {
 		}
 	}
 	g.Tracks = nonEmptyTracks
-}
-
-func (g *GPX) SmoothVertical() {
-	for trackNo, _ := range g.Tracks {
-		g.Tracks[trackNo].SmoothVertical()
-	}
-}
-
-func (g *GPX) SmoothHorizontal() {
-	for trackNo, _ := range g.Tracks {
-		g.Tracks[trackNo].SmoothHorizontal()
-	}
 }
 
 func (g *GPX) AppendTrack(t *GPXTrack) {
@@ -1010,41 +997,6 @@ func (seg *GPXTrackSegment) AppendPoint(p *GPXPoint) {
 	seg.Points = append(seg.Points, *p)
 }
 
-func (seg *GPXTrackSegment) SmoothVertical() {
-	elevations := make([]NullableFloat64, len(seg.Points))
-	for pointNo, point := range seg.Points {
-		elevations[pointNo] = point.Elevation
-	}
-
-	for pointNo, point := range seg.Points {
-		if 1 <= pointNo && pointNo <= len(seg.Points)-2 {
-			previousPointElevation := elevations[pointNo-1]
-			nextPointElevation := elevations[pointNo+1]
-			if previousPointElevation.NotNull() && point.Elevation.NotNull() && nextPointElevation.NotNull() {
-				seg.Points[pointNo].Elevation = *NewNullableFloat64(previousPointElevation.Value()*0.4 + point.Elevation.Value()*0.2 + nextPointElevation.Value()*0.4)
-				log.Println("->%f", seg.Points[pointNo].Elevation.Value())
-			}
-		}
-	}
-}
-
-func (seg *GPXTrackSegment) SmoothHorizontal() {
-	originalPoints := make([]GPXPoint, len(seg.Points))
-	for pointNo, point := range seg.Points {
-		originalPoints[pointNo] = point
-	}
-
-	for pointNo, point := range seg.Points {
-		if 1 <= pointNo && pointNo <= len(seg.Points)-2 {
-			previousPoint := originalPoints[pointNo-1]
-			nextPoint := originalPoints[pointNo+1]
-			seg.Points[pointNo].Latitude = previousPoint.Latitude*0.4 + point.Latitude*0.2 + nextPoint.Latitude*0.4
-			seg.Points[pointNo].Longitude = previousPoint.Longitude*0.4 + point.Longitude*0.2 + nextPoint.Longitude*0.4
-			log.Println("->(%f, %f)", seg.Points[pointNo].Latitude, seg.Points[pointNo].Longitude)
-		}
-	}
-}
-
 // ----------------------------------------------------------------------------------------------------
 
 type GPXTrack struct {
@@ -1292,18 +1244,6 @@ func (trk *GPXTrack) LocationAt(t time.Time) []LocationsResultPair {
 
 func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
 	trk.Segments = append(trk.Segments, *s)
-}
-
-func (trk *GPXTrack) SmoothVertical() {
-	for segmentNo, _ := range trk.Segments {
-		trk.Segments[segmentNo].SmoothVertical()
-	}
-}
-
-func (trk *GPXTrack) SmoothHorizontal() {
-	for segmentNo, _ := range trk.Segments {
-		trk.Segments[segmentNo].SmoothHorizontal()
-	}
 }
 
 // ----------------------------------------------------------------------------------------------------
