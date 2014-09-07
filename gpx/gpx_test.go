@@ -1100,7 +1100,7 @@ func TestSmoothHorizontal(t *testing.T) {
 
 	// TODO: Better checks here!
 	originalLength := g.Length2D()
-	g.SmoothHorizontal(false)
+	g.SmoothHorizontal()
 	if !(g.Length2D() < originalLength) {
 		t.Errorf("After smooth the length should (probably!) me smaller")
 	}
@@ -1127,7 +1127,7 @@ func TestSmoothVertical(t *testing.T) {
 	// TODO: Better checks here!
 	original2dLength := g.Length2D()
 	original3dLength := g.Length3D()
-	g.SmoothVertical(false)
+	g.SmoothVertical()
 
 	if !(g.Length2D() == original2dLength) {
 		t.Errorf("After vertical smooth 2D elevation must be the same!")
@@ -1151,7 +1151,7 @@ func TestSmoothVertical(t *testing.T) {
 	}
 }
 
-func getGpxWith3Extreemes() GPX {
+func getGpxWith3Extremes() GPX {
 	gpxDoc := GPX{}
 	pointsNo := 100
 	for i := 0; i < pointsNo; i++ {
@@ -1173,28 +1173,28 @@ func getGpxWith3Extreemes() GPX {
 	return gpxDoc
 }
 
-func TestSmoothAndRemoveExtreemesHorizontal(t *testing.T) {
-	gpxDoc := getGpxWith3Extreemes()
+func TestRemoveExtremesHorizontal(t *testing.T) {
+	gpxDoc := getGpxWith3Extremes()
 
 	if gpxDoc.GetTrackPointsNo() != 103 {
 		t.Errorf("Should be %d, but found %d", 103, gpxDoc.GetTrackPointsNo())
 	}
 
-	gpxDoc.SmoothHorizontal(true)
+	gpxDoc.RemoveHorizontalExtremes()
 	if gpxDoc.GetTrackPointsNo() != 100 {
-		t.Errorf("Should be %d, but found %d", 100, gpxDoc.GetTrackPointsNo())
+		t.Errorf("After removing extremes: should be %d, but found %d", 100, gpxDoc.GetTrackPointsNo())
 	}
 }
 
-func TestSmoothAndRemoveExtreemesVertical(t *testing.T) {
-	gpxDoc := getGpxWith3Extreemes()
+func TestRemoveExtremesVertical(t *testing.T) {
+	gpxDoc := getGpxWith3Extremes()
 
 	if gpxDoc.GetTrackPointsNo() != 103 {
 		t.Errorf("Should be %d, but found %d", 103, gpxDoc.GetTrackPointsNo())
 	}
 
-	gpxDoc.SmoothVertical(true)
+	gpxDoc.RemoveVerticalExtremes()
 	if gpxDoc.GetTrackPointsNo() != 100 {
-		t.Errorf("Should be %d, but found %d", 100, gpxDoc.GetTrackPointsNo())
+		t.Errorf("After removing extremes: should be %d, but found %d", 100, gpxDoc.GetTrackPointsNo())
 	}
 }
