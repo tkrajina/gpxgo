@@ -1025,38 +1025,11 @@ func (seg *GPXTrackSegment) AppendPoint(p *GPXPoint) {
 }
 
 func (seg *GPXTrackSegment) SmoothVertical() {
-	elevations := make([]NullableFloat64, len(seg.Points))
-	for pointNo, point := range seg.Points {
-		elevations[pointNo] = point.Elevation
-	}
-
-	for pointNo, point := range seg.Points {
-		if 1 <= pointNo && pointNo <= len(seg.Points)-2 {
-			previousPointElevation := elevations[pointNo-1]
-			nextPointElevation := elevations[pointNo+1]
-			if previousPointElevation.NotNull() && point.Elevation.NotNull() && nextPointElevation.NotNull() {
-				seg.Points[pointNo].Elevation = *NewNullableFloat64(previousPointElevation.Value()*0.4 + point.Elevation.Value()*0.2 + nextPointElevation.Value()*0.4)
-				//log.Println("->%f", seg.Points[pointNo].Elevation.Value())
-			}
-		}
-	}
+	seg.Points = smoothVertical(seg.Points)
 }
 
 func (seg *GPXTrackSegment) SmoothHorizontal() {
-	originalPoints := make([]GPXPoint, len(seg.Points))
-	for pointNo, point := range seg.Points {
-		originalPoints[pointNo] = point
-	}
-
-	for pointNo, point := range seg.Points {
-		if 1 <= pointNo && pointNo <= len(seg.Points)-2 {
-			previousPoint := originalPoints[pointNo-1]
-			nextPoint := originalPoints[pointNo+1]
-			seg.Points[pointNo].Latitude = previousPoint.Latitude*0.4 + point.Latitude*0.2 + nextPoint.Latitude*0.4
-			seg.Points[pointNo].Longitude = previousPoint.Longitude*0.4 + point.Longitude*0.2 + nextPoint.Longitude*0.4
-			//log.Println("->(%f, %f)", seg.Points[pointNo].Latitude, seg.Points[pointNo].Longitude)
-		}
-	}
+	seg.Points = smoothHorizontal(seg.Points)
 }
 
 func (seg *GPXTrackSegment) RemoveVerticalExtremes() {
@@ -1075,15 +1048,25 @@ func (seg *GPXTrackSegment) RemoveVerticalExtremes() {
 	avgElevationDelta := elevationDeltaSum / float64(elevationDeltaNo)
 	removeElevationExtremesThreshold := avgElevationDelta * 5.0
 
+	smoothedPoints := smoothVertical(seg.Points)
+	originalPoints := seg.Points
+
 	newPoints := make([]GPXPoint, 0)
-	for pointNo, point := range seg.Points {
-		if pointNo > 0 {
-			previousPoint := seg.Points[pointNo-1]
-			if point.Elevation.NotNull() && previousPoint.Elevation.NotNull() {
-				if math.Abs(point.Elevation.Value()-previousPoint.Elevation.Value()) < removeElevationExtremesThreshold {
+	for pointNo, point := range originalPoints {
+		smoothedPoint := smoothedPoints[pointNo]
+		if 0 < pointNo && pointNo < len(originalPoints) - 1 && point.Elevation.NotNull() && smoothedPoints[pointNo].Elevation.NotNull() {
+			d := originalPoints[pointNo-1].Distance3D(&originalPoints[pointNo+1].Point)
+			d1 := originalPoints[pointNo].Distance3D(&originalPoints[pointNo-1].Point)
+			d2 := originalPoints[pointNo].Distance3D(&originalPoints[pointNo+1].Point)
+			if d1+d2 > d*1.5 {
+				if math.Abs(point.Elevation.Value()-smoothedPoint.Elevation.Value()) < removeElevationExtremesThreshold {
 					newPoints = append(newPoints, point)
 				}
+			} else {
+				newPoints = append(newPoints, point)
 			}
+		} else {
+			newPoints = append(newPoints, point)
 		}
 	}
 	seg.Points = newPoints
@@ -1106,23 +1089,27 @@ func (seg *GPXTrackSegment) RemoveHorizontalExtremes() {
 
 	remove2dExtremesThreshold := 1.75 * avgDistanceBetweenPoints
 
-	originalPoints := make([]GPXPoint, len(seg.Points))
-	for pointNo, point := range seg.Points {
-		originalPoints[pointNo] = point
-	}
+    smoothedPoints := smoothHorizontal(seg.Points)
+	originalPoints := seg.Points
 
 	newPoints := make([]GPXPoint, 0)
-	for pointNo, point := range seg.Points {
-		if 0 < pointNo && pointNo < len(seg.Points)-1 {
+	for pointNo, point := range originalPoints {
+		if 0 < pointNo && pointNo < len(originalPoints)-1 {
 			d := originalPoints[pointNo-1].Distance2D(&originalPoints[pointNo+1].Point)
 			d1 := originalPoints[pointNo].Distance2D(&originalPoints[pointNo-1].Point)
 			d2 := originalPoints[pointNo].Distance2D(&originalPoints[pointNo+1].Point)
 			if d1+d2 > d*1.5 {
-				pointMovedBy := originalPoints[pointNo].Distance2D(&point.Point)
+				pointMovedBy := smoothedPoints[pointNo].Distance2D(&point.Point)
 				if pointMovedBy < remove2dExtremesThreshold {
 					newPoints = append(newPoints, point)
+				} else {
+					// Removed!
 				}
+			} else {
+				newPoints = append(newPoints, point)
 			}
+		} else {
+			newPoints = append(newPoints, point)
 		}
 	}
 	seg.Points = newPoints
