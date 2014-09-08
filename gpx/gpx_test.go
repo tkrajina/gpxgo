@@ -1093,3 +1093,110 @@ func TestPositionsAt(t *testing.T) {
 		}
 	}
 }
+
+func TestSmoothHorizontal(t *testing.T) {
+	original, _ := ParseFile("../test_files/visnjan.gpx")
+	g, _ := ParseFile("../test_files/visnjan.gpx")
+
+	// TODO: Better checks here!
+	originalLength := g.Length2D()
+	g.SmoothHorizontal()
+	if !(g.Length2D() < originalLength) {
+		t.Errorf("After smooth the length should (probably!) me smaller")
+	}
+	if g.GetTrackPointsNo() != original.GetTrackPointsNo() {
+		t.Errorf("Points no should be the same")
+	}
+	for trackNo, _ := range g.Tracks {
+		for segmentNo, _ := range g.Tracks[trackNo].Segments {
+			for pointNo, _ := range g.Tracks[trackNo].Segments[segmentNo].Points {
+				point := g.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
+				originalPoint := original.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
+				if point.Elevation.Value() != originalPoint.Elevation.Value() {
+					t.Error("Elevation must be unchanged!")
+					return
+				}
+			}
+		}
+	}
+}
+
+func TestSmoothVertical(t *testing.T) {
+	original, _ := ParseFile("../test_files/visnjan.gpx")
+	g, _ := ParseFile("../test_files/visnjan.gpx")
+
+	// TODO: Better checks here!
+	original2dLength := g.Length2D()
+	original3dLength := g.Length3D()
+	g.SmoothVertical()
+
+	if !(g.Length2D() == original2dLength) {
+		t.Errorf("After vertical smooth 2D elevation must be the same!")
+	}
+	if !(g.Length3D() < original3dLength) {
+		t.Errorf("After vertical smooth 3D elevation be smaller!")
+	}
+	if g.GetTrackPointsNo() != original.GetTrackPointsNo() {
+		t.Errorf("Points no should be the same")
+	}
+	for trackNo, _ := range g.Tracks {
+		for segmentNo, _ := range g.Tracks[trackNo].Segments {
+			for pointNo, _ := range g.Tracks[trackNo].Segments[segmentNo].Points {
+				point := g.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
+				originalPoint := original.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
+				if point.Latitude != originalPoint.Latitude || point.Longitude != originalPoint.Longitude {
+					t.Error("Coordinates must be unchanged!")
+					return
+				}
+			}
+		}
+	}
+}
+
+func getGpxWith3Extremes() GPX {
+	gpxDoc := GPX{}
+	pointsNo := 100
+	for i := 0; i < pointsNo; i++ {
+		point := GPXPoint{}
+		point.Latitude = 45.0 + float64(i)*0.0001
+		point.Longitude = 13.0 + float64(i)*0.0001
+		point.Elevation = *NewNullableFloat64(100.0 + float64(i)*1.0)
+		gpxDoc.AppendPoint(&point)
+
+		// Two points to be removed later:
+		if i == 25 || i == 50 || i == 79 {
+			point := GPXPoint{}
+			point.Latitude = float64(i)
+			point.Longitude = float64(i)
+			point.Elevation = *NewNullableFloat64(2000.0)
+			gpxDoc.AppendPoint(&point)
+		}
+	}
+	return gpxDoc
+}
+
+func TestRemoveExtremesHorizontal(t *testing.T) {
+	gpxDoc := getGpxWith3Extremes()
+
+	if gpxDoc.GetTrackPointsNo() != 103 {
+		t.Errorf("Should be %d, but found %d", 103, gpxDoc.GetTrackPointsNo())
+	}
+
+	gpxDoc.RemoveHorizontalExtremes()
+	if gpxDoc.GetTrackPointsNo() != 100 {
+		t.Errorf("After removing extremes: should be %d, but found %d", 100, gpxDoc.GetTrackPointsNo())
+	}
+}
+
+func TestRemoveExtremesVertical(t *testing.T) {
+	gpxDoc := getGpxWith3Extremes()
+
+	if gpxDoc.GetTrackPointsNo() != 103 {
+		t.Errorf("Should be %d, but found %d", 103, gpxDoc.GetTrackPointsNo())
+	}
+
+	gpxDoc.RemoveVerticalExtremes()
+	if gpxDoc.GetTrackPointsNo() != 100 {
+		t.Errorf("After removing extremes: should be %d, but found %d", 100, gpxDoc.GetTrackPointsNo())
+	}
+}
