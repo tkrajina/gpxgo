@@ -293,3 +293,39 @@ func simplifyPoints(points []GPXPoint, maxDistance float64) []GPXPoint {
 	result := append(points1, point)
 	return append(result, points2...)
 }
+
+func smoothHorizontal(originalPoints []GPXPoint) []GPXPoint {
+	result := make([]GPXPoint, len(originalPoints))
+
+	for pointNo, point := range originalPoints {
+		result[pointNo] = point
+		if 1 <= pointNo && pointNo <= len(originalPoints)-2 {
+			previousPoint := originalPoints[pointNo-1]
+			nextPoint := originalPoints[pointNo+1]
+			result[pointNo] = point
+			result[pointNo].Latitude = previousPoint.Latitude*0.4 + point.Latitude*0.2 + nextPoint.Latitude*0.4
+			result[pointNo].Longitude = previousPoint.Longitude*0.4 + point.Longitude*0.2 + nextPoint.Longitude*0.4
+			//log.Println("->(%f, %f)", seg.Points[pointNo].Latitude, seg.Points[pointNo].Longitude)
+		}
+	}
+
+	return result
+}
+
+func smoothVertical(originalPoints []GPXPoint) []GPXPoint {
+	result := make([]GPXPoint, len(originalPoints))
+
+	for pointNo, point := range originalPoints {
+		result[pointNo] = point
+		if 1 <= pointNo && pointNo <= len(originalPoints)-2 {
+			previousPointElevation := originalPoints[pointNo-1].Elevation
+			nextPointElevation := originalPoints[pointNo+1].Elevation
+			if previousPointElevation.NotNull() && point.Elevation.NotNull() && nextPointElevation.NotNull() {
+				result[pointNo].Elevation = *NewNullableFloat64(previousPointElevation.Value()*0.4 + point.Elevation.Value()*0.2 + nextPointElevation.Value()*0.4)
+				//log.Println("->%f", seg.Points[pointNo].Elevation.Value())
+			}
+		}
+	}
+
+	return result
+}

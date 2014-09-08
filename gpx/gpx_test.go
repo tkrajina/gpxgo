@@ -1114,6 +1114,7 @@ func TestSmoothHorizontal(t *testing.T) {
 				originalPoint := original.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
 				if point.Elevation.Value() != originalPoint.Elevation.Value() {
 					t.Error("Elevation must be unchanged!")
+					return
 				}
 			}
 		}
@@ -1145,6 +1146,7 @@ func TestSmoothVertical(t *testing.T) {
 				originalPoint := original.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
 				if point.Latitude != originalPoint.Latitude || point.Longitude != originalPoint.Longitude {
 					t.Error("Coordinates must be unchanged!")
+					return
 				}
 			}
 		}
