@@ -330,8 +330,8 @@ func (g *GPX) GetPositionsOnTrack(location Point) []float64 {
 				firstPoint = false
 			}
 			//log.Printf("%f,%f <-> %f,%f", point.Latitude, point.Longitude, previousPoint.Latitude, previousPoint.Longitude)
-			fromStart += point.Distance2D(&previousPoint.Point)
-			distance := point.Distance2D(&location)
+			fromStart += point.Distance2D(previousPoint.Point)
+			distance := point.Distance2D(location)
 			nearerThanMinDistance = distance < minDistance
 			if nearerThanMinDistance {
 				if distance < currentCandidateDistance {
@@ -541,12 +541,12 @@ type Point struct {
 }
 
 // Distance2D returns the 2D distance of two GpxWpts.
-func (pt *Point) Distance2D(pt2 *Point) float64 {
+func (pt *Point) Distance2D(pt2 Point) float64 {
 	return Distance2D(pt.Latitude, pt.Longitude, pt2.Latitude, pt2.Longitude, false)
 }
 
 // Distance3D returns the 3D distance of two GpxWpts.
-func (pt *Point) Distance3D(pt2 *Point) float64 {
+func (pt *Point) Distance3D(pt2 Point) float64 {
 	return Distance3D(pt.Latitude, pt.Longitude, pt.Elevation, pt2.Latitude, pt2.Longitude, pt2.Elevation, false)
 }
 
@@ -623,9 +623,9 @@ func (pt *GPXPoint) SpeedBetween(pt2 *GPXPoint, threeD bool) float64 {
 	seconds := pt.TimeDiff(pt2)
 	var distLen float64
 	if threeD {
-		distLen = pt.Distance3D(&pt2.Point)
+		distLen = pt.Distance3D(pt2.Point)
 	} else {
-		distLen = pt.Distance2D(&pt2.Point)
+		distLen = pt.Distance2D(pt2.Point)
 	}
 
 	return distLen / seconds
@@ -908,7 +908,7 @@ func (seg *GPXTrackSegment) ReduceTrackPoints(minDistance float64) {
 
 	for _, point := range seg.Points {
 		previousPoint := newPoints[len(newPoints)-1]
-		if point.Distance3D(&previousPoint.Point) >= minDistance {
+		if point.Distance3D(previousPoint.Point) >= minDistance {
 			newPoints = append(newPoints, point)
 		}
 	}
@@ -984,7 +984,7 @@ func (seg *GPXTrackSegment) MovingData() MovingData {
 		prev := seg.Points[i-1]
 		pt := seg.Points[i]
 
-		dist := pt.Distance3D(&prev.Point)
+		dist := pt.Distance3D(prev.Point)
 
 		timedelta := pt.Timestamp.Sub(prev.Timestamp)
 		seconds := timedelta.Seconds()
@@ -1054,10 +1054,10 @@ func (seg *GPXTrackSegment) RemoveVerticalExtremes() {
 	newPoints := make([]GPXPoint, 0)
 	for pointNo, point := range originalPoints {
 		smoothedPoint := smoothedPoints[pointNo]
-		if 0 < pointNo && pointNo < len(originalPoints) - 1 && point.Elevation.NotNull() && smoothedPoints[pointNo].Elevation.NotNull() {
-			d := originalPoints[pointNo-1].Distance3D(&originalPoints[pointNo+1].Point)
-			d1 := originalPoints[pointNo].Distance3D(&originalPoints[pointNo-1].Point)
-			d2 := originalPoints[pointNo].Distance3D(&originalPoints[pointNo+1].Point)
+		if 0 < pointNo && pointNo < len(originalPoints)-1 && point.Elevation.NotNull() && smoothedPoints[pointNo].Elevation.NotNull() {
+			d := originalPoints[pointNo-1].Distance3D(originalPoints[pointNo+1].Point)
+			d1 := originalPoints[pointNo].Distance3D(originalPoints[pointNo-1].Point)
+			d2 := originalPoints[pointNo].Distance3D(originalPoints[pointNo+1].Point)
 			if d1+d2 > d*1.5 {
 				if math.Abs(point.Elevation.Value()-smoothedPoint.Elevation.Value()) < removeElevationExtremesThreshold {
 					newPoints = append(newPoints, point)
@@ -1081,7 +1081,7 @@ func (seg *GPXTrackSegment) RemoveHorizontalExtremes() {
 	var sum float64
 	for pointNo, point := range seg.Points {
 		if pointNo > 0 {
-			sum += point.Distance2D(&seg.Points[pointNo-1].Point)
+			sum += point.Distance2D(seg.Points[pointNo-1].Point)
 		}
 	}
 	// Division by zero not a problems since this is not computed on zero-length segments:
@@ -1089,17 +1089,17 @@ func (seg *GPXTrackSegment) RemoveHorizontalExtremes() {
 
 	remove2dExtremesThreshold := 1.75 * avgDistanceBetweenPoints
 
-    smoothedPoints := smoothHorizontal(seg.Points)
+	smoothedPoints := smoothHorizontal(seg.Points)
 	originalPoints := seg.Points
 
 	newPoints := make([]GPXPoint, 0)
 	for pointNo, point := range originalPoints {
 		if 0 < pointNo && pointNo < len(originalPoints)-1 {
-			d := originalPoints[pointNo-1].Distance2D(&originalPoints[pointNo+1].Point)
-			d1 := originalPoints[pointNo].Distance2D(&originalPoints[pointNo-1].Point)
-			d2 := originalPoints[pointNo].Distance2D(&originalPoints[pointNo+1].Point)
+			d := originalPoints[pointNo-1].Distance2D(originalPoints[pointNo+1].Point)
+			d1 := originalPoints[pointNo].Distance2D(originalPoints[pointNo-1].Point)
+			d2 := originalPoints[pointNo].Distance2D(originalPoints[pointNo+1].Point)
 			if d1+d2 > d*1.5 {
-				pointMovedBy := smoothedPoints[pointNo].Distance2D(&point.Point)
+				pointMovedBy := smoothedPoints[pointNo].Distance2D(point.Point)
 				if pointMovedBy < remove2dExtremesThreshold {
 					newPoints = append(newPoints, point)
 				} else {

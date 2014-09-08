@@ -93,7 +93,7 @@ func getMinDistanceBetweenTrackPoints(g GPX) float64 {
 				for pointNo, point := range segment.Points {
 					if pointNo > 0 {
 						previousPoint := segment.Points[pointNo-1]
-						distance := point.Distance3D(&previousPoint.Point)
+						distance := point.Distance3D(previousPoint.Point)
 						//fmt.Printf("distance=%f\n", distance)
 						if result < 0.0 || distance < result {
 							result = distance
@@ -964,7 +964,7 @@ func TestSimplifyForSingleSegmentAndVeryByMaxDistance(t *testing.T) {
 
 	start := g.Tracks[0].Segments[0].Points[0]
 	end := g.Tracks[0].Segments[0].Points[len(g.Tracks[0].Segments[0].Points)-1]
-	distanceBetweenFirstAndLast := start.Distance2D(&end.Point)
+	distanceBetweenFirstAndLast := start.Distance2D(end.Point)
 	assertTrue(t, fmt.Sprintf("maxDistance very big => only first and last points should be left %f!=%f", g.Length2D(), distanceBetweenFirstAndLast), cca(g.Length2D(), distanceBetweenFirstAndLast))
 }
 

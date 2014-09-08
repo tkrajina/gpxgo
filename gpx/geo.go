@@ -54,11 +54,11 @@ func HaversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 }
 
 func length(locs []Point, threeD bool) float64 {
-	var previousLoc *Point
+	var previousLoc Point
 	var res float64
 	for k, v := range locs {
 		if k > 0 {
-			previousLoc = &locs[k-1]
+			previousLoc = locs[k-1]
 			var d float64
 			if threeD {
 				d = v.Distance3D(previousLoc)
@@ -192,7 +192,7 @@ func Distance3D(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, el
 	return distance(lat1, lon1, ele1, lat2, lon2, ele2, true, haversine)
 }
 
-func ElevationAngle(loc1, loc2 *Point, radians bool) float64 {
+func ElevationAngle(loc1, loc2 Point, radians bool) float64 {
 	if loc1.Elevation.Null() || loc2.Elevation.Null() {
 		return 0.0
 	}
@@ -215,14 +215,14 @@ func ElevationAngle(loc1, loc2 *Point, radians bool) float64 {
 
 // Distance of point from a line given with two points.
 func distanceFromLine(point Point, linePoint1, linePoint2 GPXPoint) float64 {
-	a := linePoint1.Distance2D(&linePoint2.Point)
+	a := linePoint1.Distance2D(linePoint2.Point)
 
 	if a == 0 {
-		return linePoint1.Distance2D(&point)
+		return linePoint1.Distance2D(point)
 	}
 
-	b := linePoint1.Distance2D(&point)
-	c := linePoint2.Distance2D(&point)
+	b := linePoint1.Distance2D(point)
+	c := linePoint2.Distance2D(point)
 
 	s := (a + b + c) / 2.
 
