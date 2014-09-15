@@ -8,11 +8,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"github.com/tkrajina/gpxgo/gpx/gpx10"
-	"github.com/tkrajina/gpxgo/gpx/gpx11"
-
-	//"fmt"
 )
 
 // An array cannot be constant :( The first one if the default layout:
@@ -150,7 +145,7 @@ func ParseFile(fileName string) (*GPX, error) {
 func ParseBytes(bytes []byte) (*GPX, error) {
 	version, _ := guessGPXVersion(bytes)
 	if version == "1.0" {
-		g := gpx10.NewGpx()
+		g := &gpx10Gpx{}
 		err := xml.Unmarshal(bytes, &g)
 		if err != nil {
 			return nil, err
@@ -158,7 +153,7 @@ func ParseBytes(bytes []byte) (*GPX, error) {
 
 		return convertFromGpx10Models(g), nil
 	} else if version == "1.1" {
-		g := gpx11.NewGpx()
+		g := &gpx11Gpx{}
 		err := xml.Unmarshal(bytes, &g)
 		if err != nil {
 			return nil, err

@@ -1,4 +1,4 @@
-package gpx10
+package gpx
 
 import (
 	"encoding/xml"
@@ -107,28 +107,28 @@ gpx
                 dgpsid
 */
 
-type Gpx struct {
+type gpx10Gpx struct {
 	XMLName xml.Name `xml:"http://www.topografix.com/GPX/1/0 gpx"`
 	//XMLNs        string    `xml:"xmlns,attr"`
 	//XmlNsXsi     string      `xml:"xmlns:xsi,attr,omitempty"`
 	//XmlSchemaLoc string      `xml:"xsi:schemaLocation,attr,omitempty"`
-	Version   string      `xml:"version,attr"`
-	Creator   string      `xml:"creator,attr"`
-	Name      string      `xml:"name,omitempty"`
-	Desc      string      `xml:"desc,omitempty"`
-	Author    string      `xml:"author,omitempty"`
-	Email     string      `xml:"email,omitempty"`
-	Url       string      `xml:"url,omitempty"`
-	UrlName   string      `xml:"urlname,omitempty"`
-	Time      string      `xml:"time,omitempty"`
-	Keywords  string      `xml:"keywords,omitempty"`
-	Bounds    *GpxBounds  `xml:"bounds"`
-	Waypoints []*GpxPoint `xml:"wpt"`
-	Routes    []*GpxRte   `xml:"rte"`
-	Tracks    []*GpxTrk   `xml:"trk"`
+	Version   string           `xml:"version,attr"`
+	Creator   string           `xml:"creator,attr"`
+	Name      string           `xml:"name,omitempty"`
+	Desc      string           `xml:"desc,omitempty"`
+	Author    string           `xml:"author,omitempty"`
+	Email     string           `xml:"email,omitempty"`
+	Url       string           `xml:"url,omitempty"`
+	UrlName   string           `xml:"urlname,omitempty"`
+	Time      string           `xml:"time,omitempty"`
+	Keywords  string           `xml:"keywords,omitempty"`
+	Bounds    *GpxBounds       `xml:"bounds"`
+	Waypoints []*gpx10GpxPoint `xml:"wpt"`
+	Routes    []*gpx10GpxRte   `xml:"rte"`
+	Tracks    []*gpx10GpxTrk   `xml:"trk"`
 }
 
-type GpxBounds struct {
+type gpx10GpxBounds struct {
 	//XMLName xml.Name `xml:"bounds"`
 	MinLat float64 `xml:"minlat,attr"`
 	MaxLat float64 `xml:"maxlat,attr"`
@@ -136,42 +136,42 @@ type GpxBounds struct {
 	MaxLon float64 `xml:"maxlon,attr"`
 }
 
-type GpxAuthor struct {
-	Name  string   `xml:"name,omitempty"`
-	Email string   `xml:"email,omitempty"`
-	Link  *GpxLink `xml:"link"`
+type gpx10GpxAuthor struct {
+	Name  string        `xml:"name,omitempty"`
+	Email string        `xml:"email,omitempty"`
+	Link  *gpx10GpxLink `xml:"link"`
 }
 
-type GpxEmail struct {
+type gpx10GpxEmail struct {
 	Id     string `xml:"id,attr"`
 	Domain string `xml:"domain,attr"`
 }
 
-type GpxLink struct {
+type gpx10GpxLink struct {
 	Href string `xml:"href,attr"`
 	Text string `xml:"text,omitempty"`
 	Type string `xml:"type,omitempty"`
 }
 
-type GpxMetadata struct {
-	XMLName xml.Name   `xml:"metadata"`
-	Name    string     `xml:"name,omitempty"`
-	Desc    string     `xml:"desc,omitempty"`
-	Author  *GpxAuthor `xml:"author,omitempty"`
+type gpx10GpxMetadata struct {
+	XMLName xml.Name        `xml:"metadata"`
+	Name    string          `xml:"name,omitempty"`
+	Desc    string          `xml:"desc,omitempty"`
+	Author  *gpx10GpxAuthor `xml:"author,omitempty"`
 	//	Links     []GpxLink     `xml:"link"`
 	Timestamp string `xml:"time,omitempty"`
 	Keywords  string `xml:"keywords,omitempty"`
 	//	Bounds    *GpxBounds    `xml:"bounds"`
 }
 
-type GpxExtensions struct {
+type gpx10GpxExtensions struct {
 	Bytes []byte `xml:",innerxml"`
 }
 
 /**
  * Common struct fields for all points
  */
-type GpxPoint struct {
+type gpx10GpxPoint struct {
 	Lat float64 `xml:"lat,attr"`
 	Lon float64 `xml:"lon,attr"`
 	// Position info
@@ -180,13 +180,13 @@ type GpxPoint struct {
 	MagVar      string   `xml:"magvar,omitempty"`
 	GeoIdHeight string   `xml:"geoidheight,omitempty"`
 	// Description info
-	Name  string    `xml:"name,omitempty"`
-	Cmt   string    `xml:"cmt,omitempty"`
-	Desc  string    `xml:"desc,omitempty"`
-	Src   string    `xml:"src,omitempty"`
-	Links []GpxLink `xml:"link"`
-	Sym   string    `xml:"sym,omitempty"`
-	Type  string    `xml:"type,omitempty"`
+	Name  string         `xml:"name,omitempty"`
+	Cmt   string         `xml:"cmt,omitempty"`
+	Desc  string         `xml:"desc,omitempty"`
+	Src   string         `xml:"src,omitempty"`
+	Links []gpx10GpxLink `xml:"link"`
+	Sym   string         `xml:"sym,omitempty"`
+	Type  string         `xml:"type,omitempty"`
 	// Accuracy info
 	Fix           string   `xml:"fix,omitempty"`
 	Sat           *int     `xml:"sat,omitempty"`
@@ -201,7 +201,7 @@ type GpxPoint struct {
 	Speed  string `speed:"speed,omitempty"`
 }
 
-type GpxRte struct {
+type gpx10GpxRte struct {
 	XMLName xml.Name `xml:"rte"`
 	Name    string   `xml:"name,omitempty"`
 	Cmt     string   `xml:"cmt,omitempty"`
@@ -209,18 +209,18 @@ type GpxRte struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links       []Link   `xml:"link"`
-	Number int         `xml:"number,omitempty"`
-	Type   string      `xml:"type,omitempty"`
-	Points []*GpxPoint `xml:"rtept"`
+	Number int              `xml:"number,omitempty"`
+	Type   string           `xml:"type,omitempty"`
+	Points []*gpx10GpxPoint `xml:"rtept"`
 }
 
-type GpxTrkSeg struct {
-	XMLName xml.Name    `xml:"trkseg"`
-	Points  []*GpxPoint `xml:"trkpt"`
+type gpx10GpxTrkSeg struct {
+	XMLName xml.Name         `xml:"trkseg"`
+	Points  []*gpx10GpxPoint `xml:"trkpt"`
 }
 
 // Trk is a GPX track
-type GpxTrk struct {
+type gpx10GpxTrk struct {
 	XMLName xml.Name `xml:"trk"`
 	Name    string   `xml:"name,omitempty"`
 	Cmt     string   `xml:"cmt,omitempty"`
@@ -228,11 +228,7 @@ type GpxTrk struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links    []Link   `xml:"link"`
-	Number   int          `xml:"number,omitempty"`
-	Type     string       `xml:"type,omitempty"`
-	Segments []*GpxTrkSeg `xml:"trkseg,omitempty"`
-}
-
-func NewGpx() *Gpx {
-	return new(Gpx)
+	Number   int               `xml:"number,omitempty"`
+	Type     string            `xml:"type,omitempty"`
+	Segments []*gpx10GpxTrkSeg `xml:"trkseg,omitempty"`
 }
