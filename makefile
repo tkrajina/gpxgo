@@ -1,9 +1,9 @@
 test:
 	go test ./gpx
 gofmt:
-	gofmt -w ./gpx ./gpx/gpx10 ./gpx/gpx11
+	gofmt -w ./gpx
 goimports:
-	goimports -w ./gpx ./gpx/gpx10 ./gpx/gpx11
+	goimports -w ./gpx
 build:
 	 gengen generic/nullable.go string \
             | gofmt -r 'NullableGeneric -> NullableString' \
