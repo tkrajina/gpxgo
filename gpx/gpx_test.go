@@ -1200,3 +1200,30 @@ func TestRemoveExtremesVertical(t *testing.T) {
 		t.Errorf("After removing extremes: should be %d, but found %d", 100, gpxDoc.GetTrackPointsNo())
 	}
 }
+
+func TestAddMissingTime(t *testing.T) {
+	gpxDoc := GPX{}
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 0.0, Longitude: 0.0}})
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 1.0, Longitude: 0.0}, Timestamp: time.Date(2014, time.January, 1, 0, 0, 0, 0, time.UTC)})
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 2.0, Longitude: 0.0}})
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 3.0, Longitude: 0.0}})
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 4.0, Longitude: 0.0}, Timestamp: time.Date(2014, time.January, 1, 3, 0, 0, 0, time.UTC)})
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 5.0, Longitude: 0.0}, Timestamp: time.Date(2014, time.January, 1, 4, 0, 0, 0, time.UTC)})
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 6.0, Longitude: 0.0}})
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 7.0, Longitude: 0.0}})
+	// 2 hours here:
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 9.0, Longitude: 0.0}})
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 10.0, Longitude: 0.0}, Timestamp: time.Date(2014, time.January, 1, 9, 0, 0, 0, time.UTC)})
+	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 11.0, Longitude: 0.0}})
+
+	gpxDoc.AddMissingTime()
+
+	for pointNo, point := range gpxDoc.Tracks[0].Segments[0].Points {
+		fmt.Printf("#d -> %v\n", pointNo, point.Timestamp)
+	}
+
+	assertEquals(t, "0001-01-01T00:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT))
+	assertEquals(t, "2014-01-01T00:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[1].Timestamp.Format(TIME_FORMAT))
+	assertEquals(t, "2014-01-01T01:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[2].Timestamp.Format(TIME_FORMAT))
+	assertEquals(t, "2014-01-01T02:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[3].Timestamp.Format(TIME_FORMAT))
+}
