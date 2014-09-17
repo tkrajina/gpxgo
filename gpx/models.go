@@ -461,6 +461,12 @@ func (g *GPX) RemoveVerticalExtremes() {
 	}
 }
 
+func (g *GPX) AddMissingTime() {
+	for trackNo, _ := range g.Tracks {
+		g.Tracks[trackNo].AddMissingTime()
+	}
+}
+
 func (g *GPX) AppendTrack(t *GPXTrack) {
 	g.Tracks = append(g.Tracks, *t)
 }
@@ -1115,6 +1121,55 @@ func (seg *GPXTrackSegment) RemoveHorizontalExtremes() {
 	seg.Points = newPoints
 }
 
+func (seg *GPXTrackSegment) AddMissingTime() {
+	emptySegmentStart := -1
+	for pointNo, _ := range seg.Points {
+		timestampEmpty := seg.Points[pointNo].Timestamp.Year() <= 1
+		if timestampEmpty {
+			if emptySegmentStart == -1 {
+				emptySegmentStart = pointNo
+			}
+		} else {
+			if 0 < emptySegmentStart && pointNo < len(seg.Points) {
+				seg.addMissingTimeInSegment(emptySegmentStart, pointNo-1)
+			}
+			emptySegmentStart = -1
+		}
+	}
+}
+
+func (seg *GPXTrackSegment) addMissingTimeInSegment(start, end int) {
+	if start <= 0 {
+		return
+	}
+	if end >= len(seg.Points)-1 {
+		return
+	}
+	startTime, endTime := seg.Points[start-1].Timestamp, seg.Points[end+1].Timestamp
+	fmt.Printf("start=%d, end=%d\n", start, end)
+	fmt.Printf("startTime=%s, endTime=%s\n", startTime.Format(TIME_FORMAT), endTime.Format(TIME_FORMAT))
+	ratios := make([]float64, end-start+1)
+	fmt.Printf("Ratios=%v\n", ratios)
+
+	length := 0.0
+	for i := start; i <= end; i++ {
+		length += seg.Points[i].Point.Distance2D(seg.Points[i-1].Point)
+		ratios[i-start] = length
+	}
+	length += seg.Points[end].Point.Distance2D(seg.Points[end+1].Point)
+	for i := start; i <= end; i++ {
+		ratios[i-start] = ratios[i-start] / length
+	}
+	fmt.Printf("start=%d, end=%d, ratios=%v\n", start, end, ratios)
+
+	for i := start; i <= end; i++ {
+		d := ratios[i-start] * float64(endTime.Unix()-startTime.Unix())
+		seg.Points[i].Timestamp = time.Unix(startTime.Unix()+int64(d), 0)
+		fmt.Printf("ratio=%f d=%v ", ratios[i-start], d)
+		fmt.Printf("New time=%s\n", seg.Points[i].Timestamp.Format(TIME_FORMAT))
+	}
+}
+
 // ----------------------------------------------------------------------------------------------------
 
 type GPXTrack struct {
@@ -1385,6 +1440,12 @@ func (trk *GPXTrack) RemoveVerticalExtremes() {
 func (trk *GPXTrack) RemoveHorizontalExtremes() {
 	for segmentNo, _ := range trk.Segments {
 		trk.Segments[segmentNo].RemoveHorizontalExtremes()
+	}
+}
+
+func (trk *GPXTrack) AddMissingTime() {
+	for segmentNo, _ := range trk.Segments {
+		trk.Segments[segmentNo].AddMissingTime()
 	}
 }
 
