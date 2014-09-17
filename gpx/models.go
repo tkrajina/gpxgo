@@ -1146,10 +1146,7 @@ func (seg *GPXTrackSegment) addMissingTimeInSegment(start, end int) {
 		return
 	}
 	startTime, endTime := seg.Points[start-1].Timestamp, seg.Points[end+1].Timestamp
-	fmt.Printf("start=%d, end=%d\n", start, end)
-	fmt.Printf("startTime=%s, endTime=%s\n", startTime.Format(TIME_FORMAT), endTime.Format(TIME_FORMAT))
 	ratios := make([]float64, end-start+1)
-	fmt.Printf("Ratios=%v\n", ratios)
 
 	length := 0.0
 	for i := start; i <= end; i++ {
@@ -1160,13 +1157,10 @@ func (seg *GPXTrackSegment) addMissingTimeInSegment(start, end int) {
 	for i := start; i <= end; i++ {
 		ratios[i-start] = ratios[i-start] / length
 	}
-	fmt.Printf("start=%d, end=%d, ratios=%v\n", start, end, ratios)
 
 	for i := start; i <= end; i++ {
-		d := ratios[i-start] * float64(endTime.Unix()-startTime.Unix())
-		seg.Points[i].Timestamp = time.Unix(startTime.Unix()+int64(d), 0)
-		fmt.Printf("ratio=%f d=%v ", ratios[i-start], d)
-		fmt.Printf("New time=%s\n", seg.Points[i].Timestamp.Format(TIME_FORMAT))
+		d := int64(ratios[i-start] * float64(endTime.Sub(startTime).Nanoseconds()))
+		seg.Points[i].Timestamp = startTime.Add(time.Duration(d))
 	}
 }
 
