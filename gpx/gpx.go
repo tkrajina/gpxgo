@@ -314,6 +314,8 @@ func (g *GPX) getDistancesFromStart(distanceBetweenPoints float64) [][][]float64
 				if pointNo == 0 || pointNo == len(segment.Points)-1 || fromStart-lastSampledPoint > distanceBetweenPoints {
 					result[trackNo][segmentNo][pointNo] = fromStart
 					lastSampledPoint = fromStart
+				} else {
+					result[trackNo][segmentNo][pointNo] = -1
 				}
 			}
 		}
