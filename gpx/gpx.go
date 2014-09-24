@@ -299,15 +299,46 @@ func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
 	return results
 }
 
+func (g *GPX) getDistancesFromStart() ([][][]float64, float64) {
+	result := make([][][]float64, len(g.Tracks))
+	var fromStart float64
+	for trackNo, track := range g.Tracks {
+		result[trackNo] = make([][]float64, len(track.Segments))
+		for segmentNo, segment := range track.Segments {
+			result[trackNo][segmentNo] = make([]float64, len(segment.Points))
+			for pointNo, point := range segment.Points {
+				if pointNo > 0 {
+					fromStart += point.Distance2D(segment.Points[pointNo-1].Point)
+				}
+				result[trackNo][segmentNo][pointNo] = fromStart
+			}
+		}
+	}
+	return result, 0
+}
+
 // Finds locations candidates where this location is on a track. Returns an
-// array of distances from start. Used (for example) for positioning waypoints
-// on the graph.
-func (g *GPX) GetPositionsOnTrack(location Point) []float64 {
+// array of distances from start for every given location. Used (for example)
+// for positioning waypoints on the graph.
+// The bigger the samples number the more granular the search will be. For
+// example if samples is 100 then (cca) every 100th point will be searched.
+// This is for tracks with thousands of waypoints -- computing distances for
+// each and every point is slow.
+func (g *GPX) GetPositionsOnTrack(samples int, locations ...Point) [][]float64 {
+	distancesFromStart, length2d := g.getDistancesFromStart()
+	result := make([][]float64, len(locations))
+	for locationNo, location := range locations {
+		result[locationNo] = g.getPositionsOnTrackWithPrecomputedDistances(location, distancesFromStart, length2d)
+	}
+	return result
+}
+
+// distancesFromStart must have the same tracks, segments and pointsNo as this track.
+// if any distance in distancesFromStart is less than zero that point is ignored.
+func (g *GPX) getPositionsOnTrackWithPrecomputedDistances(location Point, distancesFromStart [][][]float64, length2d float64) []float64 {
 	if len(g.Tracks) == 0 {
 		return []float64{}
 	}
-
-	track := g.Tracks[0]
 
 	// The point must be closer than this value in order to be a candidate location:
 	minDistance := 0.01 * g.Length2D()
@@ -320,33 +351,29 @@ func (g *GPX) GetPositionsOnTrack(location Point) []float64 {
 	var currentCandidateFromStart float64
 	currentCandidateDistance := minDistance
 
-	fromStart := 0.0
-	var previousPoint GPXPoint
-	firstPoint := true
-	for _, segment := range track.Segments {
-		for _, point := range segment.Points {
-			if firstPoint {
-				previousPoint = point
-				firstPoint = false
-			}
-			//log.Printf("%f,%f <-> %f,%f", point.Latitude, point.Longitude, previousPoint.Latitude, previousPoint.Longitude)
-			fromStart += point.Distance2D(previousPoint.Point)
-			distance := point.Distance2D(location)
-			nearerThanMinDistance = distance < minDistance
-			if nearerThanMinDistance {
-				if distance < currentCandidateDistance {
-					currentCandidate = &point
-					currentCandidateDistance = distance
-					currentCandidateFromStart = fromStart
+	var fromStart float64
+	for trackNo, track := range g.Tracks {
+		for segmentNo, segment := range track.Segments {
+			for pointNo, point := range segment.Points {
+				fromStart = distancesFromStart[trackNo][segmentNo][pointNo]
+				if fromStart >= 0 {
+					distance := point.Distance2D(location)
+					nearerThanMinDistance = distance < minDistance
+					if nearerThanMinDistance {
+						if distance < currentCandidateDistance {
+							currentCandidate = &point
+							currentCandidateDistance = distance
+							currentCandidateFromStart = fromStart
+						}
+					} else {
+						if currentCandidate != nil {
+							pointLocations = append(pointLocations, currentCandidateFromStart)
+						}
+						currentCandidate = nil
+						currentCandidateDistance = minDistance
+					}
 				}
-			} else {
-				if currentCandidate != nil {
-					pointLocations = append(pointLocations, currentCandidateFromStart)
-				}
-				currentCandidate = nil
-				currentCandidateDistance = minDistance
 			}
-			previousPoint = point
 		}
 	}
 
