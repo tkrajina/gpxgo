@@ -299,9 +299,10 @@ func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
 	return results
 }
 
-func (g *GPX) getDistancesFromStart() ([][][]float64, float64) {
+func (g *GPX) getDistancesFromStart(distanceBetweenPoints float64) [][][]float64 {
 	result := make([][][]float64, len(g.Tracks))
 	var fromStart float64
+	var lastSampledPoint float64
 	for trackNo, track := range g.Tracks {
 		result[trackNo] = make([][]float64, len(track.Segments))
 		for segmentNo, segment := range track.Segments {
@@ -310,11 +311,14 @@ func (g *GPX) getDistancesFromStart() ([][][]float64, float64) {
 				if pointNo > 0 {
 					fromStart += point.Distance2D(segment.Points[pointNo-1].Point)
 				}
-				result[trackNo][segmentNo][pointNo] = fromStart
+				if pointNo == 0 || pointNo == len(segment.Points)-1 || fromStart-lastSampledPoint > distanceBetweenPoints {
+					result[trackNo][segmentNo][pointNo] = fromStart
+					lastSampledPoint = fromStart
+				}
 			}
 		}
 	}
-	return result, 0
+	return result
 }
 
 // Finds locations candidates where this location is on a track. Returns an
@@ -325,7 +329,8 @@ func (g *GPX) getDistancesFromStart() ([][][]float64, float64) {
 // This is for tracks with thousands of waypoints -- computing distances for
 // each and every point is slow.
 func (g *GPX) GetPositionsOnTrack(samples int, locations ...Point) [][]float64 {
-	distancesFromStart, length2d := g.getDistancesFromStart()
+	length2d := g.Length2D()
+	distancesFromStart := g.getDistancesFromStart(length2d / float64(samples))
 	result := make([][]float64, len(locations))
 	for locationNo, location := range locations {
 		result[locationNo] = g.getPositionsOnTrackWithPrecomputedDistances(location, distancesFromStart, length2d)
