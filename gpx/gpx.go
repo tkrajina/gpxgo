@@ -348,7 +348,7 @@ func (g *GPX) getPositionsOnTrackWithPrecomputedDistances(location Point, distan
 	}
 
 	// The point must be closer than this value in order to be a candidate location:
-	minDistance := 0.01 * g.Length2D()
+	minDistance := 0.01 * length2d
 	pointLocations := make([]float64, 0)
 
 	// True when we enter under the minDistance length
