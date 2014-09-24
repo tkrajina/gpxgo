@@ -27,3 +27,5 @@ prepare:
 	go get
 clean:
 	echo "TODO"
+ctags:
+	ctags -R .
