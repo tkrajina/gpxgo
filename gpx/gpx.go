@@ -330,7 +330,7 @@ func (g *GPX) getDistancesFromStart(distanceBetweenPoints float64) [][][]float64
 // example if samples is 100 then (cca) every 100th point will be searched.
 // This is for tracks with thousands of waypoints -- computing distances for
 // each and every point is slow.
-func (g *GPX) GetPositionsOnTrack(samples int, locations ...Point) [][]float64 {
+func (g *GPX) GetLocationsPositionsOnTrack(samples int, locations ...Point) [][]float64 {
 	length2d := g.Length2D()
 	distancesFromStart := g.getDistancesFromStart(length2d / float64(samples))
 	result := make([][]float64, len(locations))
@@ -338,6 +338,12 @@ func (g *GPX) GetPositionsOnTrack(samples int, locations ...Point) [][]float64 {
 		result[locationNo] = g.getPositionsOnTrackWithPrecomputedDistances(location, distancesFromStart, length2d)
 	}
 	return result
+}
+
+// Use always GetLocationsPositionsOnTrack(...) for multiple points, it is
+// faster.
+func (g *GPX) GetLocationPositionsOnTrack(samples int, location Point) []float64 {
+	return g.GetLocationsPositionsOnTrack(samples, location)[0]
 }
 
 // distancesFromStart must have the same tracks, segments and pointsNo as this track.

@@ -1071,7 +1071,7 @@ func TestPositionsAt(t *testing.T) {
 	g, _ := ParseFile("../test_files/visnjan.gpx")
 	{
 		wpt := g.Waypoints[0]
-		positions := g.GetPositionsOnTrack(1000, wpt.Point)[0]
+		positions := g.GetLocationPositionsOnTrack(1000, wpt.Point)
 		if len(positions) != 2 {
 			t.Error("wpt1 should be in 2 positions, found:", positions)
 		}
@@ -1084,7 +1084,7 @@ func TestPositionsAt(t *testing.T) {
 	}
 	{
 		wpt := g.Waypoints[1]
-		positions := g.GetPositionsOnTrack(1000, wpt.Point)[0]
+		positions := g.GetLocationPositionsOnTrack(1000, wpt.Point)
 		if len(positions) != 1 {
 			t.Error("wpt1 should be in 1 position:", positions)
 		}
