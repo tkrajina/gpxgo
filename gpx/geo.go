@@ -59,17 +59,17 @@ func HaversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	return d
 }
 
-func length(locs []Point, threeD bool) float64 {
-	var previousLoc Point
+func length(locs []Location, threeD bool) float64 {
+	var previousLoc Location
 	var res float64
 	for k, v := range locs {
 		if k > 0 {
 			previousLoc = locs[k-1]
 			var d float64
 			if threeD {
-				d = v.Distance3D(previousLoc)
+				d = Distance3D(v, previousLoc)
 			} else {
-				d = v.Distance2D(previousLoc)
+				d = Distance2D(v, previousLoc)
 			}
 			res += d
 		}
@@ -77,11 +77,11 @@ func length(locs []Point, threeD bool) float64 {
 	return res
 }
 
-func Length2D(locs []Point) float64 {
+func Length2D(locs []Location) float64 {
 	return length(locs, false)
 }
 
-func Length3D(locs []Point) float64 {
+func Length3D(locs []Location) float64 {
 	return length(locs, true)
 }
 
@@ -226,28 +226,28 @@ func ElevationAngle(loc1, loc2 Point, radians bool) float64 {
 }
 
 // Distance of point from a line given with two points.
-func distanceFromLine(point Point, linePoint1, linePoint2 GPXPoint) float64 {
-	a := linePoint1.Distance2D(linePoint2.Point)
+func distanceFromLine(point Location, linePoint1, linePoint2 Location) float64 {
+	a := Distance2D(linePoint1, linePoint2)
 
 	if a == 0 {
-		return linePoint1.Distance2D(point)
+		return Distance2D(linePoint1, point)
 	}
 
-	b := linePoint1.Distance2D(point)
-	c := linePoint2.Distance2D(point)
+	b := Distance2D(linePoint1, point)
+	c := Distance2D(linePoint2, point)
 
 	s := (a + b + c) / 2.
 
 	return 2.0 * math.Sqrt(math.Abs((s * (s - a) * (s - b) * (s - c)))) / a
 }
 
-func getLineEquationCoefficients(location1, location2 Point) (float64, float64, float64) {
-	if location1.Longitude == location2.Longitude {
+func getLineEquationCoefficients(location1, location2 Location) (float64, float64, float64) {
+	if location1.GetLongitude() == location2.GetLongitude() {
 		// Vertical line:
-		return 0.0, 1.0, -location1.Longitude
+		return 0.0, 1.0, -location1.GetLongitude()
 	} else {
-		a := (location1.Latitude - location2.Latitude) / (location1.Longitude - location2.Longitude)
-		b := location1.Latitude - location1.Longitude*a
+		a := (location1.GetLatitude() - location2.GetLatitude()) / (location1.GetLongitude() - location2.GetLongitude())
+		b := location1.GetLatitude() - location1.GetLongitude()*a
 		return 1.0, -a, -b
 	}
 }

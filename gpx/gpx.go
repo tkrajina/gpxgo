@@ -731,9 +731,9 @@ type GPXRoute struct {
 // Length returns the length of a GPX route.
 func (rte *GPXRoute) Length() float64 {
 	// TODO: npe check
-	points := make([]Point, len(rte.Points))
+	points := make([]Location, len(rte.Points))
 	for pointNo, point := range rte.Points {
-		points[pointNo] = point.Point
+		points[pointNo] = point
 	}
 	return Length2D(points)
 }
@@ -775,9 +775,9 @@ type GPXTrackSegment struct {
 // Length2D returns the 2D length of a GPX segment.
 func (seg *GPXTrackSegment) Length2D() float64 {
 	// TODO: There should be a better way to do this:
-	points := make([]Point, len(seg.Points))
+	points := make([]Location, len(seg.Points))
 	for pointNo, point := range seg.Points {
-		points[pointNo] = point.Point
+		points[pointNo] = point
 	}
 	return Length2D(points)
 }
@@ -785,9 +785,9 @@ func (seg *GPXTrackSegment) Length2D() float64 {
 // Length3D returns the 3D length of a GPX segment.
 func (seg *GPXTrackSegment) Length3D() float64 {
 	// TODO: There should be a better way to do this:
-	points := make([]Point, len(seg.Points))
+	points := make([]Location, len(seg.Points))
 	for pointNo, point := range seg.Points {
-		points[pointNo] = point.Point
+		points[pointNo] = point
 	}
 	return Length3D(points)
 }
