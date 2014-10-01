@@ -12,6 +12,12 @@ import (
 const oneDegree = 1000.0 * 10000.8 / 90.0
 const earthRadius = 6371 * 1000
 
+type Location interface {
+	GetLatitude() float64
+	GetLongitude() float64
+	GetElevation() NullableFloat64
+}
+
 func ToRad(x float64) float64 {
 	return x / 180. * math.Pi
 }
@@ -184,12 +190,18 @@ func distance(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, ele2
 	return math.Sqrt(math.Pow(distance2d, 2) + math.Pow(eleDiff, 2))
 }
 
-func Distance2D(lat1, lon1, lat2, lon2 float64, haversine bool) float64 {
-	return distance(lat1, lon1, *new(NullableFloat64), lat2, lon2, *new(NullableFloat64), false, haversine)
+func needHaversineDistance(location1, location2 Location) bool {
+	return math.Abs(location1.GetLatitude()-location2.GetLatitude()) >= 2 || math.Abs(location1.GetLongitude()-location2.GetLongitude()) >= 2
 }
 
-func Distance3D(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, ele2 NullableFloat64, haversine bool) float64 {
-	return distance(lat1, lon1, ele1, lat2, lon2, ele2, true, haversine)
+func Distance2D(location1, location2 Location) float64 {
+	haversine := needHaversineDistance(location1, location2)
+	return distance(location1.GetLatitude(), location1.GetLongitude(), *new(NullableFloat64), location2.GetLatitude(), location2.GetLongitude(), *new(NullableFloat64), false, haversine)
+}
+
+func Distance3D(location1, location2 Location) float64 {
+	haversine := needHaversineDistance(location1, location2)
+	return distance(location1.GetLatitude(), location1.GetLongitude(), location1.GetElevation(), location2.GetLatitude(), location2.GetLongitude(), location2.GetElevation(), true, haversine)
 }
 
 func ElevationAngle(loc1, loc2 Point, radians bool) float64 {
