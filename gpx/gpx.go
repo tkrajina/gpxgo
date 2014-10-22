@@ -285,14 +285,17 @@ func (g *GPX) HasTimes() bool {
 	return result
 }
 
-// LocationAt returns a LocationResultsPair consisting the segment index
+// PositionAt returns a LocationResultsPair consisting the segment index
 // and the GpxWpt at a certain time.
-func (g *GPX) LocationAt(t time.Time) []LocationsResultPair {
-	results := make([]LocationsResultPair, 0)
+func (g *GPX) PositionAt(t time.Time) []TrackPosition {
+	results := make([]TrackPosition, 0)
 
-	for _, trk := range g.Tracks {
-		locs := trk.LocationAt(t)
+	for trackNo, trk := range g.Tracks {
+		locs := trk.PositionAt(t)
 		if len(locs) > 0 {
+			for locNo, _ := range locs {
+				locs[locNo].TrackNo = trackNo
+			}
 			results = append(results, locs...)
 		}
 	}
@@ -630,7 +633,9 @@ func (ud UphillDownhill) Equals(ud2 UphillDownhill) bool {
 
 // ----------------------------------------------------------------------------------------------------
 
-type LocationsResultPair struct {
+// Position of a point on track
+type TrackPosition struct {
+	TrackNo   int
 	SegmentNo int
 	PointNo   int
 }
@@ -989,8 +994,8 @@ func (seg *GPXTrackSegment) Join(seg2 *GPXTrackSegment) {
 	seg.Points = append(seg.Points, seg2.Points...)
 }
 
-// LocationAt returns the GpxWpt at a given time.
-func (seg *GPXTrackSegment) LocationAt(t time.Time) int {
+// PositionAt returns the GpxWpt at a given time.
+func (seg *GPXTrackSegment) PositionAt(t time.Time) int {
 	lenPts := len(seg.Points)
 	if lenPts == 0 {
 		return -1
@@ -1435,15 +1440,15 @@ func (trk *GPXTrack) UphillDownhill() UphillDownhill {
 	}
 }
 
-// LocationAt returns a LocationResultsPair for a given time.
-func (trk *GPXTrack) LocationAt(t time.Time) []LocationsResultPair {
-	results := make([]LocationsResultPair, 0)
+// PositionAt returns a LocationResultsPair for a given time.
+func (trk *GPXTrack) PositionAt(t time.Time) []TrackPosition {
+	results := make([]TrackPosition, 0)
 
 	for i := 0; i < len(trk.Segments); i++ {
 		seg := trk.Segments[i]
-		loc := seg.LocationAt(t)
+		loc := seg.PositionAt(t)
 		if loc != -1 {
-			results = append(results, LocationsResultPair{i, loc})
+			results = append(results, TrackPosition{SegmentNo: i, PointNo: loc})
 		}
 	}
 	return results
