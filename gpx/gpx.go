@@ -635,6 +635,7 @@ func (ud UphillDownhill) Equals(ud2 UphillDownhill) bool {
 
 // Position of a point on track
 type TrackPosition struct {
+	Point
 	TrackNo   int
 	SegmentNo int
 	PointNo   int
@@ -1448,7 +1449,7 @@ func (trk *GPXTrack) PositionAt(t time.Time) []TrackPosition {
 		seg := trk.Segments[i]
 		loc := seg.PositionAt(t)
 		if loc != -1 {
-			results = append(results, TrackPosition{SegmentNo: i, PointNo: loc})
+			results = append(results, TrackPosition{SegmentNo: i, PointNo: loc, Point: seg.Points[loc].Point})
 		}
 	}
 	return results
