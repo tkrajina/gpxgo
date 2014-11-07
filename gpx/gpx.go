@@ -1000,11 +1000,11 @@ func (seg *GPXTrackSegment) PositionAt(t time.Time) int {
 	if lenPts == 0 {
 		return -1
 	}
-	firstT := seg.Points[0]
-	lastT := seg.Points[lenPts-1]
+	first := seg.Points[0]
+	last := seg.Points[lenPts-1]
 
-	firstTimestamp := firstT.Timestamp
-	lastTimestamp := lastT.Timestamp
+	firstTimestamp := first.Timestamp
+	lastTimestamp := last.Timestamp
 
 	if firstTimestamp.Equal(lastTimestamp) || firstTimestamp.After(lastTimestamp) {
 		return -1
