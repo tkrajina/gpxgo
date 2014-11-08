@@ -302,6 +302,18 @@ func (g *GPX) PositionAt(t time.Time) []TrackPosition {
 	return results
 }
 
+func (g *GPX) StoppedPositions() []TrackPosition {
+	result := make([]TrackPosition, 0)
+	for trackNo, track := range g.Tracks {
+		positions := track.StoppedPositions()
+		for _, position := range positions {
+			position.TrackNo = trackNo
+			result = append(result, position)
+		}
+	}
+	return result
+}
+
 func (g *GPX) getDistancesFromStart(distanceBetweenPoints float64) [][][]float64 {
 	result := make([][][]float64, len(g.Tracks))
 	var fromStart float64
@@ -1021,6 +1033,24 @@ func (seg *GPXTrackSegment) PositionAt(t time.Time) int {
 	return -1
 }
 
+func (seg *GPXTrackSegment) StoppedPositions() []TrackPosition {
+	result := make([]TrackPosition, 0)
+	for pointNo, point := range seg.Points {
+		if pointNo > 0 {
+			previousPoint := seg.Points[pointNo-1]
+			if point.SpeedBetween(&previousPoint, true) < DEFAULT_STOPPED_SPEED_THRESHOLD {
+				var trackPos TrackPosition
+				trackPos.Point = point.Point
+				trackPos.PointNo = pointNo
+				trackPos.SegmentNo = -1
+				trackPos.TrackNo = -1
+				result = append(result, trackPos)
+			}
+		}
+	}
+	return result
+}
+
 // MovingData returns the moving data of a GPX segment.
 func (seg *GPXTrackSegment) MovingData() MovingData {
 	var (
@@ -1453,6 +1483,18 @@ func (trk *GPXTrack) PositionAt(t time.Time) []TrackPosition {
 		}
 	}
 	return results
+}
+
+func (trk *GPXTrack) StoppedPositions() []TrackPosition {
+	result := make([]TrackPosition, 0)
+	for segmentNo, segment := range trk.Segments {
+		positions := segment.StoppedPositions()
+		for _, position := range positions {
+			position.SegmentNo = segmentNo
+			result = append(result, position)
+		}
+	}
+	return result
 }
 
 func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
