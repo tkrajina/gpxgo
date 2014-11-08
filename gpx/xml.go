@@ -110,9 +110,7 @@ func parseGPXTime(timestr string) (*time.Time, error) {
 		}
 	}
 
-	result := time.Now()
-
-	return &result, errors.New("Cannot parse " + timestr)
+	return nil, errors.New("Cannot parse " + timestr)
 }
 
 func formatGPXTime(time *time.Time) string {
