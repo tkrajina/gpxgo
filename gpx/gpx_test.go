@@ -1227,3 +1227,44 @@ func TestAddMissingTime(t *testing.T) {
 	assertEquals(t, "2014-01-01T01:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[2].Timestamp.Format(TIME_FORMAT))
 	assertEquals(t, "2014-01-01T02:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[3].Timestamp.Format(TIME_FORMAT))
 }
+
+func TestFindStoppedPositions(t *testing.T) {
+	segment := GPXTrackSegment{}
+
+	ttime := time.Now()
+	delta := time.Duration(1000000)
+	for i := 0; i < 100; i++ {
+		j := i
+		if j == 17 {
+			j = i - 1
+		}
+		ttime = ttime.Add(delta)
+		point := GPXPoint{}
+		point.Latitude = 10 + float64(j)*0.001
+		point.Longitude = 10 + float64(j)*0.001
+		point.Timestamp = ttime
+		segment.AppendPoint(&point)
+	}
+
+	gpx := GPX{}
+	gpx.AppendTrack(&GPXTrack{})
+	gpx.AppendTrack(&GPXTrack{})
+	gpx.AppendSegment(&segment)
+
+	stoppedPositions := gpx.StoppedPositions()
+	if len(stoppedPositions) != 1 {
+		t.Error("Expected 1 StoppedPositions, found:", stoppedPositions)
+	}
+	if stoppedPositions[0].TrackNo != 1 {
+		t.Error("Should be in 1. track found in:", stoppedPositions[0].TrackNo)
+	}
+	if stoppedPositions[0].SegmentNo != 0 {
+		t.Error("Should be in 0. segment found in:", stoppedPositions[0].SegmentNo)
+	}
+	if stoppedPositions[0].PointNo != 17 {
+		t.Error("Should be in 17. segment found in:", stoppedPositions[0].PointNo)
+	}
+	if stoppedPositions[0].Latitude != 10.016 {
+		t.Error("Wrong latitude (should be 10.016):", stoppedPositions[0].Latitude)
+	}
+}
