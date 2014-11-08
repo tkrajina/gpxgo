@@ -250,7 +250,9 @@ func convertPointFromGpx10(original *gpx10GpxPoint) *GPXPoint {
 		result.Elevation = *NewNullableFloat64(*original.Ele)
 	}
 	time, _ := parseGPXTime(original.Timestamp)
-	result.Timestamp = *time
+	if time != nil {
+		result.Timestamp = *time
+	}
 	result.MagneticVariation = original.MagVar
 	result.GeoidHeight = original.GeoIdHeight
 	result.Name = original.Name
@@ -567,7 +569,9 @@ func convertPointFromGpx11(original *gpx11GpxPoint) *GPXPoint {
 		result.Elevation = *NewNullableFloat64(*original.Ele)
 	}
 	time, _ := parseGPXTime(original.Timestamp)
-	result.Timestamp = *time
+	if time != nil {
+		result.Timestamp = *time
+	}
 	result.MagneticVariation = original.MagVar
 	result.GeoidHeight = original.GeoIdHeight
 	result.Name = original.Name
