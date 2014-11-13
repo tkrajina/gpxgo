@@ -141,7 +141,12 @@ func ParseFile(fileName string) (*GPX, error) {
 }
 
 func ParseBytes(bytes []byte) (*GPX, error) {
-	version, _ := guessGPXVersion(bytes)
+	version, err := guessGPXVersion(bytes)
+	if err != nil {
+		// Unknown version, try with 1.1
+		version = "1.1"
+	}
+
 	if version == "1.0" {
 		g := &gpx10Gpx{}
 		err := xml.Unmarshal(bytes, &g)
