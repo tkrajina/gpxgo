@@ -1,6 +1,7 @@
 package gpx
 
 import (
+	"math"
 	"strings"
 )
 
@@ -57,7 +58,7 @@ func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 			r.Src = route.Source
 			// TODO
 			//r.Links = route.Links
-			r.Number = route.Number
+			r.Number = float64(route.Number)
 			r.Type = route.Type
 			// TODO
 			//r.RoutePoints = route.RoutePoints
@@ -81,7 +82,7 @@ func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 			gpx10Track.Cmt = track.Comment
 			gpx10Track.Desc = track.Description
 			gpx10Track.Src = track.Source
-			gpx10Track.Number = track.Number
+			gpx10Track.Number = float64(track.Number)
 			gpx10Track.Type = track.Type
 
 			if track.Segments != nil {
@@ -148,7 +149,7 @@ func convertFromGpx10Models(gpx10Doc *gpx10Gpx) *GPX {
 			r.Source = route.Src
 			// TODO
 			//r.Links = route.Links
-			r.Number = route.Number
+			r.Number = int(math.Floor(route.Number))
 			r.Type = route.Type
 			// TODO
 			//r.RoutePoints = route.RoutePoints
@@ -172,7 +173,7 @@ func convertFromGpx10Models(gpx10Doc *gpx10Gpx) *GPX {
 			gpxTrack.Comment = track.Cmt
 			gpxTrack.Description = track.Desc
 			gpxTrack.Source = track.Src
-			gpxTrack.Number = track.Number
+			gpxTrack.Number = int(math.Floor(track.Number))
 			gpxTrack.Type = track.Type
 
 			if track.Segments != nil {
@@ -359,7 +360,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 			r.Src = route.Source
 			// TODO
 			//r.Links = route.Links
-			r.Number = route.Number
+			r.Number = float64(route.Number)
 			r.Type = route.Type
 			// TODO
 			//r.RoutePoints = route.RoutePoints
@@ -383,7 +384,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 			gpx11Track.Cmt = track.Comment
 			gpx11Track.Desc = track.Description
 			gpx11Track.Src = track.Source
-			gpx11Track.Number = track.Number
+			gpx11Track.Number = float64(track.Number)
 			gpx11Track.Type = track.Type
 
 			if track.Segments != nil {
@@ -467,7 +468,7 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 			r.Source = route.Src
 			// TODO
 			//r.Links = route.Links
-			r.Number = route.Number
+			r.Number = int(math.Floor(route.Number))
 			r.Type = route.Type
 			// TODO
 			//r.RoutePoints = route.RoutePoints
@@ -491,7 +492,7 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 			gpxTrack.Comment = track.Cmt
 			gpxTrack.Description = track.Desc
 			gpxTrack.Source = track.Src
-			gpxTrack.Number = track.Number
+			gpxTrack.Number = int(math.Floor(track.Number))
 			gpxTrack.Type = track.Type
 
 			if track.Segments != nil {

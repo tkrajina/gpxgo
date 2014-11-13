@@ -252,7 +252,7 @@ type gpx11GpxRte struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links       []Link   `xml:"link"`
-	Number int              `xml:"number,omitempty"`
+	Number float64          `xml:"number,omitempty"`
 	Type   string           `xml:"type,omitempty"`
 	Points []*gpx11GpxPoint `xml:"rtept"`
 }
@@ -271,7 +271,7 @@ type gpx11GpxTrk struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links    []Link   `xml:"link"`
-	Number   int               `xml:"number,omitempty"`
+	Number   float64           `xml:"number,omitempty"`
 	Type     string            `xml:"type,omitempty"`
 	Segments []*gpx11GpxTrkSeg `xml:"trkseg,omitempty"`
 }
