@@ -1,4 +1,4 @@
-# go-gpx - GPX file parser for Go #
+# go-gpx - GPX file parser for Go
 
 This is a simple
 [GPX](https://en.wikipedia.org/wiki/GPS_eXchange_Format) file parser for
