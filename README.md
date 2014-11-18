@@ -1,5 +1,5 @@
 # Go GPX library
 
-A work in progress, this library (and this repository) is temporary and the API WILL CHANGE!
+A work in progress.
 
 Based on https://github.com/ptrv/go-gpx and https://github.com/tkrajina/gpxpy
