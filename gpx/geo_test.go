@@ -1,6 +1,7 @@
-// Copyright 2013 Peter Vasil. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+// Copyright 2013, 2014 Peter Vasil, Tomo Krajina. All
+// rights reserved. Use of this source code is governed
+// by a BSD-style license that can be found in the
+// LICENSE file.
 
 package gpx
 
