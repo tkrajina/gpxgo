@@ -149,10 +149,11 @@ gpx (gpxType)
 */
 
 type gpx11Gpx struct {
-	XMLName xml.Name `xml:"http://www.topografix.com/GPX/1/1 gpx"`
-	//XMLNs        string    `xml:"xmlns,attr"`
-	//XmlNsXsi     string    `xml:"xmlns:xsi,attr,omitempty"`
-	//XmlSchemaLoc string    `xml:"xsi:schemaLocation,attr,omitempty"`
+	XMLName      xml.Name `xml:"gpx"`
+	XMLNs        string   `xml:"xmlns,attr,omitempty"`
+	XmlNsXsi     string   `xml:"xmlns:xsi,attr,omitempty"`
+	XmlSchemaLoc string   `xml:"xsi:schemaLocation,attr,omitempty"`
+
 	Version     string         `xml:"version,attr"`
 	Creator     string         `xml:"creator,attr"`
 	Name        string         `xml:"metadata>name,omitempty"`

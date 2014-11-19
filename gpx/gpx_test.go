@@ -1273,3 +1273,46 @@ func TestFindStoppedPositions(t *testing.T) {
 		t.Error("Wrong latitude (should be 10.016):", stoppedPositions[0].Latitude)
 	}
 }
+
+func TestGpxWithoutGpxAttributes(t *testing.T) {
+	gpxDoc, err := ParseFile("../test_files/gpx-without-root-attributes.gpx")
+	if err != nil {
+		t.Error("Ops:", err.Error())
+		return
+	}
+	if gpxDoc.XMLNs != "" {
+		t.Error("Found gpxDoc.XMLNs:", gpxDoc.XMLNs)
+	}
+	if gpxDoc.XmlNsXsi != "" {
+		t.Error("Found gpxDoc.XmlNsXsi:", gpxDoc.XmlNsXsi)
+	}
+	if gpxDoc.XmlSchemaLoc != "" {
+		t.Error("Found gpxDoc.XmlSchemaLoc:", gpxDoc.XmlSchemaLoc)
+	}
+
+	if _, err := gpxDoc.ToXml(ToXmlParams{}); err != nil {
+		t.Error("Error marshalling:", err.Error())
+	}
+}
+
+func TestGpxWithoutXmlDeclaration(t *testing.T) {
+	gpxDoc, err := ParseFile("../test_files/gpx-without-xml-declaration.gpx")
+
+	if err != nil {
+		t.Error("Ops:", err.Error())
+		return
+	}
+	if gpxDoc.XMLNs != "" {
+		t.Error("Found gpxDoc.XMLNs:", gpxDoc.XMLNs)
+	}
+	if gpxDoc.XmlNsXsi != "" {
+		t.Error("Found gpxDoc.XmlNsXsi:", gpxDoc.XmlNsXsi)
+	}
+	if gpxDoc.XmlSchemaLoc != "" {
+		t.Error("Found gpxDoc.XmlSchemaLoc:", gpxDoc.XmlSchemaLoc)
+	}
+
+	if _, err := gpxDoc.ToXml(ToXmlParams{}); err != nil {
+		t.Error("Error marshalling:", err.Error())
+	}
+}

@@ -58,6 +58,10 @@ func GetGpxElementInfo(prefix string, gpxDoc GPXElementInfo) string {
 // ----------------------------------------------------------------------------------------------------
 
 type GPX struct {
+	XMLNs        string
+	XmlNsXsi     string
+	XmlSchemaLoc string
+
 	Version          string
 	Creator          string
 	Name             string
