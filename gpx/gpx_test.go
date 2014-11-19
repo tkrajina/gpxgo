@@ -1316,3 +1316,29 @@ func TestGpxWithoutXmlDeclaration(t *testing.T) {
 		t.Error("Error marshalling:", err.Error())
 	}
 }
+
+func TestInvalidGpx(t *testing.T) {
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+ERRgpx>
+<time>2010-12-14T06:17:04Z</time>
+<bounds minlat="46.430350000" minlon="13.738842000" maxlat="46.435641000" maxlon="13.748333000"/>
+<trk>
+<trkseg>
+<trkpt lat="46.434981000" lon="13.748273000">
+  <ele>1614.678000</ele>
+  <time>1901-12-13T20:45:52.2073437Z</time>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>`
+	gpxDoc, err := ParseString(xml)
+	if err == nil {
+		t.Error("No error found for invalid GPX")
+	}
+	if !strings.Contains(err.Error(), "expected element type ") {
+		t.Error("Wrong error message:", err.Error())
+	}
+	if gpxDoc != nil {
+		t.Error("gpxDoc should be empty, found:", gpxDoc)
+	}
+}
