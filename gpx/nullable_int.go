@@ -7,6 +7,7 @@ package gpx
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -72,4 +73,26 @@ func (n *NullableInt) UnmarshalXMLAttr(attr xml.Attr) error {
 	}
 	n.SetValue(int(value))
 	return nil
+}
+
+func (n NullableInt) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if n.Null() {
+		return nil
+	}
+	xmlName := xml.Name{Local: start.Name.Local}
+	e.EncodeToken(xml.StartElement{Name: xmlName})
+	e.EncodeToken(xml.CharData([]byte(fmt.Sprintf("%d", n.Value()))))
+	e.EncodeToken(xml.EndElement{Name: xmlName})
+	return nil
+}
+
+func (n NullableInt) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+	var result xml.Attr
+	if n.Null() {
+		return result, nil
+	}
+	return xml.Attr{
+			Name:  xml.Name{Local: name.Local},
+			Value: fmt.Sprintf("%d", n.Value())},
+		nil
 }

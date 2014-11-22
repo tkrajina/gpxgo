@@ -7,6 +7,7 @@ package gpx
 
 import (
 	"encoding/xml"
+	"fmt"
 	"testing"
 )
 
@@ -61,6 +62,11 @@ func testFloat(xmlStr string, expectedFloat float64, expectedFloatAttribute floa
 	if testXmlDoc.FloatAttr.Null() || testXmlDoc.FloatAttr.Value() != expectedFloatAttribute {
 		t.Error("Float attribute is valid in ", xmlStr)
 	}
+	bytes, err := xml.Marshal(testXmlDoc)
+	if err != nil {
+		t.Error("Error marshalling:", err.Error())
+	}
+	fmt.Println(string(bytes))
 }
 
 func TestValidInt(t *testing.T) {
