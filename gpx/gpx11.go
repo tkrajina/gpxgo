@@ -228,10 +228,10 @@ type gpx11GpxPoint struct {
 	Lat float64 `xml:"lat,attr"`
 	Lon float64 `xml:"lon,attr"`
 	// Position info
-	Ele         string `xml:"ele,omitempty"`
-	Timestamp   string `xml:"time,omitempty"`
-	MagVar      string `xml:"magvar,omitempty"`
-	GeoIdHeight string `xml:"geoidheight,omitempty"`
+	Ele         *float64 `xml:"ele,omitempty"`
+	Timestamp   string   `xml:"time,omitempty"`
+	MagVar      string   `xml:"magvar,omitempty"`
+	GeoIdHeight string   `xml:"geoidheight,omitempty"`
 	// Description info
 	Name  string         `xml:"name,omitempty"`
 	Cmt   string         `xml:"cmt,omitempty"`

@@ -6,9 +6,7 @@
 package gpx
 
 import (
-	"fmt"
 	"math"
-	"strconv"
 	"strings"
 )
 
@@ -217,7 +215,7 @@ func convertPointToGpx10(original *GPXPoint) *gpx10GpxPoint {
 	result.Lon = original.Longitude
 	if original.Elevation.NotNull() {
 		value := original.Elevation.Value()
-		result.Ele = fmt.Sprintf("%g", value)
+		result.Ele = &value
 	}
 	result.Timestamp = formatGPXTime(&original.Timestamp)
 	result.MagVar = original.MagneticVariation
@@ -262,9 +260,8 @@ func convertPointFromGpx10(original *gpx10GpxPoint) *GPXPoint {
 	result := new(GPXPoint)
 	result.Latitude = original.Lat
 	result.Longitude = original.Lon
-	if len(original.Ele) > 0 {
-		ele, _ := strconv.ParseFloat(strings.Trim(original.Ele, " "), 64)
-		result.Elevation = *NewNullableFloat64(ele)
+	if original.Ele != nil {
+		result.Elevation = *NewNullableFloat64(*original.Ele)
 	}
 	time, _ := parseGPXTime(original.Timestamp)
 	if time != nil {
@@ -545,7 +542,7 @@ func convertPointToGpx11(original *GPXPoint) *gpx11GpxPoint {
 	result.Lon = original.Longitude
 	if original.Elevation.NotNull() {
 		value := original.Elevation.Value()
-		result.Ele = fmt.Sprintf("%g", value)
+		result.Ele = &value
 	}
 	result.Timestamp = formatGPXTime(&original.Timestamp)
 	result.MagVar = original.MagneticVariation
@@ -590,9 +587,8 @@ func convertPointFromGpx11(original *gpx11GpxPoint) *GPXPoint {
 	result := new(GPXPoint)
 	result.Latitude = original.Lat
 	result.Longitude = original.Lon
-	if len(original.Ele) > 0 {
-		ele, _ := strconv.ParseFloat(strings.Trim(original.Ele, " "), 64)
-		result.Elevation = *NewNullableFloat64(ele)
+	if original.Ele != nil {
+		result.Elevation = *NewNullableFloat64(*original.Ele)
 	}
 	time, _ := parseGPXTime(original.Timestamp)
 	if time != nil {
