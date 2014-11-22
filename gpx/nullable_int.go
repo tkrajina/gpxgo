@@ -5,6 +5,12 @@
 
 package gpx
 
+import (
+	"encoding/xml"
+	"strconv"
+	"strings"
+)
+
 type NullableInt struct {
 	data int
 	null bool
@@ -37,4 +43,33 @@ func NewNullableInt(data int) *NullableInt {
 	result.data = data
 	result.null = false
 	return result
+}
+
+func (n *NullableInt) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	t, err := d.Token()
+	if err != nil {
+		n.SetNull()
+		return nil
+	}
+	if charData, ok := t.(xml.CharData); ok {
+		strData := strings.Trim(string(charData), " ")
+		value, err := strconv.ParseFloat(strData, 64)
+		if err != nil {
+			n.SetNull()
+			return nil
+		}
+		n.SetValue(int(value))
+	}
+	return nil
+}
+
+func (n *NullableInt) UnmarshalXMLAttr(attr xml.Attr) error {
+	strData := strings.Trim(string(attr.Value), " ")
+	value, err := strconv.ParseFloat(strData, 64)
+	if err != nil {
+		n.SetNull()
+		return nil
+	}
+	n.SetValue(int(value))
+	return nil
 }
