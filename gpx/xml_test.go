@@ -7,7 +7,6 @@ package gpx
 
 import (
 	"encoding/xml"
-	"fmt"
 	"testing"
 )
 
@@ -40,20 +39,20 @@ func TestInvalidFloat(t *testing.T) {
 
 func TestValidFloat(t *testing.T) {
 	xmlStr := `<gpx floatattr="13"><float>12</float><aaa /></gpx>`
-	testFloat(xmlStr, 12, 13, t)
+	testFloat(xmlStr, 12, 13, `<gpx floatattr="13"><float>12</float></gpx>`, t)
 }
 
 func TestValidFloat2(t *testing.T) {
 	xmlStr := `<gpx floatattr=" 13.4"><float> 12.3</float></gpx>`
-	testFloat(xmlStr, 12.3, 13.4, t)
+	testFloat(xmlStr, 12.3, 13.4, `<gpx floatattr="13.4"><float>12.3</float></gpx>`, t)
 }
 
 func TestValidFloat3(t *testing.T) {
 	xmlStr := `<gpx floatattr="13.5   " ><float>12.3    </float></gpx>`
-	testFloat(xmlStr, 12.3, 13.5, t)
+	testFloat(xmlStr, 12.3, 13.5, `<gpx floatattr="13.5"><float>12.3</float></gpx>`, t)
 }
 
-func testFloat(xmlStr string, expectedFloat float64, expectedFloatAttribute float64, t *testing.T) {
+func testFloat(xmlStr string, expectedFloat float64, expectedFloatAttribute float64, expectedXml string, t *testing.T) {
 	testXmlDoc := testXml{}
 	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
 	if testXmlDoc.Float.Null() || testXmlDoc.Float.Value() != expectedFloat {
@@ -66,25 +65,28 @@ func testFloat(xmlStr string, expectedFloat float64, expectedFloatAttribute floa
 	if err != nil {
 		t.Error("Error marshalling:", err.Error())
 	}
-	fmt.Println(string(bytes))
+
+	if string(bytes) != expectedXml {
+		t.Error("Invalid marshalled xml:", string(bytes), "expected:", expectedXml)
+	}
 }
 
 func TestValidInt(t *testing.T) {
 	xmlStr := `<gpx intattr="15"><int>12</int></gpx>`
-	testInt(xmlStr, 12, 15, t)
+	testInt(xmlStr, 12, 15, `<gpx intattr="15"><int>12</int></gpx>`, t)
 }
 
 func TestValidInt2(t *testing.T) {
 	xmlStr := `<gpx intattr="  17.2"><int> 12.3</int></gpx>`
-	testInt(xmlStr, 12, 17, t)
+	testInt(xmlStr, 12, 17, `<gpx intattr="17"><int>12</int></gpx>`, t)
 }
 
 func TestValidInt3(t *testing.T) {
 	xmlStr := `<gpx intattr="18   "><int>12.3    </int></gpx>`
-	testInt(xmlStr, 12, 18, t)
+	testInt(xmlStr, 12, 18, `<gpx intattr="18"><int>12</int></gpx>`, t)
 }
 
-func testInt(xmlStr string, expectedInt int, expectedIntAttribute int, t *testing.T) {
+func testInt(xmlStr string, expectedInt int, expectedIntAttribute int, expectedXml string, t *testing.T) {
 	testXmlDoc := testXml{}
 	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
 	if testXmlDoc.Int.Null() || testXmlDoc.Int.Value() != expectedInt {
@@ -92,5 +94,13 @@ func testInt(xmlStr string, expectedInt int, expectedIntAttribute int, t *testin
 	}
 	if testXmlDoc.IntAttr.Null() || testXmlDoc.IntAttr.Value() != expectedIntAttribute {
 		t.Error("Int attribute valid ", xmlStr)
+	}
+	bytes, err := xml.Marshal(testXmlDoc)
+	if err != nil {
+		t.Error("Error marshalling:", err.Error())
+	}
+
+	if string(bytes) != expectedXml {
+		t.Error("Invalid marshalled xml:", string(bytes), "expected:", expectedXml)
 	}
 }
