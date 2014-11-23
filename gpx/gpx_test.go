@@ -251,7 +251,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Routes[0].Comment, "example cmt")
 	assertEquals(t, gpxDoc.Routes[0].Description, "example desc")
 	assertEquals(t, gpxDoc.Routes[0].Source, "example src")
-	assertEquals(t, gpxDoc.Routes[0].Number, 7)
+	assertEquals(t, gpxDoc.Routes[0].Number.Value(), 7)
 	assertEquals(t, gpxDoc.Routes[0].Type, "rte type")
 	assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
 	// TODO: Link
@@ -290,7 +290,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Tracks[0].Comment, "example cmt t")
 	assertEquals(t, gpxDoc.Tracks[0].Description, "example desc t")
 	assertEquals(t, gpxDoc.Tracks[0].Source, "example src t")
-	assertEquals(t, gpxDoc.Tracks[0].Number, 1)
+	assertEquals(t, gpxDoc.Tracks[0].Number.Value(), 1)
 	assertEquals(t, gpxDoc.Tracks[0].Type, "t")
 	// TODO link
 
@@ -412,7 +412,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Routes[0].Comment, "example cmt")
 	assertEquals(t, gpxDoc.Routes[0].Description, "example desc")
 	assertEquals(t, gpxDoc.Routes[0].Source, "example src")
-	assertEquals(t, gpxDoc.Routes[0].Number, 7)
+	assertEquals(t, gpxDoc.Routes[0].Number.Value(), 7)
 	assertEquals(t, gpxDoc.Routes[0].Type, "")
 	assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
 	// TODO: Link
@@ -451,7 +451,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Tracks[0].Comment, "example cmt t")
 	assertEquals(t, gpxDoc.Tracks[0].Description, "example desc t")
 	assertEquals(t, gpxDoc.Tracks[0].Source, "example src t")
-	assertEquals(t, gpxDoc.Tracks[0].Number, 1)
+	assertEquals(t, gpxDoc.Tracks[0].Number.Value(), 1)
 	assertEquals(t, gpxDoc.Tracks[0].Type, "")
 	// TODO link
 

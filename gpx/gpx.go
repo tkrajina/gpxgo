@@ -739,7 +739,7 @@ type GPXRoute struct {
 	Source      string
 	// TODO
 	//Links       []Link
-	Number int
+	Number NullableInt
 	Type   string
 	// TODO
 	Points []GPXPoint
@@ -1260,7 +1260,7 @@ type GPXTrack struct {
 	Source      string
 	// TODO
 	//Links    []Link
-	Number   int
+	Number   NullableInt
 	Type     string
 	Segments []GPXTrackSegment
 }
