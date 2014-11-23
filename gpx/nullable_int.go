@@ -62,6 +62,7 @@ func (n *NullableInt) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error
 		}
 		n.SetValue(int(value))
 	}
+	d.Skip()
 	return nil
 }
 

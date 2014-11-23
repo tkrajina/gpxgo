@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 )
+
 type NullableFloat64 struct {
 	data    float64
 	notNull bool
@@ -61,6 +62,7 @@ func (n *NullableFloat64) UnmarshalXML(d *xml.Decoder, start xml.StartElement) e
 		}
 		n.SetValue(value)
 	}
+	d.Skip()
 	return nil
 }
 
