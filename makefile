@@ -4,7 +4,7 @@ gofmt:
 	gofmt -w ./gpx
 goimports:
 	goimports -w ./gpx
-build:
+build-generics:
 	 gengen generic/nullable.go string \
             | gofmt -r 'NullableGeneric -> NullableString' \
             | gofmt -r 'NewNullableGeneric -> NewNullableString' \
