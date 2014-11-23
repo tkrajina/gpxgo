@@ -39,7 +39,7 @@ func TestInvalidFloat(t *testing.T) {
 }
 
 func TestValidFloat(t *testing.T) {
-	xmlStr := `<gpx floatattr="13"><float>12</float><aaa  /></gpx>`
+	xmlStr := `<gpx floatattr="13"><float>12</float><aaa /></gpx>`
 	testFloat(xmlStr, 12, 13, t)
 }
 
@@ -57,10 +57,10 @@ func testFloat(xmlStr string, expectedFloat float64, expectedFloatAttribute floa
 	testXmlDoc := testXml{}
 	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
 	if testXmlDoc.Float.Null() || testXmlDoc.Float.Value() != expectedFloat {
-		t.Error("Float is valid in ", xmlStr)
+		t.Error("Float invalid ", xmlStr)
 	}
 	if testXmlDoc.FloatAttr.Null() || testXmlDoc.FloatAttr.Value() != expectedFloatAttribute {
-		t.Error("Float attribute is valid in ", xmlStr)
+		t.Error("Float attribute invalid ", xmlStr)
 	}
 	bytes, err := xml.Marshal(testXmlDoc)
 	if err != nil {
@@ -88,9 +88,9 @@ func testInt(xmlStr string, expectedInt int, expectedIntAttribute int, t *testin
 	testXmlDoc := testXml{}
 	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
 	if testXmlDoc.Int.Null() || testXmlDoc.Int.Value() != expectedInt {
-		t.Error("Int is valid in ", xmlStr)
+		t.Error("Int invalid ", xmlStr)
 	}
 	if testXmlDoc.IntAttr.Null() || testXmlDoc.IntAttr.Value() != expectedIntAttribute {
-		t.Error("Int attribute is valid in ", xmlStr)
+		t.Error("Int attribute valid ", xmlStr)
 	}
 }

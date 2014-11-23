@@ -11,18 +11,17 @@ import (
 	"strconv"
 	"strings"
 )
-
 type NullableFloat64 struct {
-	data float64
-	null bool
+	data    float64
+	notNull bool
 }
 
 func (n *NullableFloat64) Null() bool {
-	return n.null
+	return !n.notNull
 }
 
 func (n *NullableFloat64) NotNull() bool {
-	return !n.null
+	return n.notNull
 }
 
 func (n *NullableFloat64) Value() float64 {
@@ -31,18 +30,19 @@ func (n *NullableFloat64) Value() float64 {
 
 func (n *NullableFloat64) SetValue(data float64) {
 	n.data = data
+	n.notNull = true
 }
 
 func (n *NullableFloat64) SetNull() {
 	var defaultValue float64
 	n.data = defaultValue
-	n.null = true
+	n.notNull = false
 }
 
 func NewNullableFloat64(data float64) *NullableFloat64 {
 	result := new(NullableFloat64)
 	result.data = data
-	result.null = false
+	result.notNull = true
 	return result
 }
 

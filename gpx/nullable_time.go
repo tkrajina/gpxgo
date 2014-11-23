@@ -8,16 +8,16 @@ package gpx
 import "time"
 
 type NullableTime struct {
-	data time.Time
-	null bool
+	data    time.Time
+	notNull bool
 }
 
 func (n *NullableTime) Null() bool {
-	return n.null
+	return !n.notNull
 }
 
 func (n *NullableTime) NotNull() bool {
-	return !n.null
+	return n.notNull
 }
 
 func (n *NullableTime) Value() time.Time {
@@ -26,17 +26,18 @@ func (n *NullableTime) Value() time.Time {
 
 func (n *NullableTime) SetValue(data time.Time) {
 	n.data = data
+	n.notNull = true
 }
 
 func (n *NullableTime) SetNull() {
 	var defaultValue time.Time
 	n.data = defaultValue
-	n.null = true
+	n.notNull = false
 }
 
 func NewNullableTime(data time.Time) *NullableTime {
 	result := new(NullableTime)
 	result.data = data
-	result.null = false
+	result.notNull = true
 	return result
 }

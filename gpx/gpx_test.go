@@ -791,11 +791,13 @@ func TestAddElevation(t *testing.T) {
 
 	gpx.AddElevation(10)
 	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation.Value(), 110.0)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), 10.0) // TODO: this should be nil!
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), 0.0)
+	assertTrue(t, "should be nil", gpx.Tracks[0].Segments[0].Points[1].Elevation.Null())
 
 	gpx.AddElevation(-20)
 	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation.Value(), 90.0)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), -10.0) // TODO: this should be nil!
+	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), 0.0)
+	assertTrue(t, "Should be nil", gpx.Tracks[0].Segments[0].Points[1].Elevation.Null())
 }
 
 func TestRemoveElevation(t *testing.T) {

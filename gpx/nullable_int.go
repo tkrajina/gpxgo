@@ -13,16 +13,16 @@ import (
 )
 
 type NullableInt struct {
-	data int
-	null bool
+	data    int
+	notNull bool
 }
 
 func (n *NullableInt) Null() bool {
-	return n.null
+	return !n.notNull
 }
 
 func (n *NullableInt) NotNull() bool {
-	return !n.null
+	return n.notNull
 }
 
 func (n *NullableInt) Value() int {
@@ -31,18 +31,19 @@ func (n *NullableInt) Value() int {
 
 func (n *NullableInt) SetValue(data int) {
 	n.data = data
+	n.notNull = true
 }
 
 func (n *NullableInt) SetNull() {
 	var defaultValue int
 	n.data = defaultValue
-	n.null = true
+	n.notNull = false
 }
 
 func NewNullableInt(data int) *NullableInt {
 	result := new(NullableInt)
 	result.data = data
-	result.null = false
+	result.notNull = true
 	return result
 }
 

@@ -447,7 +447,9 @@ func (g *GPX) ExecuteOnTrackPoints(executor func(*GPXPoint)) {
 
 func (g *GPX) AddElevation(elevation float64) {
 	g.ExecuteOnAllPoints(func(point *GPXPoint) {
+		fmt.Println("setting elevation if NotNull for:", point.Elevation)
 		if point.Elevation.NotNull() {
+			fmt.Println("setting elevation")
 			point.Elevation.SetValue(point.Elevation.Value() + elevation)
 		}
 	})

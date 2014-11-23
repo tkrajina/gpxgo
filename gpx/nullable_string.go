@@ -6,16 +6,16 @@
 package gpx
 
 type NullableString struct {
-	data string
-	null bool
+	data    string
+	notNull bool
 }
 
 func (n *NullableString) Null() bool {
-	return n.null
+	return !n.notNull
 }
 
 func (n *NullableString) NotNull() bool {
-	return !n.null
+	return n.notNull
 }
 
 func (n *NullableString) Value() string {
@@ -24,17 +24,18 @@ func (n *NullableString) Value() string {
 
 func (n *NullableString) SetValue(data string) {
 	n.data = data
+	n.notNull = true
 }
 
 func (n *NullableString) SetNull() {
 	var defaultValue string
 	n.data = defaultValue
-	n.null = true
+	n.notNull = false
 }
 
 func NewNullableString(data string) *NullableString {
 	result := new(NullableString)
 	result.data = data
-	result.null = false
+	result.notNull = true
 	return result
 }

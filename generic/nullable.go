@@ -10,16 +10,16 @@ import (
 )
 
 type NullableGeneric struct {
-	data generic.T
-	null bool
+	data    generic.T
+	notNull bool
 }
 
 func (n *NullableGeneric) Null() bool {
-	return n.null
+	return !n.notNull
 }
 
 func (n *NullableGeneric) NotNull() bool {
-	return !n.null
+	return n.notNull
 }
 
 func (n *NullableGeneric) Value() generic.T {
@@ -28,17 +28,18 @@ func (n *NullableGeneric) Value() generic.T {
 
 func (n *NullableGeneric) SetValue(data generic.T) {
 	n.data = data
+	n.notNull = true
 }
 
 func (n *NullableGeneric) SetNull() {
 	var defaultValue generic.T
 	n.data = defaultValue
-	n.null = true
+	n.notNull = false
 }
 
 func NewNullableGeneric(data generic.T) *NullableGeneric {
 	result := new(NullableGeneric)
 	result.data = data
-	result.null = false
+	result.notNull = true
 	return result
 }
