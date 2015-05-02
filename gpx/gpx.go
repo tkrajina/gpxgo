@@ -1102,6 +1102,9 @@ func (seg *GPXTrackSegment) MovingData() MovingData {
 	var maxSpeed float64
 	if len(speedsDistances) > 0 {
 		maxSpeed = CalcMaxSpeed(speedsDistances)
+		if math.IsNaN(maxSpeed) {
+			maxSpeed = 0
+		}
 	}
 
 	return MovingData{
