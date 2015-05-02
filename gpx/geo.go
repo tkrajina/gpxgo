@@ -116,9 +116,16 @@ func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 
 	speedsSorted := sort.Float64Slice(speeds)
 
+	if len(speedsSorted) == 0 {
+		return 0
+	}
+
 	maxIdx := int(float64(len(speedsSorted)) * 0.95)
 	if maxIdx >= len(speedsSorted) {
 		maxIdx = len(speedsSorted) - 1
+	}
+	if maxIdx < 0 {
+		maxIdx = 0
 	}
 	return speedsSorted[maxIdx]
 }
