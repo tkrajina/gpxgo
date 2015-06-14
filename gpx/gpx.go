@@ -612,6 +612,18 @@ type Point struct {
 	Elevation NullableFloat64
 }
 
+func (pt *Point) GetLatitude() float64 {
+	return pt.Latitude
+}
+
+func (pt *Point) GetLongitude() float64 {
+	return pt.Longitude
+}
+
+func (pt *Point) GetElevation() NullableFloat64 {
+	return pt.Elevation
+}
+
 // Distance2D returns the 2D distance of two GpxWpts.
 func (pt *Point) Distance2D(pt2 Point) float64 {
 	return Distance2D(pt.Latitude, pt.Longitude, pt2.Latitude, pt2.Longitude, false)

@@ -17,6 +17,12 @@ func ToRad(x float64) float64 {
 	return x / 180. * math.Pi
 }
 
+type Location interface {
+	GetLatitude() float64
+	GetLongitude() float64
+	GetElevation() NullableFloat64
+}
+
 type MovingData struct {
 	MovingTime      float64
 	StoppedTime     float64
@@ -190,6 +196,18 @@ func distance(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, ele2
 	}
 
 	return math.Sqrt(math.Pow(distance2d, 2) + math.Pow(eleDiff, 2))
+}
+
+func distanceBetweenLocations(loc1, loc2 Location, threeD, haversine bool) float64 {
+	lat1 := loc1.GetLatitude()
+	lon1 := loc1.GetLongitude()
+	ele1 := loc1.GetElevation()
+
+	lat2 := loc2.GetLatitude()
+	lon2 := loc2.GetLongitude()
+	ele2 := loc2.GetElevation()
+
+	return distance(lat1, lon1, ele1, lat2, lon2, ele2, threeD, haversine)
 }
 
 func Distance2D(lat1, lon1, lat2, lon2 float64, haversine bool) float64 {
