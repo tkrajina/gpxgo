@@ -97,6 +97,7 @@ func (g *GPX) GetGpxInfo() string {
 	result := ""
 	result += fmt.Sprint("GPX name: ", g.Name, "\n")
 	result += fmt.Sprint("GPX desctiption: ", g.Description, "\n")
+	result += fmt.Sprint("GPX version: ", g.Version, "\n")
 	result += fmt.Sprint("Author: ", g.AuthorName, "\n")
 	result += fmt.Sprint("Email: ", g.AuthorEmail, "\n\n")
 
