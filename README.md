@@ -75,10 +75,10 @@ Gpxgo can read/write both GPX 1.0 and GPX 1.1 files. The only not-yet-supported 
 
 ## History
 
-Gpxgo is based on 
+Gpxgo is based on:
 
  * https://github.com/tkrajina/gpxpy (python gpx library)
- * https://github.com/ptrv/go-gpx (an earlier port of gpxgo)
+ * https://github.com/ptrv/go-gpx (an earlier port of gpxpy)
 
 # License
 
