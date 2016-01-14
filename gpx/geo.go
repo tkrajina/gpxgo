@@ -68,9 +68,9 @@ func length(locs []Point, threeD bool) float64 {
 			previousLoc = locs[k-1]
 			var d float64
 			if threeD {
-				d = v.Distance3D(previousLoc)
+				d = v.Distance3D(&previousLoc)
 			} else {
-				d = v.Distance2D(previousLoc)
+				d = v.Distance2D(&previousLoc)
 			}
 			res += d
 		}
@@ -224,7 +224,7 @@ func ElevationAngle(loc1, loc2 Point, radians bool) float64 {
 	}
 
 	b := loc2.Elevation.Value() - loc1.Elevation.Value()
-	a := loc2.Distance2D(loc1)
+	a := loc2.Distance2D(&loc1)
 
 	if a == 0.0 {
 		return 0.0
@@ -241,14 +241,14 @@ func ElevationAngle(loc1, loc2 Point, radians bool) float64 {
 
 // Distance of point from a line given with two points.
 func distanceFromLine(point Point, linePoint1, linePoint2 GPXPoint) float64 {
-	a := linePoint1.Distance2D(linePoint2.Point)
+	a := linePoint1.Distance2D(&linePoint2)
 
 	if a == 0 {
-		return linePoint1.Distance2D(point)
+		return linePoint1.Distance2D(&point)
 	}
 
-	b := linePoint1.Distance2D(point)
-	c := linePoint2.Distance2D(point)
+	b := linePoint1.Distance2D(&point)
+	c := linePoint2.Distance2D(&point)
 
 	s := (a + b + c) / 2.
 

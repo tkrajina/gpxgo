@@ -98,7 +98,7 @@ func getMinDistanceBetweenTrackPoints(g GPX) float64 {
 				for pointNo, point := range segment.Points {
 					if pointNo > 0 {
 						previousPoint := segment.Points[pointNo-1]
-						distance := point.Distance3D(previousPoint.Point)
+						distance := point.Distance3D(&previousPoint)
 						//fmt.Printf("distance=%f\n", distance)
 						if result < 0.0 || distance < result {
 							result = distance
@@ -953,7 +953,7 @@ func TestSimplifyForSingleSegmentAndVeryByMaxDistance(t *testing.T) {
 
 	start := g.Tracks[0].Segments[0].Points[0]
 	end := g.Tracks[0].Segments[0].Points[len(g.Tracks[0].Segments[0].Points)-1]
-	distanceBetweenFirstAndLast := start.Distance2D(end.Point)
+	distanceBetweenFirstAndLast := start.Distance2D(&end)
 	assertTrue(t, fmt.Sprintf("maxDistance very big => only first and last points should be left %f!=%f", g.Length2D(), distanceBetweenFirstAndLast), cca(g.Length2D(), distanceBetweenFirstAndLast))
 }
 
@@ -1060,7 +1060,7 @@ func TestPositionsAt(t *testing.T) {
 	g, _ := ParseFile("../test_files/visnjan.gpx")
 	{
 		wpt := g.Waypoints[0]
-		positions := g.GetLocationPositionsOnTrack(1000, wpt.Point)
+		positions := g.GetLocationPositionsOnTrack(1000, &wpt.Point)
 		if len(positions) != 2 {
 			t.Error("wpt1 should be in 2 positions, found:", positions)
 		}
@@ -1073,7 +1073,7 @@ func TestPositionsAt(t *testing.T) {
 	}
 	{
 		wpt := g.Waypoints[1]
-		positions := g.GetLocationPositionsOnTrack(1000, wpt.Point)
+		positions := g.GetLocationPositionsOnTrack(1000, &wpt.Point)
 		if len(positions) != 1 {
 			t.Error("wpt1 should be in 1 position:", positions)
 		}

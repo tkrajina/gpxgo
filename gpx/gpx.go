@@ -333,7 +333,7 @@ func (g *GPX) getDistancesFromStart(distanceBetweenPoints float64) [][][]float64
 			result[trackNo][segmentNo] = make([]float64, len(segment.Points))
 			for pointNo, point := range segment.Points {
 				if pointNo > 0 {
-					fromStart += point.Distance2D(segment.Points[pointNo-1].Point)
+					fromStart += point.Distance2D(&segment.Points[pointNo-1])
 				}
 				if pointNo == 0 || pointNo == len(segment.Points)-1 || fromStart-lastSampledPoint > distanceBetweenPoints {
 					result[trackNo][segmentNo][pointNo] = fromStart
@@ -354,7 +354,7 @@ func (g *GPX) getDistancesFromStart(distanceBetweenPoints float64) [][][]float64
 // example if samples is 100 then (cca) every 100th point will be searched.
 // This is for tracks with thousands of waypoints -- computing distances for
 // each and every point is slow.
-func (g *GPX) GetLocationsPositionsOnTrack(samples int, locations ...Point) [][]float64 {
+func (g *GPX) GetLocationsPositionsOnTrack(samples int, locations ...Location) [][]float64 {
 	length2d := g.Length2D()
 	distancesFromStart := g.getDistancesFromStart(length2d / float64(samples))
 	result := make([][]float64, len(locations))
@@ -366,13 +366,13 @@ func (g *GPX) GetLocationsPositionsOnTrack(samples int, locations ...Point) [][]
 
 // Use always GetLocationsPositionsOnTrack(...) for multiple points, it is
 // faster.
-func (g *GPX) GetLocationPositionsOnTrack(samples int, location Point) []float64 {
+func (g *GPX) GetLocationPositionsOnTrack(samples int, location Location) []float64 {
 	return g.GetLocationsPositionsOnTrack(samples, location)[0]
 }
 
 // distancesFromStart must have the same tracks, segments and pointsNo as this track.
 // if any distance in distancesFromStart is less than zero that point is ignored.
-func (g *GPX) getPositionsOnTrackWithPrecomputedDistances(location Point, distancesFromStart [][][]float64, length2d float64) []float64 {
+func (g *GPX) getPositionsOnTrackWithPrecomputedDistances(location Location, distancesFromStart [][][]float64, length2d float64) []float64 {
 	if len(g.Tracks) == 0 {
 		return []float64{}
 	}
@@ -625,13 +625,13 @@ func (pt *Point) GetElevation() NullableFloat64 {
 }
 
 // Distance2D returns the 2D distance of two GpxWpts.
-func (pt *Point) Distance2D(pt2 Point) float64 {
-	return Distance2D(pt.Latitude, pt.Longitude, pt2.Latitude, pt2.Longitude, false)
+func (pt *Point) Distance2D(pt2 Location) float64 {
+	return Distance2D(pt.GetLatitude(), pt.GetLongitude(), pt2.GetLatitude(), pt2.GetLongitude(), false)
 }
 
 // Distance3D returns the 3D distance of two GpxWpts.
-func (pt *Point) Distance3D(pt2 Point) float64 {
-	return Distance3D(pt.Latitude, pt.Longitude, pt.Elevation, pt2.Latitude, pt2.Longitude, pt2.Elevation, false)
+func (pt *Point) Distance3D(pt2 Location) float64 {
+	return Distance3D(pt.GetLatitude(), pt.GetLongitude(), pt.GetElevation(), pt2.GetLatitude(), pt2.GetLongitude(), pt2.GetElevation(), false)
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -710,9 +710,9 @@ func (pt *GPXPoint) SpeedBetween(pt2 *GPXPoint, threeD bool) float64 {
 	seconds := pt.TimeDiff(pt2)
 	var distLen float64
 	if threeD {
-		distLen = pt.Distance3D(pt2.Point)
+		distLen = pt.Distance3D(pt2)
 	} else {
-		distLen = pt.Distance2D(pt2.Point)
+		distLen = pt.Distance2D(pt2)
 	}
 
 	return distLen / seconds
@@ -995,7 +995,7 @@ func (seg *GPXTrackSegment) ReduceTrackPoints(minDistance float64) {
 
 	for _, point := range seg.Points {
 		previousPoint := newPoints[len(newPoints)-1]
-		if point.Distance3D(previousPoint.Point) >= minDistance {
+		if point.Distance3D(&previousPoint) >= minDistance {
 			newPoints = append(newPoints, point)
 		}
 	}
@@ -1089,7 +1089,7 @@ func (seg *GPXTrackSegment) MovingData() MovingData {
 		prev := seg.Points[i-1]
 		pt := seg.Points[i]
 
-		dist := pt.Distance3D(prev.Point)
+		dist := pt.Distance3D(&prev)
 
 		timedelta := pt.Timestamp.Sub(prev.Timestamp)
 		seconds := timedelta.Seconds()
@@ -1163,9 +1163,9 @@ func (seg *GPXTrackSegment) RemoveVerticalExtremes() {
 	for pointNo, point := range originalPoints {
 		smoothedPoint := smoothedPoints[pointNo]
 		if 0 < pointNo && pointNo < len(originalPoints)-1 && point.Elevation.NotNull() && smoothedPoints[pointNo].Elevation.NotNull() {
-			d := originalPoints[pointNo-1].Distance3D(originalPoints[pointNo+1].Point)
-			d1 := originalPoints[pointNo].Distance3D(originalPoints[pointNo-1].Point)
-			d2 := originalPoints[pointNo].Distance3D(originalPoints[pointNo+1].Point)
+			d := originalPoints[pointNo-1].Distance3D(&originalPoints[pointNo+1])
+			d1 := originalPoints[pointNo].Distance3D(&originalPoints[pointNo-1])
+			d2 := originalPoints[pointNo].Distance3D(&originalPoints[pointNo+1])
 			if d1+d2 > d*1.5 {
 				if math.Abs(point.Elevation.Value()-smoothedPoint.Elevation.Value()) < removeElevationExtremesThreshold {
 					newPoints = append(newPoints, point)
@@ -1189,7 +1189,7 @@ func (seg *GPXTrackSegment) RemoveHorizontalExtremes() {
 	var sum float64
 	for pointNo, point := range seg.Points {
 		if pointNo > 0 {
-			sum += point.Distance2D(seg.Points[pointNo-1].Point)
+			sum += point.Distance2D(&seg.Points[pointNo-1])
 		}
 	}
 	// Division by zero not a problems since this is not computed on zero-length segments:
@@ -1203,11 +1203,11 @@ func (seg *GPXTrackSegment) RemoveHorizontalExtremes() {
 	newPoints := make([]GPXPoint, 0)
 	for pointNo, point := range originalPoints {
 		if 0 < pointNo && pointNo < len(originalPoints)-1 {
-			d := originalPoints[pointNo-1].Distance2D(originalPoints[pointNo+1].Point)
-			d1 := originalPoints[pointNo].Distance2D(originalPoints[pointNo-1].Point)
-			d2 := originalPoints[pointNo].Distance2D(originalPoints[pointNo+1].Point)
+			d := originalPoints[pointNo-1].Distance2D(&originalPoints[pointNo+1])
+			d1 := originalPoints[pointNo].Distance2D(&originalPoints[pointNo-1])
+			d2 := originalPoints[pointNo].Distance2D(&originalPoints[pointNo+1])
 			if d1+d2 > d*1.5 {
-				pointMovedBy := smoothedPoints[pointNo].Distance2D(point.Point)
+				pointMovedBy := smoothedPoints[pointNo].Distance2D(&point)
 				if pointMovedBy < remove2dExtremesThreshold {
 					newPoints = append(newPoints, point)
 				} else {
@@ -1252,10 +1252,10 @@ func (seg *GPXTrackSegment) addMissingTimeInSegment(start, end int) {
 
 	length := 0.0
 	for i := start; i <= end; i++ {
-		length += seg.Points[i].Point.Distance2D(seg.Points[i-1].Point)
+		length += seg.Points[i].Point.Distance2D(&seg.Points[i-1])
 		ratios[i-start] = length
 	}
-	length += seg.Points[end].Point.Distance2D(seg.Points[end+1].Point)
+	length += seg.Points[end].Point.Distance2D(&seg.Points[end+1])
 	for i := start; i <= end; i++ {
 		ratios[i-start] = ratios[i-start] / length
 	}
