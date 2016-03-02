@@ -597,7 +597,7 @@ type GpxBounds struct {
 
 // Equals returns true if two Bounds objects are equal
 func (b GpxBounds) Equals(b2 GpxBounds) bool {
-	return b.MinLongitude == b2.MinLongitude && b.MaxLatitude == b2.MaxLatitude && b.MinLongitude == b2.MinLongitude && b.MaxLongitude == b2.MaxLongitude
+	return b.MinLatitude == b2.MinLatitude && b.MaxLatitude == b2.MaxLatitude && b.MinLongitude == b2.MinLongitude && b.MaxLongitude == b2.MaxLongitude
 }
 
 func (b *GpxBounds) String() string {
