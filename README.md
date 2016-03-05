@@ -1,6 +1,6 @@
 # Go GPX library
 
-gpgpx is a golang library for parsing and manipulating GPX files. GPX (GPS eXchange Format) is a XML based file format for GPS track logs. 
+gpxgo is a golang library for parsing and manipulating GPX files. GPX (GPS eXchange Format) is a XML based file format for GPS track logs. 
 
 ## Example:
 
