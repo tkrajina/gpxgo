@@ -1096,9 +1096,9 @@ func TestSmoothHorizontal(t *testing.T) {
 	if g.GetTrackPointsNo() != original.GetTrackPointsNo() {
 		t.Errorf("Points no should be the same")
 	}
-	for trackNo, _ := range g.Tracks {
-		for segmentNo, _ := range g.Tracks[trackNo].Segments {
-			for pointNo, _ := range g.Tracks[trackNo].Segments[segmentNo].Points {
+	for trackNo := range g.Tracks {
+		for segmentNo := range g.Tracks[trackNo].Segments {
+			for pointNo := range g.Tracks[trackNo].Segments[segmentNo].Points {
 				point := g.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
 				originalPoint := original.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
 				if point.Elevation.Value() != originalPoint.Elevation.Value() {
@@ -1128,9 +1128,9 @@ func TestSmoothVertical(t *testing.T) {
 	if g.GetTrackPointsNo() != original.GetTrackPointsNo() {
 		t.Errorf("Points no should be the same")
 	}
-	for trackNo, _ := range g.Tracks {
-		for segmentNo, _ := range g.Tracks[trackNo].Segments {
-			for pointNo, _ := range g.Tracks[trackNo].Segments[segmentNo].Points {
+	for trackNo := range g.Tracks {
+		for segmentNo := range g.Tracks[trackNo].Segments {
+			for pointNo := range g.Tracks[trackNo].Segments[segmentNo].Points {
 				point := g.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
 				originalPoint := original.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
 				if point.Latitude != originalPoint.Latitude || point.Longitude != originalPoint.Longitude {

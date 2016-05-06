@@ -303,7 +303,7 @@ func (g *GPX) PositionAt(t time.Time) []TrackPosition {
 	for trackNo, trk := range g.Tracks {
 		locs := trk.PositionAt(t)
 		if len(locs) > 0 {
-			for locNo, _ := range locs {
+			for locNo := range locs {
 				locs[locNo].TrackNo = trackNo
 			}
 			results = append(results, locs...)
@@ -429,7 +429,7 @@ func (g *GPX) ExecuteOnAllPoints(executor func(*GPXPoint)) {
 }
 
 func (g *GPX) ExecuteOnWaypoints(executor func(*GPXPoint)) {
-	for waypointNo, _ := range g.Waypoints {
+	for waypointNo := range g.Waypoints {
 		executor(&g.Waypoints[waypointNo])
 	}
 }
@@ -505,31 +505,31 @@ func (g *GPX) RemoveEmpty() {
 }
 
 func (g *GPX) SmoothHorizontal() {
-	for trackNo, _ := range g.Tracks {
+	for trackNo := range g.Tracks {
 		g.Tracks[trackNo].SmoothHorizontal()
 	}
 }
 
 func (g *GPX) SmoothVertical() {
-	for trackNo, _ := range g.Tracks {
+	for trackNo := range g.Tracks {
 		g.Tracks[trackNo].SmoothVertical()
 	}
 }
 
 func (g *GPX) RemoveHorizontalExtremes() {
-	for trackNo, _ := range g.Tracks {
+	for trackNo := range g.Tracks {
 		g.Tracks[trackNo].RemoveHorizontalExtremes()
 	}
 }
 
 func (g *GPX) RemoveVerticalExtremes() {
-	for trackNo, _ := range g.Tracks {
+	for trackNo := range g.Tracks {
 		g.Tracks[trackNo].RemoveVerticalExtremes()
 	}
 }
 
 func (g *GPX) AddMissingTime() {
-	for trackNo, _ := range g.Tracks {
+	for trackNo := range g.Tracks {
 		g.Tracks[trackNo].AddMissingTime()
 	}
 }
@@ -790,7 +790,7 @@ func (rte *GPXRoute) Center() (float64, float64) {
 }
 
 func (rte *GPXRoute) ExecuteOnPoints(executor func(*GPXPoint)) {
-	for pointNo, _ := range rte.Points {
+	for pointNo := range rte.Points {
 		executor(&rte.Points[pointNo])
 	}
 }
@@ -977,7 +977,7 @@ func (seg *GPXTrackSegment) UphillDownhill() UphillDownhill {
 }
 
 func (seg *GPXTrackSegment) ExecuteOnPoints(executor func(*GPXPoint)) {
-	for pointNo, _ := range seg.Points {
+	for pointNo := range seg.Points {
 		executor(&seg.Points[pointNo])
 	}
 }
@@ -1226,7 +1226,7 @@ func (seg *GPXTrackSegment) RemoveHorizontalExtremes() {
 
 func (seg *GPXTrackSegment) AddMissingTime() {
 	emptySegmentStart := -1
-	for pointNo, _ := range seg.Points {
+	for pointNo := range seg.Points {
 		timestampEmpty := seg.Points[pointNo].Timestamp.Year() <= 1
 		if timestampEmpty {
 			if emptySegmentStart == -1 {
@@ -1356,13 +1356,13 @@ func (trk *GPXTrack) HasTimes() bool {
 }
 
 func (trk *GPXTrack) ReduceTrackPoints(minDistance float64) {
-	for segmentNo, _ := range trk.Segments {
+	for segmentNo := range trk.Segments {
 		trk.Segments[segmentNo].ReduceTrackPoints(minDistance)
 	}
 }
 
 func (trk *GPXTrack) SimplifyTracks(maxDistance float64) {
-	for segmentNo, _ := range trk.Segments {
+	for segmentNo := range trk.Segments {
 		trk.Segments[segmentNo].SimplifyTracks(maxDistance)
 	}
 }
@@ -1389,13 +1389,13 @@ func (trk *GPXTrack) Split(segNo, ptNo int) {
 }
 
 func (trk *GPXTrack) ExecuteOnPoints(executor func(*GPXPoint)) {
-	for segmentNo, _ := range trk.Segments {
+	for segmentNo := range trk.Segments {
 		trk.Segments[segmentNo].ExecuteOnPoints(executor)
 	}
 }
 
 func (trk *GPXTrack) AddElevation(elevation float64) {
-	for segmentNo, _ := range trk.Segments {
+	for segmentNo := range trk.Segments {
 		trk.Segments[segmentNo].AddElevation(elevation)
 	}
 }
@@ -1529,31 +1529,31 @@ func (trk *GPXTrack) AppendSegment(s *GPXTrackSegment) {
 }
 
 func (trk *GPXTrack) SmoothVertical() {
-	for segmentNo, _ := range trk.Segments {
+	for segmentNo := range trk.Segments {
 		trk.Segments[segmentNo].SmoothVertical()
 	}
 }
 
 func (trk *GPXTrack) SmoothHorizontal() {
-	for segmentNo, _ := range trk.Segments {
+	for segmentNo := range trk.Segments {
 		trk.Segments[segmentNo].SmoothHorizontal()
 	}
 }
 
 func (trk *GPXTrack) RemoveVerticalExtremes() {
-	for segmentNo, _ := range trk.Segments {
+	for segmentNo := range trk.Segments {
 		trk.Segments[segmentNo].RemoveVerticalExtremes()
 	}
 }
 
 func (trk *GPXTrack) RemoveHorizontalExtremes() {
-	for segmentNo, _ := range trk.Segments {
+	for segmentNo := range trk.Segments {
 		trk.Segments[segmentNo].RemoveHorizontalExtremes()
 	}
 }
 
 func (trk *GPXTrack) AddMissingTime() {
-	for segmentNo, _ := range trk.Segments {
+	for segmentNo := range trk.Segments {
 		trk.Segments[segmentNo].AddMissingTime()
 	}
 }
