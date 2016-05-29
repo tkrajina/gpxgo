@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const DEFAULT_CREATOR = "https://github.com/ptrv/go-gpx"
+const DEFAULT_CREATOR = "https://github.com/tkrajina/gpxgo"
 
 // ----------------------------------------------------------------------------------------------------
 // Gpx 1.0 Stuff
