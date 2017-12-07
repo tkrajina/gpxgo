@@ -248,6 +248,7 @@ type gpx11GpxPoint struct {
 	Pdop          *float64 `xml:"pdop,omitempty"`
 	AgeOfDGpsData *float64 `xml:"ageofdgpsdata,omitempty"`
 	DGpsId        *int     `xml:"dgpsid,omitempty"`
+	Extensions    []gpx11GpxExtensions `xml:"extensions,omitempty"`
 }
 
 type gpx11GpxRte struct {
@@ -281,3 +282,4 @@ type gpx11GpxTrk struct {
 	Type     string            `xml:"type,omitempty"`
 	Segments []*gpx11GpxTrkSeg `xml:"trkseg,omitempty"`
 }
+

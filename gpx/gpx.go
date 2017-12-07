@@ -704,6 +704,7 @@ type GPXPoint struct {
 	PositionalDilution NullableFloat64
 	AgeOfDGpsData      NullableFloat64
 	DGpsId             NullableInt
+	HeartRate  int
 }
 
 // SpeedBetween calculates the speed between two GpxWpts.
@@ -1580,3 +1581,4 @@ func getMaximalElevationBounds() ElevationBounds {
 		MinElevation: math.MaxFloat64,
 	}
 }
+

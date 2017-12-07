@@ -6,6 +6,8 @@
 package gpx
 
 import (
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -612,5 +614,21 @@ func convertPointFromGpx11(original *gpx11GpxPoint) *GPXPoint {
 	if original.DGpsId != nil {
 		result.DGpsId = *NewNullableInt(*original.DGpsId)
 	}
+
+	// Extract heartrate
+	re := regexp.MustCompile(`<gpxtpx:hr>([0-9]+)</gpxtpx:hr>`)
+	if original.Extensions != nil {
+		for _, extension := range original.Extensions {
+			hrMatches := re.FindStringSubmatch(string(extension.Bytes))
+			if len(hrMatches) == 2 {
+				hr, err := strconv.Atoi(hrMatches[1])
+				if err == nil {
+					result.HeartRate = hr
+					break
+				}
+			}
+		}
+	}
 	return result
 }
+
