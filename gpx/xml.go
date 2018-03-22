@@ -17,7 +17,7 @@ import (
 
 // An array cannot be constant :( The first one if the default layout:
 var TIMELAYOUTS = []string{
-	"2006-01-02T15:04:05Z",
+	"2006-01-02T15:04:05.000Z",
 	"2006-01-02T15:04:05",
 	"2006-01-02 15:04:05Z",
 	"2006-01-02 15:04:05",
