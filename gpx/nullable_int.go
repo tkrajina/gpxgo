@@ -12,34 +12,41 @@ import (
 	"strings"
 )
 
+//NullableInt implements a nullable int
 type NullableInt struct {
 	data    int
 	notNull bool
 }
 
+//Null checks if value is null
 func (n *NullableInt) Null() bool {
 	return !n.notNull
 }
 
+//NotNull checks if value is not null
 func (n *NullableInt) NotNull() bool {
 	return n.notNull
 }
 
+//Value returns the value
 func (n *NullableInt) Value() int {
 	return n.data
 }
 
+//SetValue sets the value
 func (n *NullableInt) SetValue(data int) {
 	n.data = data
 	n.notNull = true
 }
 
+//SetNull sets the value to null
 func (n *NullableInt) SetNull() {
 	var defaultValue int
 	n.data = defaultValue
 	n.notNull = false
 }
 
+//NewNullableInt creates a new NullableInt
 func NewNullableInt(data int) *NullableInt {
 	result := new(NullableInt)
 	result.data = data
@@ -47,6 +54,7 @@ func NewNullableInt(data int) *NullableInt {
 	return result
 }
 
+//UnmarshalXML implements xml unmarshalling
 func (n *NullableInt) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	t, err := d.Token()
 	if err != nil {
@@ -66,6 +74,7 @@ func (n *NullableInt) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error
 	return nil
 }
 
+//UnmarshalXMLAttr implements xml attribute unmarshalling
 func (n *NullableInt) UnmarshalXMLAttr(attr xml.Attr) error {
 	strData := strings.Trim(string(attr.Value), " ")
 	value, err := strconv.ParseFloat(strData, 64)
@@ -77,6 +86,7 @@ func (n *NullableInt) UnmarshalXMLAttr(attr xml.Attr) error {
 	return nil
 }
 
+//MarshalXML implements xml marshalling
 func (n NullableInt) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	if n.Null() {
 		return nil
@@ -88,6 +98,7 @@ func (n NullableInt) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return nil
 }
 
+//MarshalXMLAttr implements xml attribute marshalling
 func (n NullableInt) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	var result xml.Attr
 	if n.Null() {

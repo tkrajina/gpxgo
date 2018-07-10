@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+//DEFAULT_CREATOR contains the original repo path
 const DEFAULT_CREATOR = "https://github.com/tkrajina/gpxgo"
 
 // ----------------------------------------------------------------------------------------------------

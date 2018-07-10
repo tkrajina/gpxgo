@@ -15,6 +15,7 @@ import (
 	"time"
 )
 
+// TIMELAYOUTS defines a list of possible time formats
 // An array cannot be constant :( The first one if the default layout:
 var TIMELAYOUTS = []string{
 	"2006-01-02T15:04:05Z",
@@ -31,14 +32,14 @@ func init() {
 	*/
 }
 
+//ToXmlParams contains settings for xml transformation
 type ToXmlParams struct {
 	Version string
 	Indent  bool
 }
 
-/*
- * Params are optional, you can set null to use GPXs Version and no indentation.
- */
+//ToXml returns the xml representation of the GPX object.
+//Params are optional, you can set null to use GPXs Version and no indentation.
 func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 	version := g.Version
 	if len(params.Version) > 0 {
@@ -129,6 +130,7 @@ func formatGPXTime(time *time.Time) string {
 	return time.Format(TIMELAYOUTS[0])
 }
 
+//ParseFile parses a gpx file and returns a GPX object
 func ParseFile(fileName string) (*GPX, error) {
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -145,6 +147,7 @@ func ParseFile(fileName string) (*GPX, error) {
 	return ParseBytes(bytes)
 }
 
+//ParseBytes parses GPX from bytes
 func ParseBytes(bytes []byte) (*GPX, error) {
 	version, err := guessGPXVersion(bytes)
 	if err != nil {
@@ -173,6 +176,7 @@ func ParseBytes(bytes []byte) (*GPX, error) {
 	}
 }
 
+//ParseString parses GPX from string
 func ParseString(str string) (*GPX, error) {
 	return ParseBytes([]byte(str))
 }
