@@ -422,9 +422,9 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 	gpxDoc := new(GPX)
 
-	gpxDoc.XMLNs = gpxDoc.XMLNs
-	gpxDoc.XmlNsXsi = gpxDoc.XmlNsXsi
-	gpxDoc.XmlSchemaLoc = gpxDoc.XmlSchemaLoc
+	gpxDoc.XMLNs = gpx11Doc.XMLNs
+	gpxDoc.XmlNsXsi = gpx11Doc.XmlNsXsi
+	gpxDoc.XmlSchemaLoc = gpx11Doc.XmlSchemaLoc
 
 	gpxDoc.Creator = gpx11Doc.Creator
 	gpxDoc.Version = gpx11Doc.Version

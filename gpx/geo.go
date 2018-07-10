@@ -102,22 +102,22 @@ func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 		return 0.0
 	}
 
-	var sum_dists float64
+	var sumDists float64
 	for _, d := range speedsDistances {
-		sum_dists += d.Distance
+		sumDists += d.Distance
 	}
-	average_dist := sum_dists / float64(lenArrs)
+	avgDist := sumDists / float64(lenArrs)
 
 	var variance float64
 	for i := 0; i < len(speedsDistances); i++ {
-		variance += math.Pow(speedsDistances[i].Distance-average_dist, 2)
+		variance += math.Pow(speedsDistances[i].Distance-avgDist, 2)
 	}
 	stdDeviation := math.Sqrt(variance)
 
 	// ignore items with distance too long
 	filteredSD := make([]SpeedsAndDistances, 0)
 	for i := 0; i < len(speedsDistances); i++ {
-		dist := math.Abs(speedsDistances[i].Distance - average_dist)
+		dist := math.Abs(speedsDistances[i].Distance - avgDist)
 		if dist <= stdDeviation*1.5 {
 			filteredSD = append(filteredSD, speedsDistances[i])
 		}
@@ -207,17 +207,18 @@ func distance(lat1, lon1 float64, ele1 NullableFloat64, lat2, lon2 float64, ele2
 	return math.Sqrt(math.Pow(distance2d, 2) + math.Pow(eleDiff, 2))
 }
 
-func distanceBetweenLocations(loc1, loc2 Location, threeD, haversine bool) float64 {
-	lat1 := loc1.GetLatitude()
-	lon1 := loc1.GetLongitude()
-	ele1 := loc1.GetElevation()
-
-	lat2 := loc2.GetLatitude()
-	lon2 := loc2.GetLongitude()
-	ele2 := loc2.GetElevation()
-
-	return distance(lat1, lon1, ele1, lat2, lon2, ele2, threeD, haversine)
-}
+////not used currently
+//func distanceBetweenLocations(loc1, loc2 Location, threeD, haversine bool) float64 {
+//	lat1 := loc1.GetLatitude()
+//	lon1 := loc1.GetLongitude()
+//	ele1 := loc1.GetElevation()
+//
+//	lat2 := loc2.GetLatitude()
+//	lon2 := loc2.GetLongitude()
+//	ele2 := loc2.GetElevation()
+//
+//	return distance(lat1, lon1, ele1, lat2, lon2, ele2, threeD, haversine)
+//}
 
 //Distance2D calculates the distance of 2 geo coordinates
 func Distance2D(lat1, lon1, lat2, lon2 float64, haversine bool) float64 {
@@ -264,7 +265,7 @@ func distanceFromLine(point Point, linePoint1, linePoint2 GPXPoint) float64 {
 
 	s := (a + b + c) / 2.
 
-	return 2.0 * math.Sqrt(math.Abs((s * (s - a) * (s - b) * (s - c)))) / a
+	return 2.0 * math.Sqrt(math.Abs(s*(s-a)*(s-b)*(s-c))) / a
 }
 
 func getLineEquationCoefficients(location1, location2 Point) (float64, float64, float64) {

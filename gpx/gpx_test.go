@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	TIME_FORMAT    = "2006-01-02T15:04:05Z"
-	TEST_FILES_DIR = "../test_files"
+	TimeFormat   = "2006-01-02T15:04:05Z"
+	TestFilesDir = "../test_files"
 )
 
 func min(x, y int) int {
@@ -78,10 +78,10 @@ func assertNotNil(t *testing.T, var1 interface{}) {
 
 func loadTestGPXs() []string {
 	gpxes := make([]string, 0)
-	dirs, _ := ioutil.ReadDir(TEST_FILES_DIR)
+	dirs, _ := ioutil.ReadDir(TestFilesDir)
 	for _, fileInfo := range dirs {
 		if strings.HasSuffix(fileInfo.Name(), ".gpx") {
-			gpxes = append(gpxes, fmt.Sprintf("%s/%s", TEST_FILES_DIR, fileInfo.Name()))
+			gpxes = append(gpxes, fmt.Sprintf("%s/%s", TestFilesDir, fileInfo.Name()))
 		}
 	}
 	if len(gpxes) == 0 {
@@ -161,7 +161,7 @@ func TestDetect10GPXVersion(t *testing.T) {
 }
 
 func TestParseAndReparseGPX11(t *testing.T) {
-	gpxDocuments := []*GPX{}
+	var gpxDocuments []*GPX
 
 	{
 		gpxDoc, err := ParseFile("../test_files/gpx1.1_with_all_fields.gpx")
@@ -214,7 +214,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Link, "http://link2")
 	assertEquals(t, gpxDoc.LinkText, "link text2")
 	assertEquals(t, gpxDoc.LinkType, "link type2")
-	assertEquals(t, gpxDoc.Time.Format(TIME_FORMAT), time.Date(2013, time.January, 01, 12, 0, 0, 0, time.UTC).Format(TIME_FORMAT))
+	assertEquals(t, gpxDoc.Time.Format(TimeFormat), time.Date(2013, time.January, 01, 12, 0, 0, 0, time.UTC).Format(TimeFormat))
 	assertEquals(t, gpxDoc.Keywords, "example keywords")
 
 	// Waypoints:
@@ -222,7 +222,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
 	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
 	assertEquals(t, gpxDoc.Waypoints[0].Elevation.Value(), 75.1)
-	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
+	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TimeFormat), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
 	assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
 	assertEquals(t, gpxDoc.Waypoints[0].Name, "example name")
@@ -258,7 +258,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	// TODO: Points
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation.Value(), 75.1)
 	fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:03Z")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TimeFormat), "2013-01-02T02:03:03Z")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].GeoidHeight, "2.1")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Name, "example name r")
@@ -299,7 +299,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation.Value(), 11.1)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-01T12:00:04Z")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TimeFormat), "2013-01-01T12:00:04Z")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Name, "example name t")
@@ -320,7 +320,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 }
 
 func TestParseAndReparseGPX10(t *testing.T) {
-	gpxDocuments := []*GPX{}
+	var gpxDocuments []*GPX
 
 	{
 		gpxDoc, err := ParseFile("../test_files/gpx1.0_with_all_fields.gpx")
@@ -373,7 +373,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Link, "http://example.url")
 	assertEquals(t, gpxDoc.LinkText, "example urlname")
 	assertEquals(t, gpxDoc.LinkType, "")
-	assertEquals(t, gpxDoc.Time.Format(TIME_FORMAT), time.Date(2013, time.January, 01, 12, 0, 0, 0, time.UTC).Format(TIME_FORMAT))
+	assertEquals(t, gpxDoc.Time.Format(TimeFormat), time.Date(2013, time.January, 01, 12, 0, 0, 0, time.UTC).Format(TimeFormat))
 	assertEquals(t, gpxDoc.Keywords, "example keywords")
 
 	// TODO: Bounds (here and in 1.1)
@@ -383,7 +383,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
 	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
 	assertEquals(t, gpxDoc.Waypoints[0].Elevation.Value(), 75.1)
-	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:00Z")
+	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TimeFormat), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
 	assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
 	assertEquals(t, gpxDoc.Waypoints[0].Name, "example name")
@@ -419,7 +419,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	// TODO: Points
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation.Value(), 75.1)
 	fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-02T02:03:03Z")
+	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TimeFormat), "2013-01-02T02:03:03Z")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].GeoidHeight, "2.1")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Name, "example name r")
@@ -460,7 +460,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation.Value(), 11.1)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT), "2013-01-01T12:00:04Z")
+	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TimeFormat), "2013-01-01T12:00:04Z")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Name, "example name t")
@@ -869,22 +869,22 @@ func TestTrackWithoutTimes(t *testing.T) {
 
 //func TestHasTimes(t *testing.T) {}
 
-func testReduceTrackByMaxPoints(t *testing.T, maxReducedPointsNo int) {
-	for _, gpxFile := range loadTestGPXs() {
-		g, _ := ParseFile(gpxFile)
-		pointsOriginal := g.GetTrackPointsNo()
-
-		//fmt.Printf("reducing %s to %d points", gpxFile, maxReducedPointsNo)
-		g.ReduceTrackPoints(maxReducedPointsNo, 0)
-
-		pointsReduced := g.GetTrackPointsNo()
-
-		if pointsReduced > pointsOriginal {
-			//fmt.Printf("Points before %d, now %d\n", pointsOriginal, pointsReduced)
-			t.Error("Reduced track has no reduced number of points")
-		}
-	}
-}
+//func testReduceTrackByMaxPoints(t *testing.T, maxReducedPointsNo int) {
+//	for _, gpxFile := range loadTestGPXs() {
+//		g, _ := ParseFile(gpxFile)
+//		pointsOriginal := g.GetTrackPointsNo()
+//
+//		//fmt.Printf("reducing %s to %d points", gpxFile, maxReducedPointsNo)
+//		g.ReduceTrackPoints(maxReducedPointsNo, 0)
+//
+//		pointsReduced := g.GetTrackPointsNo()
+//
+//		if pointsReduced > pointsOriginal {
+//			//fmt.Printf("Points before %d, now %d\n", pointsOriginal, pointsReduced)
+//			t.Error("Reduced track has no reduced number of points")
+//		}
+//	}
+//}
 
 func testReduceTrackByMaxPointsAndMinDistance(t *testing.T, maxReducedPointsNo int, minDistance float64) {
 	for _, gpxFile := range loadTestGPXs() {
@@ -1208,13 +1208,13 @@ func TestAddMissingTime(t *testing.T) {
 	gpxDoc.AddMissingTime()
 
 	for pointNo, point := range gpxDoc.Tracks[0].Segments[0].Points {
-		fmt.Printf("#d -> %v\n", pointNo, point.Timestamp)
+		fmt.Printf("%d -> %v\n", pointNo, point.Timestamp)
 	}
 
-	assertEquals(t, "0001-01-01T00:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TIME_FORMAT))
-	assertEquals(t, "2014-01-01T00:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[1].Timestamp.Format(TIME_FORMAT))
-	assertEquals(t, "2014-01-01T01:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[2].Timestamp.Format(TIME_FORMAT))
-	assertEquals(t, "2014-01-01T02:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[3].Timestamp.Format(TIME_FORMAT))
+	assertEquals(t, "0001-01-01T00:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TimeFormat))
+	assertEquals(t, "2014-01-01T00:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[1].Timestamp.Format(TimeFormat))
+	assertEquals(t, "2014-01-01T01:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[2].Timestamp.Format(TimeFormat))
+	assertEquals(t, "2014-01-01T02:00:00Z", gpxDoc.Tracks[0].Segments[0].Points[3].Timestamp.Format(TimeFormat))
 }
 
 func TestFindStoppedPositions(t *testing.T) {

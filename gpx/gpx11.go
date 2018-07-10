@@ -188,11 +188,11 @@ type gpx11GpxCopyright struct {
 	License string   `xml:"license,omitempty"`
 }
 
-type gpx11GpxAuthor struct {
-	Name  string        `xml:"name,omitempty"`
-	Email string        `xml:"email,omitempty"`
-	Link  *gpx11GpxLink `xml:"link"`
-}
+//type gpx11GpxAuthor struct {
+//	Name  string        `xml:"name,omitempty"`
+//	Email string        `xml:"email,omitempty"`
+//	Link  *gpx11GpxLink `xml:"link"`
+//}
 
 type gpx11GpxEmail struct {
 	Id     string `xml:"id,attr"`
@@ -205,17 +205,17 @@ type gpx11GpxLink struct {
 	Type string `xml:"type,omitempty"`
 }
 
-type gpx11GpxMetadata struct {
-	XMLName xml.Name        `xml:"metadata"`
-	Name    string          `xml:"name,omitempty"`
-	Desc    string          `xml:"desc,omitempty"`
-	Author  *gpx11GpxAuthor `xml:"author,omitempty"`
-	//	Copyright *GpxCopyright `xml:"copyright,omitempty"`
-	//	Links     []GpxLink     `xml:"link"`
-	Timestamp string `xml:"time,omitempty"`
-	Keywords  string `xml:"keywords,omitempty"`
-	//	Bounds    *GpxBounds    `xml:"bounds"`
-}
+//type gpx11GpxMetadata struct {
+//	XMLName xml.Name        `xml:"metadata"`
+//	Name    string          `xml:"name,omitempty"`
+//	Desc    string          `xml:"desc,omitempty"`
+//	Author  *gpx11GpxAuthor `xml:"author,omitempty"`
+//	//	Copyright *GpxCopyright `xml:"copyright,omitempty"`
+//	//	Links     []GpxLink     `xml:"link"`
+//	Timestamp string `xml:"time,omitempty"`
+//	Keywords  string `xml:"keywords,omitempty"`
+//	//	Bounds    *GpxBounds    `xml:"bounds"`
+//}
 
 type gpx11GpxExtensions struct {
 	Bytes []byte `xml:",innerxml"`

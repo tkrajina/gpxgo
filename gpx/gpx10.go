@@ -134,24 +134,24 @@ type gpx10Gpx struct {
 	Tracks    []*gpx10GpxTrk   `xml:"trk"`
 }
 
-type gpx10GpxBounds struct {
-	//XMLName xml.Name `xml:"bounds"`
-	MinLat float64 `xml:"minlat,attr"`
-	MaxLat float64 `xml:"maxlat,attr"`
-	MinLon float64 `xml:"minlon,attr"`
-	MaxLon float64 `xml:"maxlon,attr"`
-}
+//type gpx10GpxBounds struct {
+//	//XMLName xml.Name `xml:"bounds"`
+//	MinLat float64 `xml:"minlat,attr"`
+//	MaxLat float64 `xml:"maxlat,attr"`
+//	MinLon float64 `xml:"minlon,attr"`
+//	MaxLon float64 `xml:"maxlon,attr"`
+//}
 
-type gpx10GpxAuthor struct {
-	Name  string        `xml:"name,omitempty"`
-	Email string        `xml:"email,omitempty"`
-	Link  *gpx10GpxLink `xml:"link"`
-}
+//type gpx10GpxAuthor struct {
+//	Name  string        `xml:"name,omitempty"`
+//	Email string        `xml:"email,omitempty"`
+//	Link  *gpx10GpxLink `xml:"link"`
+//}
 
-type gpx10GpxEmail struct {
-	Id     string `xml:"id,attr"`
-	Domain string `xml:"domain,attr"`
-}
+//type gpx10GpxEmail struct {
+//	Id     string `xml:"id,attr"`
+//	Domain string `xml:"domain,attr"`
+//}
 
 type gpx10GpxLink struct {
 	Href string `xml:"href,attr"`
@@ -159,20 +159,20 @@ type gpx10GpxLink struct {
 	Type string `xml:"type,omitempty"`
 }
 
-type gpx10GpxMetadata struct {
-	XMLName xml.Name        `xml:"metadata"`
-	Name    string          `xml:"name,omitempty"`
-	Desc    string          `xml:"desc,omitempty"`
-	Author  *gpx10GpxAuthor `xml:"author,omitempty"`
-	//	Links     []GpxLink     `xml:"link"`
-	Timestamp string `xml:"time,omitempty"`
-	Keywords  string `xml:"keywords,omitempty"`
-	//	Bounds    *GpxBounds    `xml:"bounds"`
-}
+//type gpx10GpxMetadata struct {
+//	XMLName xml.Name        `xml:"metadata"`
+//	Name    string          `xml:"name,omitempty"`
+//	Desc    string          `xml:"desc,omitempty"`
+//	Author  *gpx10GpxAuthor `xml:"author,omitempty"`
+//	//	Links     []GpxLink     `xml:"link"`
+//	Timestamp string `xml:"time,omitempty"`
+//	Keywords  string `xml:"keywords,omitempty"`
+//	//	Bounds    *GpxBounds    `xml:"bounds"`
+//}
 
-type gpx10GpxExtensions struct {
-	Bytes []byte `xml:",innerxml"`
-}
+//type gpx10GpxExtensions struct {
+//	Bytes []byte `xml:",innerxml"`
+//}
 
 /**
  * Common struct fields for all points

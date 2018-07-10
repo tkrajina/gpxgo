@@ -60,17 +60,17 @@ func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 	var buffer bytes.Buffer
 	buffer.WriteString(xml.Header)
 	if indentation {
-		bytes, err := xml.MarshalIndent(gpxDoc, "", "	")
+		b, err := xml.MarshalIndent(gpxDoc, "", "	")
 		if err != nil {
 			return nil, err
 		}
-		buffer.Write(bytes)
+		buffer.Write(b)
 	} else {
-		bytes, err := xml.Marshal(gpxDoc)
+		b, err := xml.Marshal(gpxDoc)
 		if err != nil {
 			return nil, err
 		}
-		buffer.Write(bytes)
+		buffer.Write(b)
 	}
 	return buffer.Bytes(), nil
 }
@@ -85,16 +85,16 @@ func guessGPXVersion(bytes []byte) (string, error) {
 
 	parts := strings.Split(startOfDocument, "<gpx")
 	if len(parts) <= 1 {
-		return "", errors.New("Invalid GPX file, cannot find version")
+		return "", errors.New("invalid GPX file, cannot find version")
 	}
 	parts = strings.Split(parts[1], "version=")
 
 	if len(parts) <= 1 {
-		return "", errors.New("Invalid GPX file, cannot find version")
+		return "", errors.New("invalid GPX file, cannot find version")
 	}
 
 	if len(parts[1]) < 10 {
-		return "", errors.New("Invalid GPX file, cannot find version")
+		return "", errors.New("invalid GPX file, cannot find version")
 	}
 
 	result := parts[1][1:4]
@@ -139,12 +139,12 @@ func ParseFile(fileName string) (*GPX, error) {
 
 	defer f.Close()
 
-	bytes, err := ioutil.ReadAll(f)
+	b, err := ioutil.ReadAll(f)
 	if err != nil {
 		return nil, err
 	}
 
-	return ParseBytes(bytes)
+	return ParseBytes(b)
 }
 
 //ParseBytes parses GPX from bytes
