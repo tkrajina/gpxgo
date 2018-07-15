@@ -15,9 +15,12 @@ import (
 	"time"
 )
 
+const formattingTimelayout = "2006-01-02T15:04:05Z"
+
 // An array cannot be constant :( The first one if the default layout:
-var TIMELAYOUTS = []string{
+var parsingTimelayouts = []string{
 	"2006-01-02T15:04:05.000Z",
+	formattingTimelayout,
 	"2006-01-02T15:04:05",
 	"2006-01-02 15:04:05Z",
 	"2006-01-02 15:04:05",
@@ -107,7 +110,7 @@ func parseGPXTime(timestr string) (*time.Time, error) {
 		timestr = strings.Split(timestr, ".")[0]
 	}
 	timestr = strings.Trim(timestr, " \t\n\r")
-	for _, timeLayout := range TIMELAYOUTS {
+	for _, timeLayout := range parsingTimelayouts {
 		t, err := time.Parse(timeLayout, timestr)
 
 		if err == nil {
@@ -126,7 +129,7 @@ func formatGPXTime(time *time.Time) string {
 		// Invalid date:
 		return ""
 	}
-	return time.Format(TIMELAYOUTS[0])
+	return time.Format(formattingTimelayout)
 }
 
 func ParseFile(fileName string) (*GPX, error) {
