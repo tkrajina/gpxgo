@@ -13,8 +13,8 @@ import (
 
 // Global thresholds
 const (
-	DEFAULT_STOPPED_SPEED_THRESHOLD = 1.0
-	REMOVE_EXTREEMES_TRESHOLD       = 10
+	defaultStoppedSpeedThreshold = 1.0
+	removeExtreemesTreshold      = 10
 )
 
 // ----------------------------------------------------------------------------------------------------
@@ -1115,7 +1115,7 @@ func (seg *GPXTrackSegment) StoppedPositions() []TrackPosition {
 	for pointNo, point := range seg.Points {
 		if pointNo > 0 {
 			previousPoint := seg.Points[pointNo-1]
-			if point.SpeedBetween(&previousPoint, true) < DEFAULT_STOPPED_SPEED_THRESHOLD {
+			if point.SpeedBetween(&previousPoint, true) < defaultStoppedSpeedThreshold {
 				var trackPos TrackPosition
 				trackPos.Point = point.Point
 				trackPos.PointNo = pointNo
@@ -1153,7 +1153,7 @@ func (seg *GPXTrackSegment) MovingData() MovingData {
 			speedKmh = (dist / 1000.0) / (timedelta.Seconds() / math.Pow(60, 2))
 		}
 
-		if speedKmh <= DEFAULT_STOPPED_SPEED_THRESHOLD {
+		if speedKmh <= defaultStoppedSpeedThreshold {
 			stoppedTime += timedelta.Seconds()
 			stoppedDistance += dist
 		} else {
@@ -1199,7 +1199,7 @@ func (seg *GPXTrackSegment) SmoothHorizontal() {
 
 //RemoveVerticalExtremes removes vertical extremes from the segment
 func (seg *GPXTrackSegment) RemoveVerticalExtremes() {
-	if len(seg.Points) < REMOVE_EXTREEMES_TRESHOLD {
+	if len(seg.Points) < removeExtreemesTreshold {
 		return
 	}
 
@@ -1241,7 +1241,7 @@ func (seg *GPXTrackSegment) RemoveVerticalExtremes() {
 //RemoveHorizontalExtremes removes horizontal extremes from the segment
 func (seg *GPXTrackSegment) RemoveHorizontalExtremes() {
 	// Dont't remove extreemes if segment too small
-	if len(seg.Points) < REMOVE_EXTREEMES_TRESHOLD {
+	if len(seg.Points) < removeExtreemesTreshold {
 		return
 	}
 
