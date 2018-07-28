@@ -33,7 +33,7 @@ func cca(x, y float64) bool {
 
 func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
 	if var1 != var2 {
-		t.Error(fmt.Sprintf("%v not equals to %v", var1, var2))
+		t.Errorf("%v not equals to %v", var1, var2)
 	}
 }
 
@@ -907,7 +907,7 @@ func testReduceTrackByMaxPointsAndMinDistance(t *testing.T, maxReducedPointsNo i
 
 		if minDistanceOriginal > 0.0 {
 			if reducedMinDistance < minDistance {
-				t.Error(fmt.Sprintf("reducedMinDistance=%f, but minDistance should be=%f", reducedMinDistance, minDistance))
+				t.Errorf("reducedMinDistance=%f, but minDistance should be=%f", reducedMinDistance, minDistance)
 			}
 		}
 	}
@@ -935,7 +935,7 @@ func simplifyAndCheck(t *testing.T, gpxFile string, maxDistance float64) float64
 
 	length2DAfterSimplified := g.Length2D()
 	if length2DOriginal < length2DAfterSimplified {
-		t.Error(fmt.Sprintf("Original length cannot be smaller than simplified, original=%f, simplified=%f", length2DOriginal, length2DAfterSimplified))
+		t.Errorf("Original length cannot be smaller than simplified, original=%f, simplified=%f", length2DOriginal, length2DAfterSimplified)
 	}
 
 	return length2DAfterSimplified
@@ -990,13 +990,13 @@ func TestAppendPoint(t *testing.T) {
 	g.AppendPoint(new(GPXPoint))
 
 	if len(g.Tracks) != 1 {
-		t.Error(fmt.Sprintf("Should be only 1 track, found %d", len(g.Tracks)))
+		t.Errorf("Should be only 1 track, found %d", len(g.Tracks))
 	}
 	if len(g.Tracks[0].Segments) != 1 {
-		t.Error(fmt.Sprintf("Should be only 1 segment, found %d", len(g.Tracks[0].Segments)))
+		t.Errorf("Should be only 1 segment, found %d", len(g.Tracks[0].Segments))
 	}
 	if len(g.Tracks[0].Segments[0].Points) != 1 {
-		t.Error(fmt.Sprintf("Should be only 1 point, found %d", len(g.Tracks[0].Segments[0].Points)))
+		t.Errorf("Should be only 1 point, found %d", len(g.Tracks[0].Segments[0].Points))
 	}
 }
 
@@ -1004,10 +1004,10 @@ func TestAppendSegment(t *testing.T) {
 	g := new(GPX)
 	g.AppendSegment(new(GPXTrackSegment))
 	if len(g.Tracks) != 1 {
-		t.Error(fmt.Sprintf("Should be only 1 track, found %d", len(g.Tracks)))
+		t.Errorf("Should be only 1 track, found %d", len(g.Tracks))
 	}
 	if len(g.Tracks[0].Segments) != 1 {
-		t.Error(fmt.Sprintf("Should be only 1 segment, found %d", len(g.Tracks)))
+		t.Errorf("Should be only 1 segment, found %d", len(g.Tracks))
 	}
 }
 
@@ -1023,10 +1023,10 @@ func TestReduceToSingleTrack(t *testing.T) {
 	pointsNoAfter := g.GetTrackPointsNo()
 
 	if len(g.Tracks) != 1 {
-		t.Error(fmt.Sprintf("Tracks length should be 1 but is %d", len(g.Tracks)))
+		t.Errorf("Tracks length should be 1 but is %d", len(g.Tracks))
 	}
 	if pointsNoBefore != pointsNoAfter {
-		t.Error(fmt.Sprintf("pointsNoBefore != pointsNoAfter -> %d != %d", pointsNoBefore, pointsNoAfter))
+		t.Errorf("pointsNoBefore != pointsNoAfter -> %d != %d", pointsNoBefore, pointsNoAfter)
 	}
 }
 
@@ -1049,10 +1049,10 @@ func TestRemoveEmpty(t *testing.T) {
 	g.RemoveEmpty()
 
 	if len(g.Tracks) != 1 {
-		t.Error(fmt.Sprintf("Only one track should be left!, found %d", len(g.Tracks)))
+		t.Errorf("Only one track should be left!, found %d", len(g.Tracks))
 	}
 	if len(g.Tracks[0].Segments) != 1 {
-		t.Error(fmt.Sprintf("Only one segment should be left, found %d", len(g.Tracks[0].Segments)))
+		t.Errorf("Only one segment should be left, found %d", len(g.Tracks[0].Segments))
 	}
 }
 
