@@ -92,7 +92,9 @@ func (n NullableInt) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		return nil
 	}
 	xmlName := xml.Name{Local: start.Name.Local}
-	e.EncodeToken(xml.StartElement{Name: xmlName})
+	if err := e.EncodeToken(xml.StartElement{Name: xmlName}); err != nil {
+		return err
+	}
 	e.EncodeToken(xml.CharData([]byte(fmt.Sprintf("%d", n.Value()))))
 	e.EncodeToken(xml.EndElement{Name: xmlName})
 	return nil
