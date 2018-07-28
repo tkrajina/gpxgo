@@ -3,4 +3,4 @@ language: go
     - "1.10"
 
 script:
- - make test
+ - go test -v ./gpx
