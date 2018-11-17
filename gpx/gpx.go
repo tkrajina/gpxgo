@@ -6,6 +6,7 @@
 package gpx
 
 import (
+	"encoding/xml"
 	"fmt"
 	"math"
 	"time"
@@ -18,6 +19,17 @@ const (
 )
 
 // ----------------------------------------------------------------------------------------------------
+
+type Extensions struct {
+	Nodes []ExtensionsNode `xml:",any"`
+}
+
+type ExtensionsNode struct {
+	XMLName xml.Name
+	Attrs   []xml.Attr       `xml:"-"`
+	Content []byte           `xml:",innerxml"`
+	Nodes   []ExtensionsNode `xml:",any"`
+}
 
 // GPXElementInfo implements some basic stats all common GPX elements (GPX, track and segment) must have
 type GPXElementInfo interface {
@@ -641,9 +653,10 @@ func (b *GpxBounds) String() string {
 
 // Point represents generic point data and implements the Location interface
 type Point struct {
-	Latitude  float64
-	Longitude float64
-	Elevation NullableFloat64
+	Latitude   float64
+	Longitude  float64
+	Elevation  NullableFloat64
+	Extensions *Extensions
 }
 
 //GetLatitude returns the latitude

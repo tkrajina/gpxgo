@@ -161,16 +161,16 @@ type gpx11Gpx struct {
 	AuthorName  string         `xml:"metadata>author>name,omitempty"`
 	AuthorEmail *gpx11GpxEmail `xml:"metadata>author>email,omitempty"`
 	// TODO: There can be more than one link?
-	AuthorLink *gpx11GpxLink       `xml:"metadata>author>link,omitempty"`
-	Copyright  *gpx11GpxCopyright  `xml:"metadata>copyright,omitempty"`
-	Link       *gpx11GpxLink       `xml:"metadata>link,omitempty"`
-	Timestamp  string              `xml:"metadata>time,omitempty"`
-	Keywords   string              `xml:"metadata>keywords,omitempty"`
-	Bounds     *gpx11GpxBounds     `xml:"bounds"`
-	Extensions *gpx11GpxExtensions `xml:"extensions"`
-	Waypoints  []*gpx11GpxPoint    `xml:"wpt"`
-	Routes     []*gpx11GpxRte      `xml:"rte"`
-	Tracks     []*gpx11GpxTrk      `xml:"trk"`
+	AuthorLink *gpx11GpxLink      `xml:"metadata>author>link,omitempty"`
+	Copyright  *gpx11GpxCopyright `xml:"metadata>copyright,omitempty"`
+	Link       *gpx11GpxLink      `xml:"metadata>link,omitempty"`
+	Timestamp  string             `xml:"metadata>time,omitempty"`
+	Keywords   string             `xml:"metadata>keywords,omitempty"`
+	Bounds     *gpx11GpxBounds    `xml:"bounds"`
+	Extensions *ExtensionsNode    `xml:"extensions"`
+	Waypoints  []*gpx11GpxPoint   `xml:"wpt"`
+	Routes     []*gpx11GpxRte     `xml:"rte"`
+	Tracks     []*gpx11GpxTrk     `xml:"trk"`
 }
 
 type gpx11GpxBounds struct {
@@ -225,8 +225,9 @@ type gpx11GpxExtensions struct {
  * Common struct fields for all points
  */
 type gpx11GpxPoint struct {
-	Lat float64 `xml:"lat,attr"`
-	Lon float64 `xml:"lon,attr"`
+	Lat        float64     `xml:"lat,attr"`
+	Lon        float64     `xml:"lon,attr"`
+	Extensions *Extensions `xml:"extensions"`
 	// Position info
 	Ele         NullableFloat64 `xml:"ele,omitempty"`
 	Timestamp   string          `xml:"time,omitempty"`

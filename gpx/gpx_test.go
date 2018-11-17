@@ -13,6 +13,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -1324,5 +1326,27 @@ ERRgpx>
 	}
 	if gpxDoc != nil {
 		t.Error("gpxDoc should be empty, found:", gpxDoc)
+	}
+}
+
+func TestWptExtensions(t *testing.T) {
+	xml := `<gpx version="1.1" creator="nawagers" xmlns="http://www.topografix.com/GPX/1/1" xmlns:ext="gpx.py">
+    <wpt lat="12.3" lon="45.6">
+        <extensions>
+            <ext:aaa ext:jjj="kkk">bbb</ext:aaa>hhh
+            <ext:ccc>
+                <ext:ddd ext:lll="mmm" ext:nnn="ooo">eee
+                    <ext:fff>ggg</ext:fff>iii
+                </ext:ddd>
+            </ext:ccc>
+        </extensions>
+    </wpt>
+</gpx>`
+	gpxDoc, err := ParseString(xml)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(gpxDoc.Waypoints[0].Extensions.Nodes))
+	for _, node := range gpxDoc.Waypoints[0].Extensions.Nodes {
+		fmt.Println("node=", node.XMLName, string(node.Content))
+		fmt.Println("attrs=", node.Attrs)
 	}
 }

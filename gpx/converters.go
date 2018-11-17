@@ -579,6 +579,7 @@ func convertPointFromGpx11(original *gpx11GpxPoint) *GPXPoint {
 	result := new(GPXPoint)
 	result.Latitude = original.Lat
 	result.Longitude = original.Lon
+	result.Extensions = original.Extensions
 	result.Elevation = original.Ele
 	time, _ := parseGPXTime(original.Timestamp)
 	if time != nil {
