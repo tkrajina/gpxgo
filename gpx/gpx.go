@@ -1634,6 +1634,9 @@ func (trk *GPXTrack) AddMissingTime() {
 
 // ----------------------------------------------------------------------------------------------------
 
+const minLatitude, maxLatitude = -90, +90
+const minLongitude, maxLongitude = -180, +180
+
 /**
  * Useful when looking for smaller bounds
  *
@@ -1641,10 +1644,10 @@ func (trk *GPXTrack) AddMissingTime() {
  */
 func getMaximalGpxBounds() GpxBounds {
 	return GpxBounds{
-		MaxLatitude:  -math.MaxFloat64,
-		MinLatitude:  math.MaxFloat64,
-		MaxLongitude: -math.MaxFloat64,
-		MinLongitude: math.MaxFloat64,
+		MinLatitude:  minLatitude,
+		MaxLatitude:  maxLatitude,
+		MinLongitude: minLongitude,
+		MaxLongitude: maxLongitude,
 	}
 }
 
