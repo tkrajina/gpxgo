@@ -173,6 +173,9 @@ func (g *GPX) Bounds() GpxBounds {
 		minmax.MaxLongitude = math.Max(bnds.MaxLongitude, minmax.MaxLongitude)
 		minmax.MinLongitude = math.Min(bnds.MinLongitude, minmax.MinLongitude)
 	}
+	if minmax == getMaximalGpxBounds() {
+		return GpxBounds{}
+	}
 	return minmax
 }
 
@@ -900,6 +903,9 @@ func (seg *GPXTrackSegment) Bounds() GpxBounds {
 		minmax.MaxLongitude = math.Max(pt.Longitude, minmax.MaxLongitude)
 		minmax.MinLongitude = math.Min(pt.Longitude, minmax.MinLongitude)
 	}
+	if minmax == getMaximalGpxBounds() {
+		return GpxBounds{}
+	}
 	return minmax
 }
 
@@ -1395,6 +1401,9 @@ func (trk *GPXTrack) Bounds() GpxBounds {
 		minmax.MaxLongitude = math.Max(bnds.MaxLongitude, minmax.MaxLongitude)
 		minmax.MinLongitude = math.Min(bnds.MinLongitude, minmax.MinLongitude)
 	}
+	if minmax == getMaximalGpxBounds() {
+		return GpxBounds{}
+	}
 	return minmax
 }
 
@@ -1644,10 +1653,10 @@ const minLongitude, maxLongitude = -180, +180
  */
 func getMaximalGpxBounds() GpxBounds {
 	return GpxBounds{
-		MinLatitude:  minLatitude,
-		MaxLatitude:  maxLatitude,
-		MinLongitude: minLongitude,
-		MaxLongitude: maxLongitude,
+		MinLatitude:  maxLatitude,
+		MaxLatitude:  minLatitude,
+		MinLongitude: maxLongitude,
+		MaxLongitude: minLongitude,
 	}
 }
 

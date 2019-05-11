@@ -560,6 +560,16 @@ func TestBoundsGpx(t *testing.T) {
 	}
 }
 
+func TestBoundsForEmptyGpx(t *testing.T) {
+	var g GPX
+
+	bounds := g.Bounds()
+
+	if !bounds.Equals(GpxBounds{0, 0, 0, 0}) {
+		t.Errorf("Zero bounds expected, actual: %s", bounds.String())
+	}
+}
+
 func TestElevationBoundsSeg(t *testing.T) {
 	g, _ := ParseFile("../test_files/file.gpx")
 
