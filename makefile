@@ -37,3 +37,6 @@ install-tools:
 	go get -u github.com/tkrajina/golongfuncs/...
 	go get -u gopkg.in/alecthomas/gometalinter.v2
 	gometalinter --install
+
+typescript-models:
+	tscriptify -package=github.com/tkrajina/gpxgo/gpx -target=gpx.ts GPX
