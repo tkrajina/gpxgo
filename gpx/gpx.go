@@ -61,15 +61,15 @@ func GetGpxElementInfo(prefix string, gpxDoc GPXElementInfo) string {
 //GPX implements one or multiple GPS tracks that can be written to and parsed
 //from a gpx file
 type GPX struct {
-	XMLNs        string
-	XmlNsXsi     string
-	XmlSchemaLoc string
+	XMLNs        string `json:"-"`
+	XmlNsXsi     string `json:"-"`
+	XmlSchemaLoc string `json:"-"`
 
 	Version          string     `json:"-"`
 	Creator          string     `json:"-"`
-	Name             string     `json:"name"`
-	Description      string     `json:"desc"`
-	AuthorName       string     `json:"author"`
+	Name             string     `json:"name,omitempty"`
+	Description      string     `json:"desc,omitempty"`
+	AuthorName       string     `json:"author,omitempty"`
 	AuthorEmail      string     `json:"-"`
 	AuthorLink       string     `json:"-"`
 	AuthorLinkText   string     `json:"-"`
@@ -81,13 +81,13 @@ type GPX struct {
 	LinkText         string     `json:"-"`
 	LinkType         string     `json:"-"`
 	Time             *time.Time `json:"-"`
-	Keywords         string     `json:"keywords"`
+	Keywords         string     `json:"keywords,omitempty"`
 
 	// TODO
 	//Extensions []byte
-	Waypoints []GPXPoint `json:"waypoints"`
-	Routes    []GPXRoute `json:"routes"`
-	Tracks    []GPXTrack `json:"tracks"`
+	Waypoints []GPXPoint `json:"waypoints,omitempty"`
+	Routes    []GPXRoute `json:"routes,omitempty"`
+	Tracks    []GPXTrack `json:"tracks,omitempty"`
 }
 
 // ToXml converts the object to xml.
@@ -644,9 +644,9 @@ func (b *GpxBounds) String() string {
 
 // Point represents generic point data and implements the Location interface
 type Point struct {
-	Latitude  float64         `json:"lat"`
-	Longitude float64         `json:"lon"`
-	Elevation NullableFloat64 `json:"ele"`
+	Latitude  float64         `json:"lat,omitempty"`
+	Longitude float64         `json:"lon,omitempty"`
+	Elevation NullableFloat64 `json:"ele,omitempty"`
 }
 
 //GetLatitude returns the latitude
@@ -727,20 +727,20 @@ type TrackPosition struct {
 type GPXPoint struct {
 	Point
 	// TODO
-	Timestamp time.Time `json:"time"`
+	Timestamp time.Time `json:"time,omitempty"`
 	// TODO: Type
 	MagneticVariation string `json:"-"`
 	// TODO: Type
 	GeoidHeight string `json:"-"`
 	// Description info
-	Name        string `json:"name"`
-	Comment     string `json:"comment"`
-	Description string `json:"description"`
+	Name        string `json:"name,omitempty"`
+	Comment     string `json:"comment,omitempty"`
+	Description string `json:"description,omitempty"`
 	Source      string `json:"-"`
 	// TODO
 	// Links       []GpxLink
-	Symbol string `json:"symbol"`
-	Type   string `json:"type"`
+	Symbol string `json:"symbol,omitempty"`
+	Type   string `json:"type,omitempty"`
 	// Accuracy info
 	TypeOfGpsFix       string          `json:"-"`
 	Satellites         NullableInt     `json:"-"`
@@ -792,14 +792,14 @@ func (pt *GPXPoint) MaxDilutionOfPrecision() float64 {
 
 //GPXRoute implements a gpx route
 type GPXRoute struct {
-	Name        string `json:"name"`
-	Comment     string `json:"comment"`
-	Description string `json:"description"`
+	Name        string `json:"name,omitempty"`
+	Comment     string `json:"comment,omitempty"`
+	Description string `json:"description,omitempty"`
 	Source      string `json:"-"`
 	//Links       []Link
 	Number NullableInt `json:"-"`
-	Type   string      `json:"type"`
-	Points []GPXPoint  `json:"points"`
+	Type   string      `json:"type,omitempty"`
+	Points []GPXPoint  `json:"points,omitempty"`
 }
 
 // Length returns the length of a GPX route.
@@ -844,7 +844,7 @@ func (rte *GPXRoute) ExecuteOnPoints(executor func(*GPXPoint)) {
 
 //GPXTrackSegment represents a segment of a track
 type GPXTrackSegment struct {
-	Points []GPXPoint `json:"points"`
+	Points []GPXPoint `json:"points,omitempty"`
 	// TODO extensions
 }
 
@@ -1334,15 +1334,15 @@ func (seg *GPXTrackSegment) addMissingTimeInSegment(start, end int) {
 
 //GPXTrack implements a gpx track
 type GPXTrack struct {
-	Name        string `json:"name"`
-	Comment     string `json:"comment"`
-	Description string `json:"description"`
+	Name        string `json:"name,omitempty"`
+	Comment     string `json:"comment,omitempty"`
+	Description string `json:"description,omitempty"`
 	Source      string `json:"-"`
 	// TODO
 	//Links    []Link
 	Number   NullableInt       `json:"-"`
 	Type     string            `json:"-"`
-	Segments []GPXTrackSegment `json:"segments"`
+	Segments []GPXTrackSegment `json:"segments,omitempty"`
 }
 
 // Length2D returns the 2D length of a GPX track.
