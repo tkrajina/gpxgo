@@ -801,12 +801,10 @@ func TestAddElevation(t *testing.T) {
 
 	gpx.AddElevation(10)
 	assertEquals(t, *gpx.Tracks[0].Segments[0].Points[0].Elevation, 110.0)
-	assertEquals(t, *gpx.Tracks[0].Segments[0].Points[1].Elevation, 0.0)
 	assertNil(t, gpx.Tracks[0].Segments[0].Points[1].Elevation)
 
 	gpx.AddElevation(-20)
 	assertEquals(t, *gpx.Tracks[0].Segments[0].Points[0].Elevation, 90.0)
-	assertEquals(t, *gpx.Tracks[0].Segments[0].Points[1].Elevation, 0.0)
 	assertNil(t, gpx.Tracks[0].Segments[0].Points[1].Elevation)
 }
 
