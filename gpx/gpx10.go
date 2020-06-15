@@ -181,10 +181,10 @@ type gpx10GpxPoint struct {
 	Lat float64 `xml:"lat,attr"`
 	Lon float64 `xml:"lon,attr"`
 	// Position info
-	Ele         NullableFloat64 `xml:"ele,omitempty"`
-	Timestamp   string          `xml:"time,omitempty"`
-	MagVar      string          `xml:"magvar,omitempty"`
-	GeoIdHeight string          `xml:"geoidheight,omitempty"`
+	Ele         *float64 `xml:"ele,omitempty"`
+	Timestamp   string   `xml:"time,omitempty"`
+	MagVar      string   `xml:"magvar,omitempty"`
+	GeoIdHeight string   `xml:"geoidheight,omitempty"`
 	// Description info
 	Name  string         `xml:"name,omitempty"`
 	Cmt   string         `xml:"cmt,omitempty"`
@@ -215,7 +215,7 @@ type gpx10GpxRte struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links       []Link   `xml:"link"`
-	Number NullableInt      `xml:"number,omitempty"`
+	Number *int             `xml:"number,omitempty"`
 	Type   string           `xml:"type,omitempty"`
 	Points []*gpx10GpxPoint `xml:"rtept"`
 }
@@ -234,7 +234,7 @@ type gpx10GpxTrk struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links    []Link   `xml:"link"`
-	Number   NullableInt       `xml:"number,omitempty"`
+	Number   *int              `xml:"number,omitempty"`
 	Type     string            `xml:"type,omitempty"`
 	Segments []*gpx10GpxTrkSeg `xml:"trkseg,omitempty"`
 }

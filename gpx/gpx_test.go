@@ -221,7 +221,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Waypoints), 2)
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
 	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
-	assertEquals(t, gpxDoc.Waypoints[0].Elevation.Value(), 75.1)
+	assertEquals(t, *gpxDoc.Waypoints[0].Elevation, 75.1)
 	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TimeFormat), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
 	assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
@@ -234,12 +234,12 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Waypoints[0].Symbol, "example sym")
 	assertEquals(t, gpxDoc.Waypoints[0].Type, "example type")
 	assertEquals(t, gpxDoc.Waypoints[0].TypeOfGpsFix, "2d")
-	assertEquals(t, gpxDoc.Waypoints[0].Satellites.Value(), 5)
-	assertEquals(t, gpxDoc.Waypoints[0].HorizontalDilution.Value(), 6.0)
-	assertEquals(t, gpxDoc.Waypoints[0].VerticalDilution.Value(), 7.0)
-	assertEquals(t, gpxDoc.Waypoints[0].PositionalDilution.Value(), 8.0)
-	assertEquals(t, gpxDoc.Waypoints[0].AgeOfDGpsData.Value(), 9.0)
-	assertEquals(t, gpxDoc.Waypoints[0].DGpsId.Value(), 45)
+	assertEquals(t, *gpxDoc.Waypoints[0].Satellites, 5)
+	assertEquals(t, *gpxDoc.Waypoints[0].HorizontalDilution, 6.0)
+	assertEquals(t, *gpxDoc.Waypoints[0].VerticalDilution, 7.0)
+	assertEquals(t, *gpxDoc.Waypoints[0].PositionalDilution, 8.0)
+	assertEquals(t, *gpxDoc.Waypoints[0].AgeOfDGpsData, 9.0)
+	assertEquals(t, *gpxDoc.Waypoints[0].DGpsId, 45)
 	// TODO: Extensions
 
 	assertEquals(t, gpxDoc.Waypoints[1].Latitude, 13.4)
@@ -251,12 +251,12 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Routes[0].Comment, "example cmt")
 	assertEquals(t, gpxDoc.Routes[0].Description, "example desc")
 	assertEquals(t, gpxDoc.Routes[0].Source, "example src")
-	assertEquals(t, gpxDoc.Routes[0].Number.Value(), 7)
+	assertEquals(t, *gpxDoc.Routes[0].Number, 7)
 	assertEquals(t, gpxDoc.Routes[0].Type, "rte type")
 	assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
 	// TODO: Link
 	// TODO: Points
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation.Value(), 75.1)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].Elevation, 75.1)
 	fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TimeFormat), "2013-01-02T02:03:03Z")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
@@ -272,12 +272,12 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Symbol, "example sym r")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Type, "example type r")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].TypeOfGpsFix, "3d")
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Satellites.Value(), 6)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].HorizontalDilution.Value(), 7.0)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].VerticalDilution.Value(), 8.0)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].PositionalDilution.Value(), 9.0)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].AgeOfDGpsData.Value(), 10.0)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].DGpsId.Value(), 99)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].Satellites, 6)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].HorizontalDilution, 7.0)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].VerticalDilution, 8.0)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].PositionalDilution, 9.0)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].AgeOfDGpsData, 10.0)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].DGpsId, 99)
 	// TODO: Extensions
 
 	assertEquals(t, gpxDoc.Routes[1].Name, "second route")
@@ -290,7 +290,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Tracks[0].Comment, "example cmt t")
 	assertEquals(t, gpxDoc.Tracks[0].Description, "example desc t")
 	assertEquals(t, gpxDoc.Tracks[0].Source, "example src t")
-	assertEquals(t, gpxDoc.Tracks[0].Number.Value(), 1)
+	assertEquals(t, *gpxDoc.Tracks[0].Number, 1)
 	assertEquals(t, gpxDoc.Tracks[0].Type, "t")
 	// TODO link
 
@@ -298,7 +298,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation.Value(), 11.1)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].Elevation, 11.1)
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TimeFormat), "2013-01-01T12:00:04Z")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
@@ -310,12 +310,12 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Symbol, "example sym t")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Type, "example type t")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].TypeOfGpsFix, "3d")
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Satellites.Value(), 100)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].HorizontalDilution.Value(), 101.0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].VerticalDilution.Value(), 102.0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].PositionalDilution.Value(), 103.0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].AgeOfDGpsData.Value(), 104.0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].DGpsId.Value(), 99)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].Satellites, 100)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].HorizontalDilution, 101.0)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].VerticalDilution, 102.0)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].PositionalDilution, 103.0)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].AgeOfDGpsData, 104.0)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].DGpsId, 99)
 	// TODO extensions
 }
 
@@ -382,7 +382,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, len(gpxDoc.Waypoints), 2)
 	assertEquals(t, gpxDoc.Waypoints[0].Latitude, 12.3)
 	assertEquals(t, gpxDoc.Waypoints[0].Longitude, 45.6)
-	assertEquals(t, gpxDoc.Waypoints[0].Elevation.Value(), 75.1)
+	assertEquals(t, *gpxDoc.Waypoints[0].Elevation, 75.1)
 	assertEquals(t, gpxDoc.Waypoints[0].Timestamp.Format(TimeFormat), "2013-01-02T02:03:00Z")
 	assertEquals(t, gpxDoc.Waypoints[0].MagneticVariation, "1.1")
 	assertEquals(t, gpxDoc.Waypoints[0].GeoidHeight, "2.0")
@@ -395,12 +395,12 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Waypoints[0].Symbol, "example sym")
 	assertEquals(t, gpxDoc.Waypoints[0].Type, "example type")
 	assertEquals(t, gpxDoc.Waypoints[0].TypeOfGpsFix, "2d")
-	assertEquals(t, gpxDoc.Waypoints[0].Satellites.Value(), 5)
-	assertEquals(t, gpxDoc.Waypoints[0].HorizontalDilution.Value(), 6.0)
-	assertEquals(t, gpxDoc.Waypoints[0].VerticalDilution.Value(), 7.0)
-	assertEquals(t, gpxDoc.Waypoints[0].PositionalDilution.Value(), 8.0)
-	assertEquals(t, gpxDoc.Waypoints[0].AgeOfDGpsData.Value(), 9.0)
-	assertEquals(t, gpxDoc.Waypoints[0].DGpsId.Value(), 45)
+	assertEquals(t, *gpxDoc.Waypoints[0].Satellites, 5)
+	assertEquals(t, *gpxDoc.Waypoints[0].HorizontalDilution, 6.0)
+	assertEquals(t, *gpxDoc.Waypoints[0].VerticalDilution, 7.0)
+	assertEquals(t, *gpxDoc.Waypoints[0].PositionalDilution, 8.0)
+	assertEquals(t, *gpxDoc.Waypoints[0].AgeOfDGpsData, 9.0)
+	assertEquals(t, *gpxDoc.Waypoints[0].DGpsId, 45)
 	// TODO: Extensions
 
 	assertEquals(t, gpxDoc.Waypoints[1].Latitude, 13.4)
@@ -412,12 +412,12 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Routes[0].Comment, "example cmt")
 	assertEquals(t, gpxDoc.Routes[0].Description, "example desc")
 	assertEquals(t, gpxDoc.Routes[0].Source, "example src")
-	assertEquals(t, gpxDoc.Routes[0].Number.Value(), 7)
+	assertEquals(t, *gpxDoc.Routes[0].Number, 7)
 	assertEquals(t, gpxDoc.Routes[0].Type, "")
 	assertEquals(t, len(gpxDoc.Routes[0].Points), 3)
 	// TODO: Link
 	// TODO: Points
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Elevation.Value(), 75.1)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].Elevation, 75.1)
 	fmt.Println("t=", gpxDoc.Routes[0].Points[0].Timestamp)
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Timestamp.Format(TimeFormat), "2013-01-02T02:03:03Z")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].MagneticVariation, "1.2")
@@ -433,12 +433,12 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Symbol, "example sym r")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].Type, "example type r")
 	assertEquals(t, gpxDoc.Routes[0].Points[0].TypeOfGpsFix, "3d")
-	assertEquals(t, gpxDoc.Routes[0].Points[0].Satellites.Value(), 6)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].HorizontalDilution.Value(), 7.0)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].VerticalDilution.Value(), 8.0)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].PositionalDilution.Value(), 9.0)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].AgeOfDGpsData.Value(), 10.0)
-	assertEquals(t, gpxDoc.Routes[0].Points[0].DGpsId.Value(), 99)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].Satellites, 6)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].HorizontalDilution, 7.0)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].VerticalDilution, 8.0)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].PositionalDilution, 9.0)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].AgeOfDGpsData, 10.0)
+	assertEquals(t, *gpxDoc.Routes[0].Points[0].DGpsId, 99)
 	// TODO: Extensions
 
 	assertEquals(t, gpxDoc.Routes[1].Name, "second route")
@@ -451,7 +451,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Tracks[0].Comment, "example cmt t")
 	assertEquals(t, gpxDoc.Tracks[0].Description, "example desc t")
 	assertEquals(t, gpxDoc.Tracks[0].Source, "example src t")
-	assertEquals(t, gpxDoc.Tracks[0].Number.Value(), 1)
+	assertEquals(t, *gpxDoc.Tracks[0].Number, 1)
 	assertEquals(t, gpxDoc.Tracks[0].Type, "")
 	// TODO link
 
@@ -459,7 +459,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[0].Points), 1)
 	assertEquals(t, len(gpxDoc.Tracks[0].Segments[1].Points), 0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Elevation.Value(), 11.1)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].Elevation, 11.1)
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Timestamp.Format(TimeFormat), "2013-01-01T12:00:04Z")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].MagneticVariation, "12")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].GeoidHeight, "13")
@@ -471,12 +471,12 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Symbol, "example sym t")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Type, "example type t")
 	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].TypeOfGpsFix, "3d")
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].Satellites.Value(), 100)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].HorizontalDilution.Value(), 101.0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].VerticalDilution.Value(), 102.0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].PositionalDilution.Value(), 103.0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].AgeOfDGpsData.Value(), 104.0)
-	assertEquals(t, gpxDoc.Tracks[0].Segments[0].Points[0].DGpsId.Value(), 99)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].Satellites, 100)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].HorizontalDilution, 101.0)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].VerticalDilution, 102.0)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].PositionalDilution, 103.0)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].AgeOfDGpsData, 104.0)
+	assertEquals(t, *gpxDoc.Tracks[0].Segments[0].Points[0].DGpsId, 99)
 	// TODO extensions
 }
 
@@ -747,9 +747,9 @@ func TestNewXml(t *testing.T) {
 	gpxTrack := new(GPXTrack)
 
 	gpxSegment := GPXTrackSegment{}
-	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: *NewNullableFloat64(1234.0)}})
-	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: *NewNullableFloat64(1235.0)}})
-	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: *NewNullableFloat64(1236.0)}})
+	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: newFloat(1234.0)}})
+	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: newFloat(1235.0)}})
+	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: newFloat(1236.0)}})
 
 	gpxTrack.Segments = append(gpxTrack.Segments, gpxSegment)
 	gpx.Tracks = append(gpx.Tracks, *gpxTrack)
@@ -796,18 +796,18 @@ func TestAddElevation(t *testing.T) {
 	gpx := new(GPX)
 	gpx.AppendTrack(new(GPXTrack))
 	gpx.Tracks[0].AppendSegment(new(GPXTrackSegment))
-	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: *NewNullableFloat64(100)}})
+	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: newFloat(100)}})
 	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13}})
 
 	gpx.AddElevation(10)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation.Value(), 110.0)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), 0.0)
-	assertTrue(t, "should be nil", gpx.Tracks[0].Segments[0].Points[1].Elevation.Null())
+	assertEquals(t, *gpx.Tracks[0].Segments[0].Points[0].Elevation, 110.0)
+	assertEquals(t, *gpx.Tracks[0].Segments[0].Points[1].Elevation, 0.0)
+	assertNil(t, gpx.Tracks[0].Segments[0].Points[1].Elevation)
 
 	gpx.AddElevation(-20)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[0].Elevation.Value(), 90.0)
-	assertEquals(t, gpx.Tracks[0].Segments[0].Points[1].Elevation.Value(), 0.0)
-	assertTrue(t, "Should be nil", gpx.Tracks[0].Segments[0].Points[1].Elevation.Null())
+	assertEquals(t, *gpx.Tracks[0].Segments[0].Points[0].Elevation, 90.0)
+	assertEquals(t, *gpx.Tracks[0].Segments[0].Points[1].Elevation, 0.0)
+	assertNil(t, gpx.Tracks[0].Segments[0].Points[1].Elevation)
 }
 
 func TestRemoveElevation(t *testing.T) {
@@ -1111,7 +1111,7 @@ func TestSmoothHorizontal(t *testing.T) {
 			for pointNo := range g.Tracks[trackNo].Segments[segmentNo].Points {
 				point := g.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
 				originalPoint := original.Tracks[trackNo].Segments[segmentNo].Points[pointNo]
-				if point.Elevation.Value() != originalPoint.Elevation.Value() {
+				if *point.Elevation != *originalPoint.Elevation {
 					t.Error("Elevation must be unchanged!")
 					return
 				}
@@ -1159,7 +1159,8 @@ func getGpxWith3Extremes() GPX {
 		point := GPXPoint{}
 		point.Latitude = 45.0 + float64(i)*0.0001
 		point.Longitude = 13.0 + float64(i)*0.0001
-		point.Elevation = *NewNullableFloat64(100.0 + float64(i)*1.0)
+		e := 100.0 + float64(i)*1.0
+		point.Elevation = &e
 		gpxDoc.AppendPoint(&point)
 
 		// Two points to be removed later:
@@ -1167,7 +1168,8 @@ func getGpxWith3Extremes() GPX {
 			point := GPXPoint{}
 			point.Latitude = float64(i)
 			point.Longitude = float64(i)
-			point.Elevation = *NewNullableFloat64(2000.0)
+			var e = 2000.0
+			point.Elevation = &e
 			gpxDoc.AppendPoint(&point)
 		}
 	}

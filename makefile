@@ -1,5 +1,5 @@
 test:
-	go test ./gpx
+	go test -gcflags="-e" ./gpx
 gofmt:
 	gofmt -w ./gpx
 goimports:

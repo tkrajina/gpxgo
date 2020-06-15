@@ -469,9 +469,9 @@ func (g *GPX) ExecuteOnTrackPoints(executor func(*GPXPoint)) {
 func (g *GPX) AddElevation(elevation float64) {
 	g.ExecuteOnAllPoints(func(point *GPXPoint) {
 		fmt.Println("setting elevation if NotNull for:", point.Elevation)
-		if point.Elevation.NotNull() {
+		if point.Elevation != nil {
 			fmt.Println("setting elevation")
-			point.Elevation.SetValue(point.Elevation.Value() + elevation)
+			point.Elevation = newFloat(*point.Elevation + elevation)
 		}
 	})
 }
@@ -479,7 +479,7 @@ func (g *GPX) AddElevation(elevation float64) {
 //RemoveElevation removes elevation info on all points
 func (g *GPX) RemoveElevation() {
 	g.ExecuteOnAllPoints(func(point *GPXPoint) {
-		point.Elevation.SetNull()
+		point.Elevation = nil
 	})
 }
 
@@ -644,9 +644,9 @@ func (b *GpxBounds) String() string {
 
 // Point represents generic point data and implements the Location interface
 type Point struct {
-	Latitude  float64         `json:"lat,omitempty"`
-	Longitude float64         `json:"lon,omitempty"`
-	Elevation NullableFloat64 `json:"ele,omitempty"`
+	Latitude  float64  `json:"lat,omitempty"`
+	Longitude float64  `json:"lon,omitempty"`
+	Elevation *float64 `json:"ele,omitempty"`
 }
 
 //GetLatitude returns the latitude
@@ -660,7 +660,7 @@ func (pt *Point) GetLongitude() float64 {
 }
 
 //GetElevation returns the elevation
-func (pt *Point) GetElevation() NullableFloat64 {
+func (pt *Point) GetElevation() *float64 {
 	return pt.Elevation
 }
 
@@ -742,13 +742,13 @@ type GPXPoint struct {
 	Symbol string `json:"symbol,omitempty"`
 	Type   string `json:"type,omitempty"`
 	// Accuracy info
-	TypeOfGpsFix       string          `json:"-"`
-	Satellites         NullableInt     `json:"-"`
-	HorizontalDilution NullableFloat64 `json:"-"`
-	VerticalDilution   NullableFloat64 `json:"-"`
-	PositionalDilution NullableFloat64 `json:"-"`
-	AgeOfDGpsData      NullableFloat64 `json:"-"`
-	DGpsId             NullableInt     `json:"-"`
+	TypeOfGpsFix       string   `json:"-"`
+	Satellites         *int     `json:"-"`
+	HorizontalDilution *float64 `json:"-"`
+	VerticalDilution   *float64 `json:"-"`
+	PositionalDilution *float64 `json:"-"`
+	AgeOfDGpsData      *float64 `json:"-"`
+	DGpsId             *int     `json:"-"`
 }
 
 // SpeedBetween calculates the speed between two GpxWpts.
@@ -783,23 +783,18 @@ func (pt *GPXPoint) TimeDiff(pt2 *GPXPoint) float64 {
 	return delta.Seconds()
 }
 
-// MaxDilutionOfPrecision returns the dilution precision of a GpxWpt.
-func (pt *GPXPoint) MaxDilutionOfPrecision() float64 {
-	return math.Max(pt.HorizontalDilution.Value(), math.Max(pt.VerticalDilution.Value(), pt.PositionalDilution.Value()))
-}
-
 // ----------------------------------------------------------------------------------------------------
 
 //GPXRoute implements a gpx route
 type GPXRoute struct {
-	Name        string `json:"name,omitempty"`
-	Comment     string `json:"comment,omitempty"`
-	Description string `json:"description,omitempty"`
-	Source      string `json:"-"`
+	Name        string     `json:"name,omitempty"`
+	Comment     string     `json:"comment,omitempty"`
+	Description string     `json:"description,omitempty"`
+	Source      string     `json:"-"`
+	Number      *int       `json:"-"`
+	Type        string     `json:"type,omitempty"`
+	Points      []GPXPoint `json:"points,omitempty"`
 	//Links       []Link
-	Number NullableInt `json:"-"`
-	Type   string      `json:"type,omitempty"`
-	Points []GPXPoint  `json:"points,omitempty"`
 }
 
 // Length returns the length of a GPX route.
@@ -911,9 +906,9 @@ func (seg *GPXTrackSegment) Bounds() GpxBounds {
 func (seg *GPXTrackSegment) ElevationBounds() ElevationBounds {
 	minmax := getMaximalElevationBounds()
 	for _, pt := range seg.Points {
-		if pt.Elevation.NotNull() {
-			minmax.MaxElevation = math.Max(pt.Elevation.Value(), minmax.MaxElevation)
-			minmax.MinElevation = math.Min(pt.Elevation.Value(), minmax.MinElevation)
+		if pt.Elevation != nil {
+			minmax.MaxElevation = math.Max(*pt.Elevation, minmax.MaxElevation)
+			minmax.MinElevation = math.Min(*pt.Elevation, minmax.MinElevation)
 		}
 	}
 	return minmax
@@ -1008,8 +1003,8 @@ func (seg *GPXTrackSegment) Duration() float64 {
 }
 
 // Elevations returns a slice with the elevations in a GPX segment.
-func (seg *GPXTrackSegment) Elevations() []NullableFloat64 {
-	elevations := make([]NullableFloat64, len(seg.Points))
+func (seg *GPXTrackSegment) Elevations() []*float64 {
+	elevations := make([]*float64, len(seg.Points))
 	for i, trkpt := range seg.Points {
 		elevations[i] = trkpt.Elevation
 	}
@@ -1067,8 +1062,8 @@ func (seg *GPXTrackSegment) SimplifyTracks(maxDistance float64) {
 //AddElevation adds elevation on segment points (pointElevation = pointElevation + elevation)
 func (seg *GPXTrackSegment) AddElevation(elevation float64) {
 	for _, point := range seg.Points {
-		if point.Elevation.NotNull() {
-			point.Elevation.SetValue(point.Elevation.Value() + elevation)
+		if point.Elevation != nil {
+			*point.Elevation += *point.Elevation + elevation
 		}
 	}
 }
@@ -1210,8 +1205,8 @@ func (seg *GPXTrackSegment) RemoveVerticalExtremes() {
 	elevationDeltaSum := 0.0
 	elevationDeltaNo := 0
 	for pointNo, point := range seg.Points {
-		if pointNo > 0 && point.Elevation.NotNull() && seg.Points[pointNo-1].Elevation.NotNull() {
-			elevationDeltaSum += math.Abs(point.Elevation.Value() - seg.Points[pointNo-1].Elevation.Value())
+		if pointNo > 0 && point.Elevation != nil && seg.Points[pointNo-1].Elevation != nil {
+			elevationDeltaSum += math.Abs(*point.Elevation - *seg.Points[pointNo-1].Elevation)
 			elevationDeltaNo += 1
 		}
 	}
@@ -1224,13 +1219,15 @@ func (seg *GPXTrackSegment) RemoveVerticalExtremes() {
 	newPoints := make([]GPXPoint, 0)
 	for pointNo, point := range originalPoints {
 		smoothedPoint := smoothedPoints[pointNo]
-		if 0 < pointNo && pointNo < len(originalPoints)-1 && point.Elevation.NotNull() && smoothedPoints[pointNo].Elevation.NotNull() {
+		if 0 < pointNo && pointNo < len(originalPoints)-1 && point.Elevation != nil && smoothedPoints[pointNo].Elevation != nil {
 			d := originalPoints[pointNo-1].Distance3D(&originalPoints[pointNo+1])
 			d1 := originalPoints[pointNo].Distance3D(&originalPoints[pointNo-1])
 			d2 := originalPoints[pointNo].Distance3D(&originalPoints[pointNo+1])
 			if d1+d2 > d*1.5 {
-				if math.Abs(point.Elevation.Value()-smoothedPoint.Elevation.Value()) < removeElevationExtremesThreshold {
-					newPoints = append(newPoints, point)
+				if point.Elevation != nil && smoothedPoint.Elevation != nil {
+					if math.Abs(*point.Elevation-*smoothedPoint.Elevation) < removeElevationExtremesThreshold {
+						newPoints = append(newPoints, point)
+					}
 				}
 			} else {
 				newPoints = append(newPoints, point)
@@ -1334,15 +1331,15 @@ func (seg *GPXTrackSegment) addMissingTimeInSegment(start, end int) {
 
 //GPXTrack implements a gpx track
 type GPXTrack struct {
-	Name        string `json:"name,omitempty"`
-	Comment     string `json:"comment,omitempty"`
-	Description string `json:"description,omitempty"`
-	Source      string `json:"-"`
+	Name        string            `json:"name,omitempty"`
+	Comment     string            `json:"comment,omitempty"`
+	Description string            `json:"description,omitempty"`
+	Source      string            `json:"-"`
+	Number      *int              `json:"-"`
+	Type        string            `json:"-"`
+	Segments    []GPXTrackSegment `json:"segments,omitempty"`
 	// TODO
 	//Links    []Link
-	Number   NullableInt       `json:"-"`
-	Type     string            `json:"-"`
-	Segments []GPXTrackSegment `json:"segments,omitempty"`
 }
 
 // Length2D returns the 2D length of a GPX track.

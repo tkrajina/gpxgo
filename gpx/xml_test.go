@@ -21,18 +21,18 @@ func TestParseTime(t *testing.T) {
 }
 
 type testXml struct {
-	XMLName   xml.Name        `xml:"gpx"`
-	Float     NullableFloat64 `xml:"float"`
-	Int       NullableInt     `xml:"int"`
-	FloatAttr NullableFloat64 `xml:"floatattr,attr"`
-	IntAttr   NullableInt     `xml:"intattr,attr"`
+	XMLName   xml.Name `xml:"gpx"`
+	Float     *float64 `xml:"float"`
+	Int       *int     `xml:"int"`
+	FloatAttr *float64 `xml:"floatattr,attr"`
+	IntAttr   *int     `xml:"intattr,attr"`
 }
 
 func TestInvalidFloat(t *testing.T) {
 	xmlStr := `<gpx floatattr="1"><float>...a</float></gpx>`
 	testXmlDoc := testXml{}
 	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
-	if testXmlDoc.Float.NotNull() {
+	if testXmlDoc.Float != nil {
 		t.Error("Float is invalid in ", xmlStr)
 	}
 }
@@ -55,10 +55,10 @@ func TestValidFloat3(t *testing.T) {
 func testFloat(xmlStr string, expectedFloat float64, expectedFloatAttribute float64, expectedXml string, t *testing.T) {
 	testXmlDoc := testXml{}
 	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
-	if testXmlDoc.Float.Null() || testXmlDoc.Float.Value() != expectedFloat {
+	if testXmlDoc.Float == nil || *testXmlDoc.Float != expectedFloat {
 		t.Error("Float invalid ", xmlStr)
 	}
-	if testXmlDoc.FloatAttr.Null() || testXmlDoc.FloatAttr.Value() != expectedFloatAttribute {
+	if testXmlDoc.FloatAttr == nil || *testXmlDoc.FloatAttr != expectedFloatAttribute {
 		t.Error("Float attribute invalid ", xmlStr)
 	}
 	bytes, err := xml.Marshal(testXmlDoc)
@@ -89,10 +89,10 @@ func TestValidInt3(t *testing.T) {
 func testInt(xmlStr string, expectedInt int, expectedIntAttribute int, expectedXml string, t *testing.T) {
 	testXmlDoc := testXml{}
 	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
-	if testXmlDoc.Int.Null() || testXmlDoc.Int.Value() != expectedInt {
+	if testXmlDoc.Int == nil || *testXmlDoc.Int != expectedInt {
 		t.Error("Int invalid ", xmlStr)
 	}
-	if testXmlDoc.IntAttr.Null() || testXmlDoc.IntAttr.Value() != expectedIntAttribute {
+	if testXmlDoc.IntAttr == nil || *testXmlDoc.IntAttr != expectedIntAttribute {
 		t.Error("Int attribute valid ", xmlStr)
 	}
 	bytes, err := xml.Marshal(testXmlDoc)
