@@ -306,6 +306,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 	gpx11Doc.XMLNs = "http://www.topografix.com/GPX/1/1"
 	gpx11Doc.XmlNsXsi = gpxDoc.XmlNsXsi
 	gpx11Doc.XmlSchemaLoc = gpxDoc.XmlSchemaLoc
+	gpx11Doc.Extensions = gpxDoc.Extensions
 
 	if len(gpxDoc.Creator) == 0 {
 		gpx11Doc.Creator = defaultCreator
@@ -431,6 +432,7 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 	gpxDoc.Name = gpx11Doc.Name
 	gpxDoc.Description = gpx11Doc.Desc
 	gpxDoc.AuthorName = gpx11Doc.AuthorName
+	gpxDoc.Extensions = gpx11Doc.Extensions
 
 	if gpx11Doc.AuthorEmail != nil {
 		gpxDoc.AuthorEmail = gpx11Doc.AuthorEmail.Id + "@" + gpx11Doc.AuthorEmail.Domain
@@ -548,6 +550,7 @@ func convertPointToGpx11(original *GPXPoint) *gpx11GpxPoint {
 	result.Sym = original.Symbol
 	result.Type = original.Type
 	result.Fix = original.TypeOfGpsFix
+	result.Extensions = original.Extensions
 	if original.Satellites.NotNull() {
 		value := original.Satellites.Value()
 		result.Sat = &value
@@ -595,6 +598,7 @@ func convertPointFromGpx11(original *gpx11GpxPoint) *GPXPoint {
 	result.Symbol = original.Sym
 	result.Type = original.Type
 	result.TypeOfGpsFix = original.Fix
+	result.Extensions = original.Extensions
 	if original.Sat != nil {
 		result.Satellites = *NewNullableInt(*original.Sat)
 	}
