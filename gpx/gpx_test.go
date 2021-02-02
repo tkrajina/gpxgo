@@ -116,6 +116,30 @@ func getMinDistanceBetweenTrackPoints(g GPX) float64 {
 	return result
 }
 
+func reparse(g GPX) (*GPX, error) {
+	xml, err := g.ToXml(ToXmlParams{Version: g.Version})
+	if err != nil {
+		return nil, err
+	}
+	return ParseBytes(xml)
+}
+
+func loadAndReparse(t *testing.T, fn string) (*GPX, *GPX) {
+	original, err := ParseFile(fn)
+	assert.Nil(t, err)
+	assert.NotNil(t, original)
+
+	reparsed, err := reparse(*original)
+	assert.Nil(t, err)
+	assert.NotNil(t, reparsed)
+
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	return original, reparsed
+}
+
 func TestParseGPXTimes(t *testing.T) {
 	datetimes := []string{
 		"2013-01-02T12:07:08Z",
@@ -1342,16 +1366,21 @@ ERRgpx>
 func TestReadExtension(t *testing.T) {
 	t.Parallel()
 
-	gpxDoc, err := ParseFile("../test_files/gpx1.1_with_extensions.gpx")
-	assert.Nil(t, err)
-	assert.NotNil(t, gpxDoc)
+	original, reparsed := loadAndReparse(t, "../test_files/gpx1.1_with_extensions.gpx")
 
-	wptWithExt := gpxDoc.Waypoints[0]
-	ext := wptWithExt.Extensions
-	assert.Equal(t, 2, len(ext.Nodes))
-	assert.Equal(t, "bbb", ext.Nodes[0].Content)
-	assert.Equal(t, "aaa", ext.Nodes[0].LocalName())
-	assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
-	assert.Equal(t, 1, len(ext.Nodes[1].Nodes))
-	assert.Equal(t, "ggg", ext.Nodes[1].Nodes[0].Nodes[0].Content)
+	byts, err := reparsed.ToXml(ToXmlParams{Indent: true})
+	assert.Nil(t, err)
+	fmt.Println(string(byts))
+
+	for n, g := range []GPX{*original, *reparsed} {
+		fmt.Printf("gpx #%d\n", n)
+		wptWithExt := g.Waypoints[0]
+		ext := wptWithExt.Extensions
+		assert.Equal(t, 2, len(ext.Nodes))
+		assert.Equal(t, "bbb", ext.Nodes[0].Content)
+		assert.Equal(t, "aaa", ext.Nodes[0].LocalName())
+		assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
+		assert.Equal(t, 1, len(ext.Nodes[1].Nodes))
+		assert.Equal(t, "ggg", ext.Nodes[1].Nodes[0].Nodes[0].Content)
+	}
 }
