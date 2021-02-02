@@ -13,6 +13,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -1335,4 +1337,21 @@ ERRgpx>
 	if gpxDoc != nil {
 		t.Error("gpxDoc should be empty, found:", gpxDoc)
 	}
+}
+
+func TestReadExtension(t *testing.T) {
+	t.Parallel()
+
+	gpxDoc, err := ParseFile("../test_files/gpx1.1_with_extensions.gpx")
+	assert.Nil(t, err)
+	assert.NotNil(t, gpxDoc)
+
+	wptWithExt := gpxDoc.Waypoints[0]
+	ext := wptWithExt.Extensions
+	assert.Equal(t, 2, len(ext.Nodes))
+	assert.Equal(t, "bbb", ext.Nodes[0].Content)
+	assert.Equal(t, "aaa", ext.Nodes[0].LocalName())
+	assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
+	assert.Equal(t, 1, len(ext.Nodes[1].Nodes))
+	assert.Equal(t, "ggg", ext.Nodes[1].Nodes[0].Nodes[0].Content)
 }

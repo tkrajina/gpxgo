@@ -88,7 +88,7 @@ type GPX struct {
 	Waypoints  []GPXPoint
 	Routes     []GPXRoute
 	Tracks     []GPXTrack
-	Extensions []Extension
+	Extensions Extension
 }
 
 // ToXml converts the object to xml.
@@ -750,7 +750,7 @@ type GPXPoint struct {
 	PositionalDilution NullableFloat64
 	AgeOfDGpsData      NullableFloat64
 	DGpsId             NullableInt
-	Extensions         []Extension
+	Extensions         Extension
 }
 
 // SpeedBetween calculates the speed between two GpxWpts.

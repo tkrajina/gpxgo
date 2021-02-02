@@ -12,9 +12,13 @@ import (
 type Node struct {
 	XMLName xml.Name
 	Attrs   []xml.Attr `xml:",any,attr"`
-	Content []byte     `xml:",innerxml"`
+	Content string     `xml:",innerxml"`
 	Nodes   []Node     `xml:",any"`
 }
+
+func (n Node) IsEmpty() bool     { return len(n.Nodes) == 0 && len(n.Attrs) == 0 && len(n.Content) == 0 }
+func (n Node) LocalName() string { return n.XMLName.Local }
+func (n Node) SpaceName() string { return n.XMLName.Space }
 
 type Extension = Node
 
@@ -176,7 +180,7 @@ type gpx11Gpx struct {
 	Timestamp  string             `xml:"metadata>time,omitempty"`
 	Keywords   string             `xml:"metadata>keywords,omitempty"`
 	Bounds     *gpx11GpxBounds    `xml:"bounds"`
-	Extensions []Extension        `xml:"extensions"`
+	Extensions Extension          `xml:"extensions"`
 	Waypoints  []*gpx11GpxPoint   `xml:"wpt"`
 	Routes     []*gpx11GpxRte     `xml:"rte"`
 	Tracks     []*gpx11GpxTrk     `xml:"trk"`
@@ -246,14 +250,14 @@ type gpx11GpxPoint struct {
 	Sym   string         `xml:"sym,omitempty"`
 	Type  string         `xml:"type,omitempty"`
 	// Accuracy info
-	Fix           string      `xml:"fix,omitempty"`
-	Sat           *int        `xml:"sat,omitempty"`
-	Hdop          *float64    `xml:"hdop,omitempty"`
-	Vdop          *float64    `xml:"vdop,omitempty"`
-	Pdop          *float64    `xml:"pdop,omitempty"`
-	AgeOfDGpsData *float64    `xml:"ageofdgpsdata,omitempty"`
-	DGpsId        *int        `xml:"dgpsid,omitempty"`
-	Extensions    []Extension `xml:"extensions"`
+	Fix           string    `xml:"fix,omitempty"`
+	Sat           *int      `xml:"sat,omitempty"`
+	Hdop          *float64  `xml:"hdop,omitempty"`
+	Vdop          *float64  `xml:"vdop,omitempty"`
+	Pdop          *float64  `xml:"pdop,omitempty"`
+	AgeOfDGpsData *float64  `xml:"ageofdgpsdata,omitempty"`
+	DGpsId        *int      `xml:"dgpsid,omitempty"`
+	Extensions    Extension `xml:"extensions"`
 }
 
 type gpx11GpxRte struct {
