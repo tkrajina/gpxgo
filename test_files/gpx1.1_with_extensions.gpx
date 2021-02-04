@@ -3,8 +3,8 @@
         <extensions>
             <ext:aaa ext:jjj="kkk">bbb</ext:aaa>hhh
             <ext:ccc>
-                <ext:ddd ext:lll="mmm" ext:nnn="ooo">eee
-                    <ext:fff>ggg</ext:fff>iii
+                <ext:ddd ext:lll="mmm" ext:nnn="ooo">
+                    <ext:fff>ggg</ext:fff>
                 </ext:ddd>
             </ext:ccc>
         </extensions>

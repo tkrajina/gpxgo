@@ -1377,10 +1377,14 @@ func TestReadExtension(t *testing.T) {
 		wptWithExt := g.Waypoints[0]
 		ext := wptWithExt.Extensions
 		assert.Equal(t, 2, len(ext.Nodes))
-		assert.Equal(t, "bbb", ext.Nodes[0].Content)
+		assert.Equal(t, "bbb", ext.Nodes[0].Data)
+		// TODO
+		//assert.Equal(t, 0, len(ext.Nodes[0].Attrs), "%#v", ext.Nodes[0].Attrs)
 		assert.Equal(t, "aaa", ext.Nodes[0].LocalName())
 		assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
 		assert.Equal(t, 1, len(ext.Nodes[1].Nodes))
-		assert.Equal(t, "ggg", ext.Nodes[1].Nodes[0].Nodes[0].Content)
+		// TODO
+		//assert.Equal(t, 0, len(ext.Nodes[1].Attrs))
+		assert.Equal(t, "ggg", ext.Nodes[1].Nodes[0].Nodes[0].Data)
 	}
 }

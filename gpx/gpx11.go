@@ -7,20 +7,70 @@ package gpx
 
 import (
 	"encoding/xml"
+	"strings"
 )
 
 type Node struct {
 	XMLName xml.Name
 	Attrs   []xml.Attr `xml:",any,attr"`
-	Content string     `xml:",innerxml"`
+	Data    string     `xml:",chardata"`
 	Nodes   []Node     `xml:",any"`
 }
 
-func (n Node) IsEmpty() bool     { return len(n.Nodes) == 0 && len(n.Attrs) == 0 && len(n.Content) == 0 }
+func (n Node) toTokens() (tokens []xml.Token) {
+	start := xml.StartElement{Name: n.XMLName, Attr: n.Attrs}
+	tokens = append(tokens, start)
+	data := strings.TrimSpace(n.Data)
+	if data != "" {
+		tokens = append(tokens, xml.CharData(data))
+	} else if len(n.Nodes) > 0 {
+		for _, node := range n.Nodes {
+			tokens = append(tokens, node.toTokens()...)
+		}
+	} else {
+		return nil
+	}
+	tokens = append(tokens, xml.EndElement{start.Name})
+	return
+}
+
+func (n Node) IsEmpty() bool     { return len(n.Nodes) == 0 && len(n.Attrs) == 0 && len(n.Data) == 0 }
 func (n Node) LocalName() string { return n.XMLName.Local }
 func (n Node) SpaceName() string { return n.XMLName.Space }
 
-type Extension = Node
+type Extension struct {
+	Node
+}
+
+var _ xml.Marshaler = Extension(Extension{})
+
+func (ex Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if len(ex.Node.Nodes) == 0 {
+		return nil
+	}
+
+	tokens := []xml.Token{start}
+	for _, node := range ex.Nodes {
+		tokens = append(tokens, node.toTokens()...)
+	}
+
+	tokens = append(tokens, xml.EndElement{start.Name})
+
+	for _, t := range tokens {
+		err := e.EncodeToken(t)
+		if err != nil {
+			return err
+		}
+	}
+
+	// flush to ensure tokens are written
+	err := e.Flush()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 /*
 
