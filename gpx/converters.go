@@ -6,6 +6,8 @@
 package gpx
 
 import (
+	"encoding/xml"
+	"sort"
 	"strings"
 )
 
@@ -18,6 +20,7 @@ const defaultCreator = "https://github.com/tkrajina/gpxgo"
 
 func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 	gpx10Doc := &gpx10Gpx{}
+	gpx10Doc.Attrs = namespacesMapToAttrs(gpxDoc.Namespaces)
 
 	//gpx10Doc.XMLNs = gpxDoc.XMLNs
 	gpx10Doc.XMLNs = "http://www.topografix.com/GPX/1/0"
@@ -120,6 +123,7 @@ func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 
 func convertFromGpx10Models(gpx10Doc *gpx10Gpx) *GPX {
 	gpxDoc := new(GPX)
+	gpxDoc.Namespaces = namespacesAttrsToMap(gpx10Doc.Attrs)
 
 	gpxDoc.XMLNs = gpx10Doc.XMLNs
 	gpxDoc.XmlNsXsi = gpx10Doc.XmlNsXsi
@@ -294,12 +298,39 @@ func convertPointFromGpx10(original *gpx10GpxPoint) *GPXPoint {
 	return result
 }
 
+func namespacesAttrsToMap(attrs []xml.Attr) map[string]string {
+	res := map[string]string{}
+	for _, attr := range attrs {
+		// attrs []xml.Attr{xml.Attr{Name:xml.Name{Space:"xmlns", Local:"ext"}, Value:"gpx.py"}}
+		if attr.Name.Space == "xmlns" {
+			res[attr.Name.Local] = attr.Value
+		}
+	}
+	return res
+}
+
+func namespacesMapToAttrs(ns map[string]string) []xml.Attr {
+	var keys []string
+	for k := range ns {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	var attrs []xml.Attr
+	for _, key := range keys {
+		// attrs []xml.Attr{xml.Attr{Name:xml.Name{Space:"xmlns", Local:"ext"}, Value:"gpx.py"}}
+		attrs = append(attrs, xml.Attr{Name: xml.Name{Space: "xmlns", Local: key}, Value: ns[key]})
+	}
+	return attrs
+}
+
 // ----------------------------------------------------------------------------------------------------
 // Gpx 1.1 Stuff
 // ----------------------------------------------------------------------------------------------------
 
 func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 	gpx11Doc := &gpx11Gpx{}
+	gpx11Doc.Attrs = namespacesMapToAttrs(gpxDoc.Namespaces)
 
 	gpx11Doc.Version = "1.1"
 
@@ -422,6 +453,8 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 
 func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 	gpxDoc := new(GPX)
+
+	gpxDoc.Namespaces = namespacesAttrsToMap(gpx11Doc.Attrs)
 
 	gpxDoc.XMLNs = gpx11Doc.XMLNs
 	gpxDoc.XmlNsXsi = gpx11Doc.XmlNsXsi

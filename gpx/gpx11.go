@@ -49,6 +49,7 @@ func (ex Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		return nil
 	}
 
+	start = xml.StartElement{Name: xml.Name{Local: start.Name.Local}}
 	tokens := []xml.Token{start}
 	for _, node := range ex.Nodes {
 		tokens = append(tokens, node.toTokens()...)
@@ -212,10 +213,11 @@ gpx (gpxType)
 */
 
 type gpx11Gpx struct {
-	XMLName      xml.Name `xml:"gpx"`
-	XMLNs        string   `xml:"xmlns,attr,omitempty"`
-	XmlNsXsi     string   `xml:"xmlns:xsi,attr,omitempty"`
-	XmlSchemaLoc string   `xml:"xsi:schemaLocation,attr,omitempty"`
+	XMLName      xml.Name   `xml:"gpx"`
+	Attrs        []xml.Attr `xml:",any,attr"`
+	XMLNs        string     `xml:"xmlns,attr,omitempty"`
+	XmlNsXsi     string     `xml:"xmlns:xsi,attr,omitempty"`
+	XmlSchemaLoc string     `xml:"xsi:schemaLocation,attr,omitempty"`
 
 	Version     string         `xml:"version,attr"`
 	Creator     string         `xml:"creator,attr"`

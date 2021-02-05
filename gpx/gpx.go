@@ -65,6 +65,8 @@ type GPX struct {
 	XmlNsXsi     string
 	XmlSchemaLoc string
 
+	Namespaces map[string]string
+
 	Version          string
 	Creator          string
 	Name             string
