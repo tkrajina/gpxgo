@@ -18,9 +18,9 @@ type Node struct {
 	Nodes   []Node     `xml:",any"`
 }
 
-func (n Node) toTokens(namespaces map[string]string) (tokens []xml.Token) {
+func (n Node) toTokens(prefix string) (tokens []xml.Token) {
 	fmt.Printf("name=%#v\n", n.XMLName)
-	fmt.Printf("using namespaces: %#v\n", namespaces)
+	fmt.Printf("using prefix: %#v\n", prefix)
 	var attrs []xml.Attr
 	for _, a := range n.Attrs {
 		fmt.Printf("attr=%#v\n", a)
@@ -34,7 +34,7 @@ func (n Node) toTokens(namespaces map[string]string) (tokens []xml.Token) {
 		tokens = append(tokens, xml.CharData(data))
 	} else if len(n.Nodes) > 0 {
 		for _, node := range n.Nodes {
-			tokens = append(tokens, node.toTokens(namespaces)...)
+			tokens = append(tokens, node.toTokens(prefix)...)
 		}
 	} else {
 		return nil
@@ -66,7 +66,14 @@ func (ex Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	start = xml.StartElement{Name: xml.Name{Local: start.Name.Local}, Attr: nil}
 	tokens := []xml.Token{start}
 	for _, node := range ex.Nodes {
-		tokens = append(tokens, node.toTokens(ex.namespaces)...)
+		prefix := ""
+		for k, v := range ex.namespaces {
+			if v == node.SpaceName() {
+				fmt.Println("prefix=", k)
+				prefix = k
+			}
+		}
+		tokens = append(tokens, node.toTokens(prefix)...)
 	}
 
 	tokens = append(tokens, xml.EndElement{Name: start.Name})
