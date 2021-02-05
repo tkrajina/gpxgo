@@ -1372,14 +1372,24 @@ func TestReadExtension(t *testing.T) {
 	assert.Nil(t, err)
 	fmt.Println(string(byts))
 
+	/*
+	   <extensions>
+	       <ext:aaa ext:jjj="kkk">bbb</ext:aaa>hhh
+	       <ext:ccc>
+	           <ext:ddd ext:lll="mmm" ext:nnn="ooo">
+	               <ext:fff>ggg</ext:fff>
+	           </ext:ddd>
+	       </ext:ccc>
+	   </extensions>
+	*/
+
 	for n, g := range []GPX{*original, *reparsed} {
 		fmt.Printf("gpx #%d\n", n)
 		wptWithExt := g.Waypoints[0]
 		ext := wptWithExt.Extensions
 		assert.Equal(t, 2, len(ext.Nodes))
 		assert.Equal(t, "bbb", ext.Nodes[0].Data)
-		// TODO
-		//assert.Equal(t, 0, len(ext.Nodes[0].Attrs), "%#v", ext.Nodes[0].Attrs)
+		assert.Equal(t, 1, len(ext.Nodes[0].Attrs), "%#v", ext.Nodes[0].Attrs)
 		assert.Equal(t, "aaa", ext.Nodes[0].LocalName())
 		assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
 		assert.Equal(t, 1, len(ext.Nodes[1].Nodes))

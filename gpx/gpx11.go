@@ -7,6 +7,7 @@ package gpx
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strings"
 )
 
@@ -17,15 +18,23 @@ type Node struct {
 	Nodes   []Node     `xml:",any"`
 }
 
-func (n Node) toTokens() (tokens []xml.Token) {
-	start := xml.StartElement{Name: n.XMLName, Attr: n.Attrs}
+func (n Node) toTokens(namespaces map[string]string) (tokens []xml.Token) {
+	fmt.Printf("name=%#v\n", n.XMLName)
+	fmt.Printf("using namespaces: %#v\n", namespaces)
+	var attrs []xml.Attr
+	for _, a := range n.Attrs {
+		fmt.Printf("attr=%#v\n", a)
+		attrs = append(attrs, xml.Attr{Name: xml.Name{Local: a.Name.Local}, Value: a.Value})
+	}
+
+	start := xml.StartElement{Name: xml.Name{Local: n.XMLName.Local}, Attr: attrs}
 	tokens = append(tokens, start)
 	data := strings.TrimSpace(n.Data)
 	if data != "" {
 		tokens = append(tokens, xml.CharData(data))
 	} else if len(n.Nodes) > 0 {
 		for _, node := range n.Nodes {
-			tokens = append(tokens, node.toTokens()...)
+			tokens = append(tokens, node.toTokens(namespaces)...)
 		}
 	} else {
 		return nil
@@ -40,6 +49,9 @@ func (n Node) SpaceName() string { return n.XMLName.Space }
 
 type Extension struct {
 	Node
+
+	// Filled before deserializing:
+	namespaces map[string]string
 }
 
 var _ xml.Marshaler = Extension(Extension{})
@@ -49,13 +61,15 @@ func (ex Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		return nil
 	}
 
-	start = xml.StartElement{Name: xml.Name{Local: start.Name.Local}}
+	fmt.Printf("start=%#v\n", start)
+
+	start = xml.StartElement{Name: xml.Name{Local: start.Name.Local}, Attr: nil}
 	tokens := []xml.Token{start}
 	for _, node := range ex.Nodes {
-		tokens = append(tokens, node.toTokens()...)
+		tokens = append(tokens, node.toTokens(ex.namespaces)...)
 	}
 
-	tokens = append(tokens, xml.EndElement{start.Name})
+	tokens = append(tokens, xml.EndElement{Name: start.Name})
 
 	for _, t := range tokens {
 		err := e.EncodeToken(t)

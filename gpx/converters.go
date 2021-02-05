@@ -331,6 +331,7 @@ func namespacesMapToAttrs(ns map[string]string) []xml.Attr {
 func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 	gpx11Doc := &gpx11Gpx{}
 	gpx11Doc.Attrs = namespacesMapToAttrs(gpxDoc.Namespaces)
+	gpx11Doc.Extensions.namespaces = gpxDoc.Namespaces
 
 	gpx11Doc.Version = "1.1"
 
@@ -391,6 +392,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 		gpx11Doc.Waypoints = make([]*gpx11GpxPoint, len(gpxDoc.Waypoints))
 		for waypointNo, waypoint := range gpxDoc.Waypoints {
 			gpx11Doc.Waypoints[waypointNo] = convertPointToGpx11(&waypoint)
+			gpx11Doc.Waypoints[waypointNo].Extensions.namespaces = gpxDoc.Namespaces
 		}
 	}
 
@@ -415,6 +417,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 				r.Points = make([]*gpx11GpxPoint, len(route.Points))
 				for pointNo, point := range route.Points {
 					r.Points[pointNo] = convertPointToGpx11(&point)
+					r.Points[pointNo].Extensions.namespaces = gpxDoc.Namespaces
 				}
 			}
 		}
@@ -439,6 +442,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 						gpx11Segment.Points = make([]*gpx11GpxPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
 							gpx11Segment.Points[pointNo] = convertPointToGpx11(&point)
+							gpx11Segment.Points[pointNo].Extensions.namespaces = gpxDoc.Namespaces
 						}
 					}
 					gpx11Track.Segments[segmentNo] = gpx11Segment
