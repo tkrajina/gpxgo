@@ -27,7 +27,7 @@ func (n Node) toTokens(prefix string) (tokens []xml.Token) {
 		attrs = append(attrs, xml.Attr{Name: xml.Name{Local: a.Name.Local}, Value: a.Value})
 	}
 
-	start := xml.StartElement{Name: xml.Name{Local: n.XMLName.Local}, Attr: attrs}
+	start := xml.StartElement{Name: xml.Name{Local: n.XMLName.Local, Space: prefix}, Attr: attrs}
 	tokens = append(tokens, start)
 	data := strings.TrimSpace(n.Data)
 	if data != "" {
