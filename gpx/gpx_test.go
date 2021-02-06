@@ -1390,11 +1390,13 @@ func TestReadExtension(t *testing.T) {
 		assert.Equal(t, 2, len(ext.Nodes))
 		assert.Equal(t, "bbb", ext.Nodes[0].Data)
 		assert.Equal(t, 1, len(ext.Nodes[0].Attrs), "%#v", ext.Nodes[0].Attrs)
+		assert.Equal(t, "kkk", ext.Nodes[0].GetAttrOrEmpty("jjj"))
 		assert.Equal(t, "aaa", ext.Nodes[0].LocalName())
-		assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
+		//assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
 		assert.Equal(t, 1, len(ext.Nodes[1].Nodes))
-		// TODO
-		//assert.Equal(t, 0, len(ext.Nodes[1].Attrs))
+		assert.Equal(t, 0, len(ext.Nodes[1].Attrs))
+		assert.Equal(t, "mmm", ext.Nodes[1].Nodes[0].GetAttrOrEmpty("lll"))
+		assert.Equal(t, "ooo", ext.Nodes[1].Nodes[0].GetAttrOrEmpty("nnn"))
 		assert.Equal(t, "ggg", ext.Nodes[1].Nodes[0].Nodes[0].Data)
 	}
 }

@@ -27,7 +27,7 @@ func (n Node) toTokens(prefix string) (tokens []xml.Token) {
 		attrs = append(attrs, xml.Attr{Name: xml.Name{Local: a.Name.Local}, Value: a.Value})
 	}
 
-	start := xml.StartElement{Name: xml.Name{Local: n.XMLName.Local, Space: prefix}, Attr: attrs}
+	start := xml.StartElement{Name: xml.Name{Local: n.XMLName.Local, Space: ""}, Attr: attrs}
 	tokens = append(tokens, start)
 	data := strings.TrimSpace(n.Data)
 	if data != "" {
@@ -46,6 +46,20 @@ func (n Node) toTokens(prefix string) (tokens []xml.Token) {
 func (n Node) IsEmpty() bool     { return len(n.Nodes) == 0 && len(n.Attrs) == 0 && len(n.Data) == 0 }
 func (n Node) LocalName() string { return n.XMLName.Local }
 func (n Node) SpaceName() string { return n.XMLName.Space }
+func (n Node) GetAttrOrEmpty(attr string) string {
+	val, _ := n.GetAttr(attr)
+	return val
+}
+func (n Node) GetAttr(attr string) (string, bool) {
+	for _, a := range n.Attrs {
+		fmt.Printf("--- attr=%#v localName=%s searching for %s\n", a, n.LocalName(), attr)
+		if a.Name.Local == attr {
+			fmt.Println("found", a.Value)
+			return a.Value, true
+		}
+	}
+	return "", false
+}
 
 type Extension struct {
 	Node
