@@ -65,7 +65,7 @@ type GPX struct {
 	XmlNsXsi     string
 	XmlSchemaLoc string
 
-	Namespaces map[string]string
+	Attrs GPXAttributes
 
 	Version          string
 	Creator          string
@@ -85,12 +85,14 @@ type GPX struct {
 	Time             *time.Time
 	Keywords         string
 
-	// TODO
-	//Extensions []byte
 	Waypoints  []GPXPoint
 	Routes     []GPXRoute
 	Tracks     []GPXTrack
 	Extensions Extension
+}
+
+func (g *GPX) RegisterNamespace(ns, url string) {
+	g.Attrs.RegisterNamespace(ns, url)
 }
 
 // ToXml converts the object to xml.
@@ -802,10 +804,10 @@ type GPXRoute struct {
 	Source      string
 	// TODO
 	//Links       []Link
-	Number NullableInt
-	Type   string
-	// TODO
-	Points []GPXPoint
+	Number     NullableInt
+	Type       string
+	Points     []GPXPoint
+	Extensions Extension
 }
 
 // Length returns the length of a GPX route.
@@ -850,8 +852,8 @@ func (rte *GPXRoute) ExecuteOnPoints(executor func(*GPXPoint)) {
 
 //GPXTrackSegment represents a segment of a track
 type GPXTrackSegment struct {
-	Points []GPXPoint
-	// TODO extensions
+	Points     []GPXPoint
+	Extensions Extension
 }
 
 // Length2D returns the 2D length of a GPX segment.
@@ -1346,9 +1348,10 @@ type GPXTrack struct {
 	Source      string
 	// TODO
 	//Links    []Link
-	Number   NullableInt
-	Type     string
-	Segments []GPXTrackSegment
+	Number     NullableInt
+	Type       string
+	Segments   []GPXTrackSegment
+	Extensions Extension
 }
 
 // Length2D returns the 2D length of a GPX track.

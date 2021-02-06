@@ -49,14 +49,15 @@ func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 	}
 	indentation := params.Indent
 
+	var replacemends map[string]string
 	var gpxDoc interface{}
 	if version == "1.0" {
 		gpxDoc = convertToGpx10Models(g)
 	} else if version == "1.1" {
-		gpxDoc = convertToGpx11Models(g)
+		gpxDoc, replacemends = convertToGpx11Models(g)
 	} else {
 		g.Version = "1.1"
-		gpxDoc = convertToGpx11Models(g)
+		gpxDoc, replacemends = convertToGpx11Models(g)
 	}
 
 	var buffer bytes.Buffer
@@ -74,7 +75,14 @@ func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 		}
 		buffer.Write(b)
 	}
-	return buffer.Bytes(), nil
+
+	byts := buffer.Bytes()
+
+	for replKey, replVal := range replacemends {
+		byts = bytes.ReplaceAll(byts, []byte(replKey), []byte(replVal))
+	}
+
+	return byts, nil
 }
 
 func guessGPXVersion(bytes []byte) (string, error) {

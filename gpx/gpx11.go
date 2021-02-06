@@ -7,7 +7,6 @@ package gpx
 
 import (
 	"encoding/xml"
-	"fmt"
 	"strings"
 )
 
@@ -19,23 +18,20 @@ type Node struct {
 }
 
 func (n Node) toTokens(prefix string) (tokens []xml.Token) {
-	fmt.Printf("name=%#v\n", n.XMLName)
-	fmt.Printf("using prefix: %#v\n", prefix)
 	var attrs []xml.Attr
 	for _, a := range n.Attrs {
-		fmt.Printf("attr=%#v\n", a)
-		attrs = append(attrs, xml.Attr{Name: xml.Name{Local: a.Name.Local}, Value: a.Value})
+		attrs = append(attrs, xml.Attr{Name: xml.Name{Local: prefix + a.Name.Local}, Value: a.Value})
 	}
 
-	start := xml.StartElement{Name: xml.Name{Local: n.XMLName.Local, Space: prefix}, Attr: attrs}
+	start := xml.StartElement{Name: xml.Name{Local: prefix + n.XMLName.Local, Space: ""}, Attr: attrs}
 	tokens = append(tokens, start)
 	data := strings.TrimSpace(n.Data)
-	if data != "" {
-		tokens = append(tokens, xml.CharData(data))
-	} else if len(n.Nodes) > 0 {
+	if len(n.Nodes) > 0 {
 		for _, node := range n.Nodes {
 			tokens = append(tokens, node.toTokens(prefix)...)
 		}
+	} else if data != "" {
+		tokens = append(tokens, xml.CharData(data))
 	} else {
 		return nil
 	}
@@ -43,34 +39,107 @@ func (n Node) toTokens(prefix string) (tokens []xml.Token) {
 	return
 }
 
+func (n *Node) GetAttr(key string) (value string, found bool) {
+	for i := range n.Attrs {
+		if n.Attrs[i].Name.Local == key {
+			value = n.Attrs[i].Value
+			found = true
+			return
+		}
+	}
+	return
+}
+
+func (n *Node) SetAttr(key, value string) {
+	for i := range n.Attrs {
+		if n.Attrs[i].Name.Local == key {
+			n.Attrs[i].Value = value
+			return
+		}
+	}
+	n.Attrs = append(n.Attrs, xml.Attr{
+		Name: xml.Name{
+			Space: n.SpaceName(),
+			Local: key,
+		},
+		Value: value,
+	})
+}
+
+func (n *Node) GetNode(path0 string) (node *Node, found bool) {
+	for subn := range n.Nodes {
+		//fmt.Println("", n.Nodes[subn].LocalName(), "<->", path0)
+		if n.Nodes[subn].LocalName() == path0 {
+			node = &n.Nodes[subn]
+			found = true
+			return
+		}
+	}
+	return
+}
+
+func (n *Node) GetOrCreateNode(path ...string) *Node {
+	if len(path) == 0 {
+		return n
+	}
+
+	namespace := n.SpaceName()
+	if strings.HasSuffix(path[0], ":") {
+		namespace = strings.Trim(path[0], ":")
+		if n.XMLName.Space != namespace {
+			n.XMLName.Space = namespace
+		}
+		path = path[1:]
+	}
+
+	path0, rest := path[0], path[1:]
+
+	subNode, found := n.GetNode(path0)
+	if !found {
+		n.Nodes = append(n.Nodes, Node{
+			XMLName: xml.Name{
+				Local: path0,
+				Space: namespace,
+			},
+			Attrs: []xml.Attr{},
+		})
+		subNode = &n.Nodes[len(n.Nodes)-1]
+	}
+
+	return subNode.GetOrCreateNode(rest...)
+}
+
 func (n Node) IsEmpty() bool     { return len(n.Nodes) == 0 && len(n.Attrs) == 0 && len(n.Data) == 0 }
 func (n Node) LocalName() string { return n.XMLName.Local }
 func (n Node) SpaceName() string { return n.XMLName.Space }
+func (n Node) GetAttrOrEmpty(attr string) string {
+	val, _ := n.GetAttr(attr)
+	return val
+}
 
 type Extension struct {
 	Node
 
 	// Filled before deserializing:
-	namespaces map[string]string
+	globalNsAttrs map[string]Attr
 }
 
-var _ xml.Marshaler = Extension(Extension{})
+var _ xml.Marshaler = Extension{}
 
 func (ex Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	if len(ex.Node.Nodes) == 0 {
 		return nil
 	}
 
-	fmt.Printf("start=%#v\n", start)
-
+	//fmt.Printf("global ns: %#v\n", ex.globalNsAttrs)
 	start = xml.StartElement{Name: xml.Name{Local: start.Name.Local}, Attr: nil}
 	tokens := []xml.Token{start}
 	for _, node := range ex.Nodes {
 		prefix := ""
-		for k, v := range ex.namespaces {
-			if v == node.SpaceName() {
-				fmt.Println("prefix=", k)
-				prefix = k
+		for _, v := range ex.globalNsAttrs {
+			//fmt.Println("value=", v.Value, "space name=", node.SpaceName())
+			if node.SpaceName() == v.Value || node.SpaceName() == v.Name.Local {
+				prefix = v.replacement
 			}
 		}
 		tokens = append(tokens, node.toTokens(prefix)...)
@@ -252,8 +321,8 @@ type gpx11Gpx struct {
 	Link       *gpx11GpxLink      `xml:"metadata>link,omitempty"`
 	Timestamp  string             `xml:"metadata>time,omitempty"`
 	Keywords   string             `xml:"metadata>keywords,omitempty"`
+	Extensions Extension          `xml:"metadata>extensions"`
 	Bounds     *gpx11GpxBounds    `xml:"bounds"`
-	Extensions Extension          `xml:"extensions"`
 	Waypoints  []*gpx11GpxPoint   `xml:"wpt"`
 	Routes     []*gpx11GpxRte     `xml:"rte"`
 	Tracks     []*gpx11GpxTrk     `xml:"trk"`
@@ -341,14 +410,16 @@ type gpx11GpxRte struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links       []Link   `xml:"link"`
-	Number NullableInt      `xml:"number,omitempty"`
-	Type   string           `xml:"type,omitempty"`
-	Points []*gpx11GpxPoint `xml:"rtept"`
+	Number     NullableInt      `xml:"number,omitempty"`
+	Type       string           `xml:"type,omitempty"`
+	Points     []*gpx11GpxPoint `xml:"rtept"`
+	Extensions Extension        `xml:"extensions"`
 }
 
 type gpx11GpxTrkSeg struct {
-	XMLName xml.Name         `xml:"trkseg"`
-	Points  []*gpx11GpxPoint `xml:"trkpt"`
+	XMLName    xml.Name         `xml:"trkseg"`
+	Points     []*gpx11GpxPoint `xml:"trkpt"`
+	Extensions Extension        `xml:"extensions"`
 }
 
 // Trk is a GPX track
@@ -360,7 +431,8 @@ type gpx11GpxTrk struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links    []Link   `xml:"link"`
-	Number   NullableInt       `xml:"number,omitempty"`
-	Type     string            `xml:"type,omitempty"`
-	Segments []*gpx11GpxTrkSeg `xml:"trkseg,omitempty"`
+	Number     NullableInt       `xml:"number,omitempty"`
+	Type       string            `xml:"type,omitempty"`
+	Segments   []*gpx11GpxTrkSeg `xml:"trkseg,omitempty"`
+	Extensions Extension         `xml:"extensions"`
 }

@@ -51,17 +51,12 @@ func assertLinesEquals(t *testing.T, string1, string2 string) {
 	for i := 0; i < min(len(lines1), len(lines2)); i++ {
 		line1 := strings.Trim(lines1[i], " \n\r\t")
 		line2 := strings.Trim(lines2[i], " \n\r\t")
-		if line1 != line2 {
-			t.Error("Line (#", i, ") different:", line1, "\nand:", line2)
-			break
+		assert.Equal(t, line1, line2, "Line (#%d) different: %s and %s\nExpected:\n%s\n\ngot:\n%s", i, line1, line2, string1, string2)
+		if t.Failed() {
+			t.FailNow()
 		}
 	}
-	if len(lines1) != len(lines2) {
-		fmt.Println("String1:", string1)
-		fmt.Println("String2:", string2)
-		t.Error("String have a different number of lines", len(lines1), "and", len(lines2))
-		return
-	}
+	assert.Equal(t, len(lines1), len(lines2), "String have a different number of lines %d and %d\nExpected:\n%s\n\ngot:\n%s", len(lines1), len(lines2), string1, string2)
 }
 
 func assertNil(t *testing.T, var1 interface{}) {
@@ -124,7 +119,7 @@ func reparse(g GPX) (*GPX, error) {
 	return ParseBytes(xml)
 }
 
-func loadAndReparse(t *testing.T, fn string) (*GPX, *GPX) {
+func loadAndReparseFile(t *testing.T, fn string) (*GPX, *GPX) {
 	original, err := ParseFile(fn)
 	assert.Nil(t, err)
 	assert.NotNil(t, original)
@@ -141,6 +136,7 @@ func loadAndReparse(t *testing.T, fn string) (*GPX, *GPX) {
 }
 
 func TestParseGPXTimes(t *testing.T) {
+	t.Parallel()
 	datetimes := []string{
 		"2013-01-02T12:07:08Z",
 		"2013-01-02 12:07:08Z",
@@ -179,14 +175,17 @@ func testDetectVersion(t *testing.T, fileName, expectedVersion string) {
 }
 
 func TestDetect11GPXVersion(t *testing.T) {
+	t.Parallel()
 	testDetectVersion(t, "../test_files/gpx1.1_with_all_fields.gpx", "1.1")
 }
 
 func TestDetect10GPXVersion(t *testing.T) {
+	t.Parallel()
 	testDetectVersion(t, "../test_files/gpx1.0_with_all_fields.gpx", "1.0")
 }
 
 func TestParseAndReparseGPX11(t *testing.T) {
+	t.Parallel()
 	var gpxDocuments []*GPX
 
 	{
@@ -204,6 +203,7 @@ func TestParseAndReparseGPX11(t *testing.T) {
 			t.Error("Error serializing to XML:" + err.Error())
 		}
 		gpxDoc2, err := ParseBytes(xml)
+		assert.Nil(t, err)
 		assertEquals(t, gpxDoc2.Version, "1.1")
 		if err != nil {
 			t.Error("Error parsing XML:" + err.Error())
@@ -346,6 +346,7 @@ func executeSample11GpxAsserts(t *testing.T, gpxDoc *GPX) {
 }
 
 func TestParseAndReparseGPX10(t *testing.T) {
+	t.Parallel()
 	var gpxDocuments []*GPX
 
 	{
@@ -507,6 +508,7 @@ func executeSample10GpxAsserts(t *testing.T, gpxDoc *GPX) {
 }
 
 func TestLength2DSeg(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 
 	fmt.Println("tracks=", g.Tracks)
@@ -522,6 +524,7 @@ func TestLength2DSeg(t *testing.T) {
 }
 
 func TestLength3DSeg(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	lengthA := g.Tracks[0].Segments[0].Length3D()
 	lengthE := 61.76815317436073
@@ -532,6 +535,7 @@ func TestLength3DSeg(t *testing.T) {
 }
 
 func TestTimePoint(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	timeA := g.Tracks[0].Segments[0].Points[0].Timestamp
 	//2012-03-17T12:46:19Z
@@ -543,6 +547,7 @@ func TestTimePoint(t *testing.T) {
 }
 
 func TestTimeBoundsSeg(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	timeBoundsA := g.Tracks[0].Segments[0].TimeBounds()
 
@@ -559,6 +564,7 @@ func TestTimeBoundsSeg(t *testing.T) {
 }
 
 func TestBoundsSeg(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 
 	boundsA := g.Tracks[0].Segments[0].Bounds()
@@ -573,6 +579,7 @@ func TestBoundsSeg(t *testing.T) {
 }
 
 func TestBoundsGpx(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 
 	boundsA := g.Bounds()
@@ -587,6 +594,7 @@ func TestBoundsGpx(t *testing.T) {
 }
 
 func TestBoundsForEmptyGpx(t *testing.T) {
+	t.Parallel()
 	var g GPX
 
 	bounds := g.Bounds()
@@ -597,6 +605,7 @@ func TestBoundsForEmptyGpx(t *testing.T) {
 }
 
 func TestElevationBoundsSeg(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 
 	boundsA := g.Tracks[0].Segments[0].ElevationBounds()
@@ -610,6 +619,7 @@ func TestElevationBoundsSeg(t *testing.T) {
 }
 
 func TestElevationBoundsGpx(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 
 	boundsA := g.ElevationBounds()
@@ -623,6 +633,7 @@ func TestElevationBoundsGpx(t *testing.T) {
 }
 
 func TestSpeedSeg(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	speedA := g.Tracks[0].Segments[0].Speed(2)
 	speedE := 1.5386074011963367
@@ -633,6 +644,7 @@ func TestSpeedSeg(t *testing.T) {
 }
 
 func TestSegmentDuration(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	durE := 64.0
 	durA := g.Tracks[0].Segments[0].Duration()
@@ -642,6 +654,7 @@ func TestSegmentDuration(t *testing.T) {
 }
 
 func TestTrackDuration(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	durE := 64.0
 	durA := g.Duration()
@@ -651,6 +664,7 @@ func TestTrackDuration(t *testing.T) {
 }
 
 func TestMultiSegmentDuration(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	g.Tracks[0].AppendSegment(&g.Tracks[0].Segments[0])
 	durE := 64.0 * 2
@@ -661,6 +675,7 @@ func TestMultiSegmentDuration(t *testing.T) {
 }
 
 func TestMultiTrackDuration(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 
 	g.Tracks[0].AppendSegment(&g.Tracks[0].Segments[0])
@@ -678,6 +693,7 @@ func TestMultiTrackDuration(t *testing.T) {
 }
 
 func TestUphillDownHillSeg(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	updoA := g.Tracks[0].Segments[0].UphillDownhill()
 	updoE := UphillDownhill{
@@ -690,6 +706,7 @@ func TestUphillDownHillSeg(t *testing.T) {
 }
 
 func TestMovingData(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	movDataA := g.MovingData()
 	movDataE := MovingData{
@@ -706,6 +723,7 @@ func TestMovingData(t *testing.T) {
 }
 
 func TestUphillDownhill(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	updoA := g.UphillDownhill()
 	updoE := UphillDownhill{
@@ -718,11 +736,12 @@ func TestUphillDownhill(t *testing.T) {
 }
 
 func TestToXml(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	xml, _ := g.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 	xmlA := string(xml)
 	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="eTrex 10">
+<gpx xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="eTrex 10">
 	<metadata>
         <author></author>
 		<link href="http://www.garmin.com">
@@ -748,27 +767,50 @@ func TestToXml(t *testing.T) {
 			<trkpt lat="52.5113534275" lon="13.4571944922">
 				<ele>59.26</ele>
 				<time>2012-03-17T12:46:19Z</time>
+				<extensions>
+					<gpxtpx:TrackPointExtension>
+							<gpxtpx:cad>0</gpxtpx:cad>
+					</gpxtpx:TrackPointExtension>
+				</extensions>
 			</trkpt>
 			<trkpt lat="52.5113568641" lon="13.4571697656">
 				<ele>65.51</ele>
 				<time>2012-03-17T12:46:44Z</time>
+				<extensions>
+					<gpxtpx:TrackPointExtension>
+							<gpxtpx:cad>0</gpxtpx:cad>
+					</gpxtpx:TrackPointExtension>
+				</extensions>
 			</trkpt>
 			<trkpt lat="52.511710329" lon="13.456941694">
 				<ele>65.99</ele>
 				<time>2012-03-17T12:47:01Z</time>
+				<extensions>
+					<gpxtpx:TrackPointExtension>
+							<gpxtpx:cad>0</gpxtpx:cad>
+					</gpxtpx:TrackPointExtension>
+				</extensions>
 			</trkpt>
 			<trkpt lat="52.5117189623" lon="13.4567520116">
 				<ele>63.58</ele>
 				<time>2012-03-17T12:47:23Z</time>
+				<extensions>
+					<gpxtpx:TrackPointExtension>
+							<gpxtpx:cad>0</gpxtpx:cad>
+					</gpxtpx:TrackPointExtension>
+				</extensions>
 			</trkpt>
 		</trkseg>
 	</trk>
 </gpx>`
 
+	fmt.Println(xmlA)
+
 	assertLinesEquals(t, xmlE, xmlA)
 }
 
 func TestNewXml(t *testing.T) {
+	t.Parallel()
 	gpx := new(GPX)
 	gpxTrack := new(GPXTrack)
 
@@ -782,10 +824,8 @@ func TestNewXml(t *testing.T) {
 
 	xml, _ := gpx.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 	actualXml := string(xml)
-	// TODO: xsi namespace:
-	//expectedXml := `<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="https://github.com/ptrv/go-gpx">
 	expectedXml := `<?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+<gpx  xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
 	<metadata>
 			<author></author>
 	</metadata>
@@ -808,6 +848,7 @@ func TestNewXml(t *testing.T) {
 }
 
 func TestInvalidXML(t *testing.T) {
+	t.Parallel()
 	xml := "<gpx></gpx"
 	gpx, err := ParseString(xml)
 	if err == nil {
@@ -819,6 +860,7 @@ func TestInvalidXML(t *testing.T) {
 }
 
 func TestAddElevation(t *testing.T) {
+	t.Parallel()
 	gpx := new(GPX)
 	gpx.AppendTrack(new(GPXTrack))
 	gpx.Tracks[0].AppendSegment(new(GPXTrackSegment))
@@ -837,6 +879,7 @@ func TestAddElevation(t *testing.T) {
 }
 
 func TestRemoveElevation(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 
 	// Remove elevations don't work on waypoints and routes, so just remove them for this test (TODO)
@@ -864,6 +907,7 @@ func TestRemoveElevation(t *testing.T) {
 }
 
 func TestExecuteOnAllPoints(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
 	g.ExecuteOnAllPoints(func(*GPXPoint) {
 	})
@@ -897,6 +941,7 @@ func TestEmptyElevation(t *testing.T) {
 // RemoveTime
 
 func TestTrackWithoutTimes(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/cerknicko-without-times.gpx")
 	if g.HasTimes() {
 		t.Error("Track should not have times")
@@ -950,6 +995,7 @@ func testReduceTrackByMaxPointsAndMinDistance(t *testing.T, maxReducedPointsNo i
 }
 
 func TestReduceTrackByMaxPointsAndMinDistance(t *testing.T) {
+	t.Parallel()
 	testReduceTrackByMaxPointsAndMinDistance(t, 100000, 10.0)
 	testReduceTrackByMaxPointsAndMinDistance(t, 100000, 50.0)
 	testReduceTrackByMaxPointsAndMinDistance(t, 100000, 200.0)
@@ -978,6 +1024,7 @@ func simplifyAndCheck(t *testing.T, gpxFile string, maxDistance float64) float64
 }
 
 func TestSimplifyForSingleSegmentAndVeryByMaxDistance(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/Mojstrovka.gpx")
 
 	assertTrue(t, "Single track, single segment track for this test", len(g.Tracks) == 1 && len(g.Tracks[0].Segments) == 1)
@@ -994,6 +1041,7 @@ func TestSimplifyForSingleSegmentAndVeryByMaxDistance(t *testing.T) {
 }
 
 func TestSimplify(t *testing.T) {
+	t.Parallel()
 	for _, gpxFile := range loadTestGPXs() {
 		g, _ := ParseFile(gpxFile)
 
@@ -1022,6 +1070,7 @@ func TestSimplify(t *testing.T) {
 }
 
 func TestAppendPoint(t *testing.T) {
+	t.Parallel()
 	g := new(GPX)
 	g.AppendPoint(new(GPXPoint))
 
@@ -1037,6 +1086,7 @@ func TestAppendPoint(t *testing.T) {
 }
 
 func TestAppendSegment(t *testing.T) {
+	t.Parallel()
 	g := new(GPX)
 	g.AppendSegment(new(GPXTrackSegment))
 	if len(g.Tracks) != 1 {
@@ -1048,6 +1098,7 @@ func TestAppendSegment(t *testing.T) {
 }
 
 func TestReduceToSingleTrack(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/korita-zbevnica.gpx")
 
 	if len(g.Tracks) <= 1 {
@@ -1067,6 +1118,7 @@ func TestReduceToSingleTrack(t *testing.T) {
 }
 
 func TestRemoveEmpty(t *testing.T) {
+	t.Parallel()
 	g := new(GPX)
 
 	// Empty track
@@ -1093,6 +1145,7 @@ func TestRemoveEmpty(t *testing.T) {
 }
 
 func TestPositionsAt(t *testing.T) {
+	t.Parallel()
 	g, _ := ParseFile("../test_files/visnjan.gpx")
 	{
 		wpt := g.Waypoints[0]
@@ -1120,6 +1173,7 @@ func TestPositionsAt(t *testing.T) {
 }
 
 func TestSmoothHorizontal(t *testing.T) {
+	t.Parallel()
 	original, _ := ParseFile("../test_files/visnjan.gpx")
 	g, _ := ParseFile("../test_files/visnjan.gpx")
 
@@ -1147,6 +1201,7 @@ func TestSmoothHorizontal(t *testing.T) {
 }
 
 func TestSmoothVertical(t *testing.T) {
+	t.Parallel()
 	original, _ := ParseFile("../test_files/visnjan.gpx")
 	g, _ := ParseFile("../test_files/visnjan.gpx")
 
@@ -1201,6 +1256,7 @@ func getGpxWith3Extremes() GPX {
 }
 
 func TestRemoveExtremesHorizontal(t *testing.T) {
+	t.Parallel()
 	gpxDoc := getGpxWith3Extremes()
 
 	if gpxDoc.GetTrackPointsNo() != 103 {
@@ -1214,6 +1270,7 @@ func TestRemoveExtremesHorizontal(t *testing.T) {
 }
 
 func TestRemoveExtremesVertical(t *testing.T) {
+	t.Parallel()
 	gpxDoc := getGpxWith3Extremes()
 
 	if gpxDoc.GetTrackPointsNo() != 103 {
@@ -1227,6 +1284,7 @@ func TestRemoveExtremesVertical(t *testing.T) {
 }
 
 func TestAddMissingTime(t *testing.T) {
+	t.Parallel()
 	gpxDoc := GPX{}
 	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 0.0, Longitude: 0.0}})
 	gpxDoc.AppendPoint(&GPXPoint{Point: Point{Latitude: 1.0, Longitude: 0.0}, Timestamp: time.Date(2014, time.January, 1, 0, 0, 0, 0, time.UTC)})
@@ -1254,6 +1312,7 @@ func TestAddMissingTime(t *testing.T) {
 }
 
 func TestFindStoppedPositions(t *testing.T) {
+	t.Parallel()
 	segment := GPXTrackSegment{}
 
 	ttime := time.Now()
@@ -1295,6 +1354,7 @@ func TestFindStoppedPositions(t *testing.T) {
 }
 
 func TestGpxWithoutGpxAttributes(t *testing.T) {
+	t.Parallel()
 	gpxDoc, err := ParseFile("../test_files/gpx-without-root-attributes.gpx")
 	if err != nil {
 		t.Error("Ops:", err.Error())
@@ -1316,6 +1376,7 @@ func TestGpxWithoutGpxAttributes(t *testing.T) {
 }
 
 func TestGpxWithoutXmlDeclaration(t *testing.T) {
+	t.Parallel()
 	gpxDoc, err := ParseFile("../test_files/gpx-without-xml-declaration.gpx")
 
 	if err != nil {
@@ -1338,6 +1399,7 @@ func TestGpxWithoutXmlDeclaration(t *testing.T) {
 }
 
 func TestInvalidGpx(t *testing.T) {
+	t.Parallel()
 	xml := `<?xml version="1.0" encoding="UTF-8"?>
 ERRgpx>
 <time>2010-12-14T06:17:04Z</time>
@@ -1366,7 +1428,7 @@ ERRgpx>
 func TestReadExtension(t *testing.T) {
 	t.Parallel()
 
-	original, reparsed := loadAndReparse(t, "../test_files/gpx1.1_with_extensions.gpx")
+	original, reparsed := loadAndReparseFile(t, "../test_files/gpx1.1_with_extensions.gpx")
 
 	byts, err := reparsed.ToXml(ToXmlParams{Indent: true})
 	assert.Nil(t, err)
@@ -1385,16 +1447,156 @@ func TestReadExtension(t *testing.T) {
 
 	for n, g := range []GPX{*original, *reparsed} {
 		fmt.Printf("gpx #%d\n", n)
-		wptWithExt := g.Waypoints[0]
-		ext := wptWithExt.Extensions
+
+		exts := []Extension{
+			g.Extensions,
+			g.Routes[0].Points[0].Extensions,
+			g.Waypoints[0].Extensions,
+			g.Tracks[0].Segments[0].Points[0].Extensions,
+		}
+
+		for _, ext := range exts {
+			assert.Equal(t, 2, len(ext.Nodes))
+			assert.Equal(t, "bbb", ext.Nodes[0].Data)
+			assert.Equal(t, 1, len(ext.Nodes[0].Attrs), "%#v", ext.Nodes[0].Attrs)
+			assert.Equal(t, "kkk", ext.Nodes[0].GetAttrOrEmpty("jjj"))
+			assert.Equal(t, "aaa", ext.Nodes[0].LocalName())
+			//assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
+			assert.Equal(t, 1, len(ext.Nodes[1].Nodes))
+			assert.Equal(t, 0, len(ext.Nodes[1].Attrs))
+			assert.Equal(t, "mmm", ext.Nodes[1].Nodes[0].GetAttrOrEmpty("lll"))
+			assert.Equal(t, "ooo", ext.Nodes[1].Nodes[0].GetAttrOrEmpty("nnn"))
+			assert.Equal(t, "ggg", ext.Nodes[1].Nodes[0].Nodes[0].Data)
+		}
+	}
+}
+
+func TestExtensionWithoutNamespace(t *testing.T) {
+	t.Parallel()
+
+	original, err := ParseString(`<gpx version="1.1" creator="nawagers" xmlns="http://www.topografix.com/GPX/1/1">
+	<metadata>
+		<extensions>
+			<aaa jjj="kkk">bbb</aaa>hhh
+			<ccc>
+				<ddd lll="mmm" nnn="ooo">
+					<fff>ggg</fff>
+				</ddd>
+			</ccc>
+		</extensions>
+	</metadata>
+</gpx>`)
+	assert.Nil(t, err)
+	assert.NotNil(t, original)
+
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	reparsed, err := reparse(*original)
+	assert.Nil(t, err)
+
+	for _, g := range []GPX{*original, *reparsed} {
+		ext := g.Extensions
 		assert.Equal(t, 2, len(ext.Nodes))
 		assert.Equal(t, "bbb", ext.Nodes[0].Data)
 		assert.Equal(t, 1, len(ext.Nodes[0].Attrs), "%#v", ext.Nodes[0].Attrs)
+		assert.Equal(t, "kkk", ext.Nodes[0].GetAttrOrEmpty("jjj"))
 		assert.Equal(t, "aaa", ext.Nodes[0].LocalName())
-		assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
+		//assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
 		assert.Equal(t, 1, len(ext.Nodes[1].Nodes))
-		// TODO
-		//assert.Equal(t, 0, len(ext.Nodes[1].Attrs))
+		assert.Equal(t, 0, len(ext.Nodes[1].Attrs))
+		assert.Equal(t, "mmm", ext.Nodes[1].Nodes[0].GetAttrOrEmpty("lll"))
+		assert.Equal(t, "ooo", ext.Nodes[1].Nodes[0].GetAttrOrEmpty("nnn"))
 		assert.Equal(t, "ggg", ext.Nodes[1].Nodes[0].Nodes[0].Data)
 	}
+}
+
+func TestCreateExtensionWithoutNamespace(t *testing.T) {
+	t.Parallel()
+
+	var g GPX
+	g.Extensions.GetOrCreateNode("aaa", "bbb", "ccc").Data = "ccc data"
+	g.Extensions.GetOrCreateNode("aaa", "bbb").SetAttr("key", "value")
+
+	val, found := g.Extensions.GetOrCreateNode("aaa", "bbb").GetAttr("key")
+	assert.True(t, found)
+	assert.Equal(t, "value", val)
+
+	byts, err := g.ToXml(ToXmlParams{Indent: true})
+	assert.Nil(t, err)
+	expected := `<?xml version="1.0" encoding="UTF-8"?>
+<gpx  xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+       <metadata>
+               <author></author>
+               <extensions>
+                       <aaa>
+                               <bbb key="value">
+                                       <ccc>ccc data</ccc>
+                               </bbb>
+                       </aaa>
+               </extensions>
+       </metadata>
+</gpx>`
+	assertLinesEquals(t, expected, string(byts))
+}
+
+func TestCreateExtensionWithNamespace(t *testing.T) {
+	t.Parallel()
+
+	var g GPX
+	g.RegisterNamespace("ext", "http://trla.baba.lan")
+	g.Extensions.GetOrCreateNode("ext:", "aaa", "bbb", "ccc").Data = "ccc data"
+
+	assert.Equal(t, "http://trla.baba.lan", g.Attrs.Attributes["xmlns"]["ext"].Value)
+	assert.NotEmpty(t, g.Attrs.Attributes["xmlns"]["ext"].replacement)
+
+	node, found := g.Extensions.GetNode("aaa")
+	assert.True(t, found)
+	assert.NotNil(t, node)
+	assert.Equal(t, "ext", node.SpaceName())
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	assert.Equal(t, "ext", node.SpaceName())
+	assert.Equal(t, "ext", g.Extensions.SpaceName())
+
+	node, found = node.GetNode("bbb")
+	assert.True(t, found)
+	assert.NotNil(t, node)
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	assert.Equal(t, "ext", node.SpaceName())
+	assert.Equal(t, "ext", g.Extensions.SpaceName())
+
+	g.Extensions.GetOrCreateNode("aaa", "bbb").SetAttr("key", "value")
+
+	assert.Equal(t, "ext", node.SpaceName())
+	assert.Equal(t, "ext", g.Extensions.SpaceName())
+
+	val, found := g.Extensions.GetOrCreateNode("aaa", "bbb").GetAttr("key")
+	assert.True(t, found)
+	assert.Equal(t, "value", val)
+
+	assert.Equal(t, "ext", g.Extensions.SpaceName())
+
+	byts, err := g.ToXml(ToXmlParams{Indent: true})
+	assert.Nil(t, err)
+	expected := `<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns:ext="http://trla.baba.lan" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+       <metadata>
+               <author></author>
+               <extensions>
+                       <ext:aaa>
+                               <ext:bbb ext:key="value">
+                                       <ext:ccc>ccc data</ext:ccc>
+                               </ext:bbb>
+                       </ext:aaa>
+               </extensions>
+       </metadata>
+</gpx>`
+	assertLinesEquals(t, expected, string(byts))
 }

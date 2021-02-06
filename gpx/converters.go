@@ -7,6 +7,8 @@ package gpx
 
 import (
 	"encoding/xml"
+	"fmt"
+	"math/rand"
 	"sort"
 	"strings"
 )
@@ -20,7 +22,7 @@ const defaultCreator = "https://github.com/tkrajina/gpxgo"
 
 func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 	gpx10Doc := &gpx10Gpx{}
-	gpx10Doc.Attrs = namespacesMapToAttrs(gpxDoc.Namespaces)
+	//gpx10Doc.Attrs = namespacesMapToAttrs(gpxDoc.Namespaces)
 
 	//gpx10Doc.XMLNs = gpxDoc.XMLNs
 	gpx10Doc.XMLNs = "http://www.topografix.com/GPX/1/0"
@@ -123,7 +125,7 @@ func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 
 func convertFromGpx10Models(gpx10Doc *gpx10Gpx) *GPX {
 	gpxDoc := new(GPX)
-	gpxDoc.Namespaces = namespacesAttrsToMap(gpx10Doc.Attrs)
+	gpxDoc.Attrs = NewGPXAttributes(gpx10Doc.Attrs)
 
 	gpxDoc.XMLNs = gpx10Doc.XMLNs
 	gpxDoc.XmlNsXsi = gpx10Doc.XmlNsXsi
@@ -298,47 +300,119 @@ func convertPointFromGpx10(original *gpx10GpxPoint) *GPXPoint {
 	return result
 }
 
-func namespacesAttrsToMap(attrs []xml.Attr) map[string]string {
-	res := map[string]string{}
-	for _, attr := range attrs {
-		// attrs []xml.Attr{xml.Attr{Name:xml.Name{Space:"xmlns", Local:"ext"}, Value:"gpx.py"}}
-		if attr.Name.Space == "xmlns" {
-			res[attr.Name.Local] = attr.Value
-		}
-	}
-	return res
-}
-
-func namespacesMapToAttrs(ns map[string]string) []xml.Attr {
-	var keys []string
-	for k := range ns {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	var attrs []xml.Attr
-	for _, key := range keys {
-		// attrs []xml.Attr{xml.Attr{Name:xml.Name{Space:"xmlns", Local:"ext"}, Value:"gpx.py"}}
-		attrs = append(attrs, xml.Attr{Name: xml.Name{Space: "xmlns", Local: key}, Value: ns[key]})
-	}
-	return attrs
-}
-
 // ----------------------------------------------------------------------------------------------------
 // Gpx 1.1 Stuff
 // ----------------------------------------------------------------------------------------------------
 
-func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
+type Attr struct {
+	xml.Attr
+	replacement string
+}
+
+type GPXAttributes struct {
+	// Attributes by namespace and local name
+	Attributes map[string]map[string]Attr
+}
+
+func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
+	namespacesByUrls := map[string]string{}
+
+	for _, attr := range attrs {
+		if attr.Name.Space == "xmlns" {
+			namespacesByUrls[attr.Value] = attr.Name.Local
+		}
+	}
+	//fmt.Printf("namespaces: %#v\n", namespacesByUrls)
+
+	res := map[string]map[string]Attr{}
+	for _, attr := range attrs {
+		// fmt.Println("space=", attr.Name.Space)
+		// fmt.Println("local=", attr.Name.Local)
+		space := attr.Name.Space
+		if ns, found := namespacesByUrls[attr.Name.Space]; found {
+			space = ns
+		}
+		if _, found := res[space]; !found {
+			res[space] = map[string]Attr{}
+		}
+		res[space][attr.Name.Local] = Attr{
+			Attr:        attr,
+			replacement: strings.ReplaceAll(fmt.Sprint("xmlns_prefix_", rand.Float64()), ".", ""),
+		}
+	}
+	return GPXAttributes{
+		Attributes: res,
+	}
+}
+
+func (ga *GPXAttributes) RegisterNamespace(ns, url string) {
+	ga.GetNamespaceAttrs()[ns] = Attr{
+		Attr: xml.Attr{
+			Name: xml.Name{
+				Space: "xmlns",
+				Local: ns,
+			},
+			Value: url,
+		},
+		replacement: strings.ReplaceAll(fmt.Sprint("xmlns_registered_prefix_", rand.Float64()), ".", ""),
+	}
+}
+
+func (ga *GPXAttributes) GetNamespaceAttrs() map[string]Attr {
+	if ga.Attributes == nil {
+		ga.Attributes = make(map[string]map[string]Attr)
+	}
+	if _, found := ga.Attributes["xmlns"]; !found {
+		ga.Attributes["xmlns"] = make(map[string]Attr)
+	}
+	return ga.Attributes["xmlns"]
+}
+
+func (ga GPXAttributes) ToXMLAttrs() (namespacesReplacement string, replacements map[string]string) {
+	var keys []string
+	for k := range ga.Attributes {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	replacements = map[string]string{}
+
+	var attrsList []string
+	for space := range ga.Attributes {
+		for local, nsInfo := range ga.Attributes[space] {
+			var key string
+			if space == "" {
+				key = local
+			} else {
+				key = space + ":" + local
+			}
+			attrsList = append(attrsList, fmt.Sprint(key, `="`, nsInfo.Value, `"`))
+			if space == "xmlns" {
+				replacements[nsInfo.replacement] = local + ":"
+			}
+		}
+	}
+
+	namespacesReplacement = strings.ReplaceAll(fmt.Sprint("xmlns_", rand.Float64()), ".", "")
+	sort.Strings(attrsList)
+	replacements[namespacesReplacement+`=""`] = strings.Join(attrsList, " ")
+	return
+}
+
+func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
+	namespacesReplacement, replacements := gpxDoc.Attrs.ToXMLAttrs()
+
 	gpx11Doc := &gpx11Gpx{}
-	gpx11Doc.Attrs = namespacesMapToAttrs(gpxDoc.Namespaces)
-	gpx11Doc.Extensions.namespaces = gpxDoc.Namespaces
+	gpx11Doc.Attrs = append(gpx11Doc.Attrs, xml.Attr{Name: xml.Name{Local: namespacesReplacement}, Value: ""})
 
 	gpx11Doc.Version = "1.1"
 
 	gpx11Doc.XMLNs = "http://www.topografix.com/GPX/1/1"
 	gpx11Doc.XmlNsXsi = gpxDoc.XmlNsXsi
 	gpx11Doc.XmlSchemaLoc = gpxDoc.XmlSchemaLoc
+
 	gpx11Doc.Extensions = gpxDoc.Extensions
+	gpx11Doc.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 
 	if len(gpxDoc.Creator) == 0 {
 		gpx11Doc.Creator = defaultCreator
@@ -392,7 +466,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 		gpx11Doc.Waypoints = make([]*gpx11GpxPoint, len(gpxDoc.Waypoints))
 		for waypointNo, waypoint := range gpxDoc.Waypoints {
 			gpx11Doc.Waypoints[waypointNo] = convertPointToGpx11(&waypoint)
-			gpx11Doc.Waypoints[waypointNo].Extensions.namespaces = gpxDoc.Namespaces
+			gpx11Doc.Waypoints[waypointNo].Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 		}
 	}
 
@@ -408,8 +482,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 			//r.Links = route.Links
 			r.Number = route.Number
 			r.Type = route.Type
-			// TODO
-			//r.RoutePoints = route.RoutePoints
+			r.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 
 			gpx11Doc.Routes[routeNo] = r
 
@@ -417,7 +490,7 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 				r.Points = make([]*gpx11GpxPoint, len(route.Points))
 				for pointNo, point := range route.Points {
 					r.Points[pointNo] = convertPointToGpx11(&point)
-					r.Points[pointNo].Extensions.namespaces = gpxDoc.Namespaces
+					r.Points[pointNo].Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 				}
 			}
 		}
@@ -433,16 +506,18 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 			gpx11Track.Src = track.Source
 			gpx11Track.Number = track.Number
 			gpx11Track.Type = track.Type
+			gpx11Track.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 
 			if track.Segments != nil {
 				gpx11Track.Segments = make([]*gpx11GpxTrkSeg, len(track.Segments))
 				for segmentNo, segment := range track.Segments {
 					gpx11Segment := new(gpx11GpxTrkSeg)
+					gpx11Segment.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 					if segment.Points != nil {
 						gpx11Segment.Points = make([]*gpx11GpxPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
 							gpx11Segment.Points[pointNo] = convertPointToGpx11(&point)
-							gpx11Segment.Points[pointNo].Extensions.namespaces = gpxDoc.Namespaces
+							gpx11Segment.Points[pointNo].Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 						}
 					}
 					gpx11Track.Segments[segmentNo] = gpx11Segment
@@ -452,13 +527,13 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 		}
 	}
 
-	return gpx11Doc
+	return gpx11Doc, replacements
 }
 
 func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 	gpxDoc := new(GPX)
 
-	gpxDoc.Namespaces = namespacesAttrsToMap(gpx11Doc.Attrs)
+	gpxDoc.Attrs = NewGPXAttributes(gpx11Doc.Attrs)
 
 	gpxDoc.XMLNs = gpx11Doc.XMLNs
 	gpxDoc.XmlNsXsi = gpx11Doc.XmlNsXsi
@@ -527,6 +602,7 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 			r.Type = route.Type
 			// TODO
 			//r.RoutePoints = route.RoutePoints
+			r.Extensions = route.Extensions
 
 			if route.Points != nil {
 				r.Points = make([]GPXPoint, len(route.Points))
@@ -549,11 +625,14 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 			gpxTrack.Source = track.Src
 			gpxTrack.Number = track.Number
 			gpxTrack.Type = track.Type
+			gpxTrack.Extensions = track.Extensions
 
 			if track.Segments != nil {
 				gpxTrack.Segments = make([]GPXTrackSegment, len(track.Segments))
+				gpxTrack.Extensions = track.Extensions
 				for segmentNo, segment := range track.Segments {
 					gpxSegment := GPXTrackSegment{}
+					gpxSegment.Extensions = segment.Extensions
 					if segment.Points != nil {
 						gpxSegment.Points = make([]GPXPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {

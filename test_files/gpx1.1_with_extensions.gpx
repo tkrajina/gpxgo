@@ -1,4 +1,14 @@
 <gpx version="1.1" creator="nawagers" xmlns="http://www.topografix.com/GPX/1/1" xmlns:ext="gpx.py">
+    <metadata>
+        <extensions>
+            <ext:aaa ext:jjj="kkk">bbb</ext:aaa>hhh
+            <ext:ccc>
+                <ext:ddd ext:lll="mmm" ext:nnn="ooo">
+                    <ext:fff>ggg</ext:fff>
+                </ext:ddd>
+            </ext:ccc>
+        </extensions>
+    </metadata>
     <wpt lat="12.3" lon="45.6">
         <extensions>
             <ext:aaa ext:jjj="kkk">bbb</ext:aaa>hhh
@@ -9,4 +19,33 @@
             </ext:ccc>
         </extensions>
     </wpt>
+    <rte>
+        <rtept lat="10" lon="20">
+            <extensions>
+                <ext:aaa ext:jjj="kkk">bbb</ext:aaa>hhh
+                <ext:ccc>
+                    <ext:ddd ext:lll="mmm" ext:nnn="ooo">
+                        <ext:fff>ggg</ext:fff>
+                    </ext:ddd>
+                </ext:ccc>
+            </extensions>
+        </rtept>
+    </rte>
+    <trk>
+		<name>17-MRZ-12 16:44:12</name>
+		<trkseg>
+			<trkpt lat="52.5113534275" lon="13.4571944922">
+				<ele>59.26</ele>
+				<time>2012-03-17T12:46:19Z</time>
+                <extensions>
+                    <ext:aaa ext:jjj="kkk">bbb</ext:aaa>hhh
+                    <ext:ccc>
+                        <ext:ddd ext:lll="mmm" ext:nnn="ooo">
+                            <ext:fff>ggg</ext:fff>
+                        </ext:ddd>
+                    </ext:ccc>
+                </extensions>
+			</trkpt>
+        </trkseg>
+    </trk>
 </gpx>
