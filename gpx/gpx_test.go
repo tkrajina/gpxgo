@@ -1515,17 +1515,21 @@ func TestExtensionWithoutNamespace(t *testing.T) {
 func TestCreateExtensionWithoutNamespace(t *testing.T) {
 	t.Parallel()
 
-	var g GPX
-	g.Extensions.GetOrCreateNode("aaa", "bbb", "ccc").Data = "ccc data"
-	g.Extensions.GetOrCreateNode("aaa", "bbb").SetAttr("key", "value")
+	var original GPX
+	original.Extensions.GetOrCreateNode("aaa", "bbb", "ccc").Data = "ccc data"
+	original.Extensions.GetOrCreateNode("aaa", "bbb").SetAttr("key", "value")
 
-	val, found := g.Extensions.GetOrCreateNode("aaa", "bbb").GetAttr("key")
+	val, found := original.Extensions.GetOrCreateNode("aaa", "bbb").GetAttr("key")
 	assert.True(t, found)
 	assert.Equal(t, "value", val)
 
-	byts, err := g.ToXml(ToXmlParams{Indent: true})
+	reparsed, err := reparse(original)
 	assert.Nil(t, err)
-	expected := `<?xml version="1.0" encoding="UTF-8"?>
+
+	for _, g := range []GPX{original, *reparsed} {
+		byts, err := g.ToXml(ToXmlParams{Indent: true})
+		assert.Nil(t, err)
+		expected := `<?xml version="1.0" encoding="UTF-8"?>
 <gpx  xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
        <metadata>
                <author></author>
@@ -1538,54 +1542,54 @@ func TestCreateExtensionWithoutNamespace(t *testing.T) {
                </extensions>
        </metadata>
 </gpx>`
-	assertLinesEquals(t, expected, string(byts))
+		assertLinesEquals(t, expected, string(byts))
+	}
 }
 
 func TestCreateExtensionWithNamespace(t *testing.T) {
 	t.Parallel()
 
-	var g GPX
-	g.RegisterNamespace("ext", "http://trla.baba.lan")
-	g.Extensions.GetOrCreateNode("ext:", "aaa", "bbb", "ccc").Data = "ccc data"
+	var original GPX
+	original.RegisterNamespace("ext", "http://trla.baba.lan")
+	original.Extensions.GetOrCreateNode("ext:", "aaa", "bbb", "ccc").Data = "ccc data"
 
-	assert.Equal(t, "http://trla.baba.lan", g.Attrs.Attributes["xmlns"]["ext"].Value)
-	assert.NotEmpty(t, g.Attrs.Attributes["xmlns"]["ext"].replacement)
+	assert.Equal(t, "http://trla.baba.lan", original.Attrs.Attributes["xmlns"]["ext"].Value)
+	assert.NotEmpty(t, original.Attrs.Attributes["xmlns"]["ext"].replacement)
 
-	node, found := g.Extensions.GetNode("aaa")
-	assert.True(t, found)
-	assert.NotNil(t, node)
-	assert.Equal(t, "ext", node.SpaceName())
-	if t.Failed() {
-		t.FailNow()
-	}
-
-	assert.Equal(t, "ext", node.SpaceName())
-	assert.Equal(t, "ext", g.Extensions.SpaceName())
-
-	node, found = node.GetNode("bbb")
-	assert.True(t, found)
-	assert.NotNil(t, node)
-	if t.Failed() {
-		t.FailNow()
-	}
-
-	assert.Equal(t, "ext", node.SpaceName())
-	assert.Equal(t, "ext", g.Extensions.SpaceName())
-
-	g.Extensions.GetOrCreateNode("aaa", "bbb").SetAttr("key", "value")
-
-	assert.Equal(t, "ext", node.SpaceName())
-	assert.Equal(t, "ext", g.Extensions.SpaceName())
-
-	val, found := g.Extensions.GetOrCreateNode("aaa", "bbb").GetAttr("key")
-	assert.True(t, found)
-	assert.Equal(t, "value", val)
-
-	assert.Equal(t, "ext", g.Extensions.SpaceName())
-
-	byts, err := g.ToXml(ToXmlParams{Indent: true})
+	reparsed, err := reparse(original)
 	assert.Nil(t, err)
-	expected := `<?xml version="1.0" encoding="UTF-8"?>
+
+	for n, g := range []GPX{original, *reparsed} {
+		fmt.Printf("Test %d\n", n)
+		node, found := g.Extensions.GetNode("aaa")
+		assert.True(t, found)
+		assert.NotNil(t, node)
+		assert.Equal(t, "ext", node.SpaceName())
+
+		assert.Equal(t, "ext", node.SpaceName())
+		assert.Equal(t, "ext", g.Extensions.SpaceName())
+
+		node, found = node.GetNode("bbb")
+		assert.True(t, found)
+		assert.NotNil(t, node)
+
+		assert.Equal(t, "ext", node.SpaceName())
+		assert.Equal(t, "ext", g.Extensions.SpaceName())
+
+		g.Extensions.GetOrCreateNode("aaa", "bbb").SetAttr("key", "value")
+
+		assert.Equal(t, "ext", node.SpaceName())
+		assert.Equal(t, "ext", g.Extensions.SpaceName())
+
+		val, found := g.Extensions.GetOrCreateNode("aaa", "bbb").GetAttr("key")
+		assert.True(t, found)
+		assert.Equal(t, "value", val)
+
+		assert.Equal(t, "ext", g.Extensions.SpaceName())
+
+		byts, err := g.ToXml(ToXmlParams{Indent: true})
+		assert.Nil(t, err)
+		expected := `<?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns:ext="http://trla.baba.lan" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
        <metadata>
                <author></author>
@@ -1598,5 +1602,23 @@ func TestCreateExtensionWithNamespace(t *testing.T) {
                </extensions>
        </metadata>
 </gpx>`
-	assertLinesEquals(t, expected, string(byts))
+		assertLinesEquals(t, expected, string(byts))
+	}
+}
+
+func TestGarminExtensions(t *testing.T) {
+	t.Parallel()
+
+	original, reparsed := loadAndReparseFile(t, "../test_files/TestCreateExtensionWithNamespace")
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	for n, g := range []GPX{*original, *reparsed} {
+		fmt.Printf("Test %d\n", n)
+		xml, err := g.ToXml(ToXmlParams{})
+		assert.Nil(t, err)
+		assert.Contains(t, string(xml), "<gpxtpx:TrackPointExtension>")
+		assert.Contains(t, string(xml), "<gpxtpx:hr>171</gpxtpx:hr>")
+	}
 }
