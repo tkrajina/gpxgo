@@ -7,6 +7,7 @@ package gpx
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strings"
 )
 
@@ -15,6 +16,14 @@ type Node struct {
 	Attrs   []xml.Attr `xml:",any,attr"`
 	Data    string     `xml:",chardata"`
 	Nodes   []Node     `xml:",any"`
+}
+
+func (n Node) debugXMLChunk() []byte {
+	byts, err := xml.MarshalIndent(n, "", "    ")
+	if err != nil {
+		return []byte("???")
+	}
+	return byts
 }
 
 func (n Node) toTokens(prefix string) (tokens []xml.Token) {
@@ -53,22 +62,23 @@ func (n *Node) GetAttr(key string) (value string, found bool) {
 func (n *Node) SetAttr(key, value string) {
 	for i := range n.Attrs {
 		if n.Attrs[i].Name.Local == key {
+			fmt.Println("setting attr")
 			n.Attrs[i].Value = value
 			return
 		}
 	}
 	n.Attrs = append(n.Attrs, xml.Attr{
 		Name: xml.Name{
-			Space: n.SpaceName(),
+			Space: n.SpaceNameURL(),
 			Local: key,
 		},
 		Value: value,
 	})
+	fmt.Println("appending attr", len(n.Attrs))
 }
 
 func (n *Node) GetNode(path0 string) (node *Node, found bool) {
 	for subn := range n.Nodes {
-		//fmt.Println("", n.Nodes[subn].LocalName(), "<->", path0)
 		if n.Nodes[subn].LocalName() == path0 {
 			node = &n.Nodes[subn]
 			found = true
@@ -78,47 +88,42 @@ func (n *Node) GetNode(path0 string) (node *Node, found bool) {
 	return
 }
 
-func (n *Node) GetOrCreateNode(path ...string) *Node {
+func (n *Node) getOrCreateNode(path ...string) *Node {
 	if len(path) == 0 {
 		return n
-	}
-
-	namespace := n.SpaceName()
-	if strings.HasSuffix(path[0], ":") {
-		namespace = strings.Trim(path[0], ":")
-		if n.XMLName.Space != namespace {
-			n.XMLName.Space = namespace
-		}
-		path = path[1:]
 	}
 
 	path0, rest := path[0], path[1:]
 
 	subNode, found := n.GetNode(path0)
+	fmt.Println("subnode", path0, "found=", found)
 	if !found {
+		fmt.Println("creating subnode", path0)
 		n.Nodes = append(n.Nodes, Node{
 			XMLName: xml.Name{
+				Space: n.XMLName.Space,
 				Local: path0,
-				Space: namespace,
 			},
-			Attrs: []xml.Attr{},
+			Attrs: nil,
 		})
-		subNode = &n.Nodes[len(n.Nodes)-1]
+		subNode = &(n.Nodes[len(n.Nodes)-1])
 	}
 
-	return subNode.GetOrCreateNode(rest...)
+	return subNode.getOrCreateNode(rest...)
 }
 
-func (n Node) IsEmpty() bool     { return len(n.Nodes) == 0 && len(n.Attrs) == 0 && len(n.Data) == 0 }
-func (n Node) LocalName() string { return n.XMLName.Local }
-func (n Node) SpaceName() string { return n.XMLName.Space }
+func (n Node) IsEmpty() bool        { return len(n.Nodes) == 0 && len(n.Attrs) == 0 && len(n.Data) == 0 }
+func (n Node) LocalName() string    { return n.XMLName.Local }
+func (n Node) SpaceNameURL() string { return n.XMLName.Space }
 func (n Node) GetAttrOrEmpty(attr string) string {
 	val, _ := n.GetAttr(attr)
 	return val
 }
 
 type Extension struct {
-	Node
+	// XMLName xml.Name
+	// Attrs   []xml.Attr `xml:",any,attr"`
+	Nodes []Node `xml:",any"`
 
 	// Filled before deserializing:
 	globalNsAttrs map[string]Attr
@@ -126,19 +131,26 @@ type Extension struct {
 
 var _ xml.Marshaler = Extension{}
 
+func (ex Extension) debugXMLChunk() []byte {
+	byts, err := xml.MarshalIndent(ex, "", "    ")
+	if err != nil {
+		return []byte("???")
+	}
+	return byts
+}
+
 func (ex Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	if len(ex.Node.Nodes) == 0 {
+	if len(ex.Nodes) == 0 {
 		return nil
 	}
 
-	//fmt.Printf("global ns: %#v\n", ex.globalNsAttrs)
 	start = xml.StartElement{Name: xml.Name{Local: start.Name.Local}, Attr: nil}
 	tokens := []xml.Token{start}
 	for _, node := range ex.Nodes {
 		prefix := ""
 		for _, v := range ex.globalNsAttrs {
 			//fmt.Println("value=", v.Value, "space name=", node.SpaceName())
-			if node.SpaceName() == v.Value || node.SpaceName() == v.Name.Local {
+			if node.SpaceNameURL() == v.Value || node.SpaceNameURL() == v.Name.Local {
 				prefix = v.replacement
 			}
 		}
@@ -161,6 +173,38 @@ func (ex Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	}
 
 	return nil
+}
+
+func (ex *Extension) GetOrCreateNode(namespaceURL string, path ...string) *Node {
+	// TODO: Check is len(nodes) == 0
+	var subNode *Node
+	for n := range ex.Nodes {
+		if ex.Nodes[n].SpaceNameURL() == namespaceURL && ex.Nodes[n].LocalName() == path[0] {
+			subNode = &ex.Nodes[n]
+			break
+		}
+	}
+	if subNode == nil {
+		ex.Nodes = append(ex.Nodes, Node{
+			XMLName: xml.Name{
+				Space: namespaceURL,
+				Local: path[0],
+			},
+		})
+		subNode = &ex.Nodes[len(ex.Nodes)-1]
+	}
+	return subNode.getOrCreateNode(path[1:]...)
+}
+
+func (ex *Extension) GetNode(path0 string) (node *Node, found bool) {
+	for subn := range ex.Nodes {
+		if ex.Nodes[subn].LocalName() == path0 {
+			node = &ex.Nodes[subn]
+			found = true
+			return
+		}
+	}
+	return
 }
 
 /*

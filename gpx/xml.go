@@ -172,7 +172,6 @@ func ParseBytes(bytes []byte) (*GPX, error) {
 			return nil, err
 		}
 
-		// TODO Attrs
 		return convertFromGpx10Models(g), nil
 	} else if version == "1.1" {
 		g := &gpx11Gpx{}
@@ -181,7 +180,6 @@ func ParseBytes(bytes []byte) (*GPX, error) {
 			return nil, err
 		}
 
-		// TODO Attrs
 		return convertFromGpx11Models(g), nil
 	} else {
 		return nil, errors.New("Invalid version:" + version)

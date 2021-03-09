@@ -4,5 +4,5 @@ go 1.16
 
 require (
 	github.com/joeshaw/gengen v0.0.0-20190604015154-c77d87825f5a
-	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/stretchr/testify v1.7.0
 )
