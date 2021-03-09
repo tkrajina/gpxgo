@@ -1515,7 +1515,7 @@ func TestExtensionWithoutNamespace(t *testing.T) {
 func TestNodesSubnodesAndAttrs(t *testing.T) {
 	t.Parallel()
 
-	var node Node
+	var node ExtensionNode
 
 	assert.Equal(t, 0, len(node.Attrs))
 	node.SetAttr("xxx", "yyy")

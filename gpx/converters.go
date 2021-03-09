@@ -322,12 +322,9 @@ func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
 			namespacesByUrls[attr.Value] = attr.Name.Local
 		}
 	}
-	fmt.Printf("namespaces: %#v\n", namespacesByUrls)
 
 	res := map[string]map[string]Attr{}
 	for _, attr := range attrs {
-		// fmt.Println("space=", attr.Name.Space)
-		// fmt.Println("local=", attr.Name.Local)
 		space := attr.Name.Space
 		if ns, found := namespacesByUrls[attr.Name.Space]; found {
 			space = ns
