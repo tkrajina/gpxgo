@@ -3,3 +3,4 @@ tags
 gpxgo
 pkg/*
 .vscode/*
+vendor/*

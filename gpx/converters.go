@@ -322,7 +322,7 @@ func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
 			namespacesByUrls[attr.Value] = attr.Name.Local
 		}
 	}
-	//fmt.Printf("namespaces: %#v\n", namespacesByUrls)
+	fmt.Printf("namespaces: %#v\n", namespacesByUrls)
 
 	res := map[string]map[string]Attr{}
 	for _, attr := range attrs {
