@@ -1639,8 +1639,8 @@ func TestCreateExtensionWithNamespace(t *testing.T) {
 	original.RegisterNamespace("ext", "http://trla.baba.lan")
 	original.Extensions.GetOrCreateNode("http://trla.baba.lan", "aaa", "bbb", "ccc").Data = "ccc data"
 
-	assert.Equal(t, "http://trla.baba.lan", original.Attrs.Attributes["xmlns"]["ext"].Value)
-	assert.NotEmpty(t, original.Attrs.Attributes["xmlns"]["ext"].replacement)
+	assert.Equal(t, "http://trla.baba.lan", original.Attrs.NamespaceAttributes["xmlns"]["ext"].Value)
+	assert.NotEmpty(t, original.Attrs.NamespaceAttributes["xmlns"]["ext"].replacement)
 
 	original.Extensions.GetOrCreateNode("http://trla.baba.lan", "aaa", "bbb").SetAttr("key", "value")
 	val, found := original.Extensions.GetOrCreateNode("http://trla.baba.lan", "aaa", "bbb").GetAttr("key")
@@ -1658,9 +1658,9 @@ func TestCreateExtensionWithNamespace(t *testing.T) {
 	assert.Equal(t, original.Extensions.debugXMLChunk(), reparsed.Extensions.debugXMLChunk())
 	assert.Equal(t, original.Extensions, reparsed.Extensions)
 
-	assert.Equal(t, 1, len(original.Attrs.Attributes))
-	assert.Equal(t, len(original.Attrs.Attributes), len(reparsed.Attrs.Attributes))
-	assert.Equal(t, original.Attrs.Attributes["xmlns"]["ext"].Attr, reparsed.Attrs.Attributes["xmlns"]["ext"].Attr)
+	assert.Equal(t, 1, len(original.Attrs.NamespaceAttributes))
+	assert.Equal(t, len(original.Attrs.NamespaceAttributes), len(reparsed.Attrs.NamespaceAttributes))
+	assert.Equal(t, original.Attrs.NamespaceAttributes["xmlns"]["ext"].Attr, reparsed.Attrs.NamespaceAttributes["xmlns"]["ext"].Attr)
 
 	assert.Equal(t, 1, len(reparsed.Extensions.Nodes))
 	assert.Equal(t, len(original.Extensions.Nodes), len(reparsed.Extensions.Nodes))

@@ -118,7 +118,7 @@ type Extension struct {
 	Nodes []ExtensionNode `xml:",any"`
 
 	// Filled before deserializing:
-	globalNsAttrs map[string]Attr
+	globalNsAttrs map[string]NamespaceAttribute
 }
 
 var _ xml.Marshaler = Extension{}

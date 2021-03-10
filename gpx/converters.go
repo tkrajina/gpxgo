@@ -304,14 +304,14 @@ func convertPointFromGpx10(original *gpx10GpxPoint) *GPXPoint {
 // Gpx 1.1 Stuff
 // ----------------------------------------------------------------------------------------------------
 
-type Attr struct {
+type NamespaceAttribute struct {
 	xml.Attr
 	replacement string
 }
 
 type GPXAttributes struct {
-	// Attributes by namespace and local name
-	Attributes map[string]map[string]Attr
+	// NamespaceAttributes by namespace and local name
+	NamespaceAttributes map[string]map[string]NamespaceAttribute
 }
 
 func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
@@ -323,27 +323,27 @@ func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
 		}
 	}
 
-	res := map[string]map[string]Attr{}
+	res := map[string]map[string]NamespaceAttribute{}
 	for _, attr := range attrs {
 		space := attr.Name.Space
 		if ns, found := namespacesByUrls[attr.Name.Space]; found {
 			space = ns
 		}
 		if _, found := res[space]; !found {
-			res[space] = map[string]Attr{}
+			res[space] = map[string]NamespaceAttribute{}
 		}
-		res[space][attr.Name.Local] = Attr{
+		res[space][attr.Name.Local] = NamespaceAttribute{
 			Attr:        attr,
 			replacement: strings.ReplaceAll(fmt.Sprint("xmlns_prefix_", rand.Float64()), ".", ""),
 		}
 	}
 	return GPXAttributes{
-		Attributes: res,
+		NamespaceAttributes: res,
 	}
 }
 
 func (ga *GPXAttributes) RegisterNamespace(ns, url string) {
-	ga.GetNamespaceAttrs()[ns] = Attr{
+	ga.GetNamespaceAttrs()[ns] = NamespaceAttribute{
 		Attr: xml.Attr{
 			Name: xml.Name{
 				Space: "xmlns",
@@ -355,19 +355,19 @@ func (ga *GPXAttributes) RegisterNamespace(ns, url string) {
 	}
 }
 
-func (ga *GPXAttributes) GetNamespaceAttrs() map[string]Attr {
-	if ga.Attributes == nil {
-		ga.Attributes = make(map[string]map[string]Attr)
+func (ga *GPXAttributes) GetNamespaceAttrs() map[string]NamespaceAttribute {
+	if ga.NamespaceAttributes == nil {
+		ga.NamespaceAttributes = make(map[string]map[string]NamespaceAttribute)
 	}
-	if _, found := ga.Attributes["xmlns"]; !found {
-		ga.Attributes["xmlns"] = make(map[string]Attr)
+	if _, found := ga.NamespaceAttributes["xmlns"]; !found {
+		ga.NamespaceAttributes["xmlns"] = make(map[string]NamespaceAttribute)
 	}
-	return ga.Attributes["xmlns"]
+	return ga.NamespaceAttributes["xmlns"]
 }
 
 func (ga GPXAttributes) ToXMLAttrs() (namespacesReplacement string, replacements map[string]string) {
 	var keys []string
-	for k := range ga.Attributes {
+	for k := range ga.NamespaceAttributes {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
@@ -375,8 +375,8 @@ func (ga GPXAttributes) ToXMLAttrs() (namespacesReplacement string, replacements
 	replacements = map[string]string{}
 
 	var attrsList []string
-	for space := range ga.Attributes {
-		for local, nsInfo := range ga.Attributes[space] {
+	for space := range ga.NamespaceAttributes {
+		for local, nsInfo := range ga.NamespaceAttributes[space] {
 			var key string
 			if space == "" {
 				key = local
