@@ -1527,21 +1527,21 @@ func TestNodesSubnodesAndAttrs(t *testing.T) {
 	}
 
 	assert.Equal(t, 0, len(node.Nodes))
-	node.getOrCreateNode("aaa").Data = "aaa data"
+	node.GetOrCreateNode("aaa").Data = "aaa data"
 	assert.Equal(t, 1, len(node.Nodes))
 	assert.Equal(t, 0, len(node.Nodes[0].Attrs))
 
-	assert.Equal(t, &node.Nodes[0], node.getOrCreateNode("aaa"))
+	assert.Equal(t, &node.Nodes[0], node.GetOrCreateNode("aaa"))
 
 	fmt.Println(string(node.debugXMLChunk()))
-	node.getOrCreateNode("aaa").SetAttr("aaa", "bbb")
+	node.GetOrCreateNode("aaa").SetAttr("aaa", "bbb")
 	fmt.Println(string(node.debugXMLChunk()))
 	assert.Equal(t, 1, len(node.Nodes[0].Attrs))
 	assert.Equal(t, "aaa", node.Nodes[0].Attrs[0].Name.Local)
 	assert.Equal(t, "bbb", node.Nodes[0].Attrs[0].Value)
 
 	fmt.Println(string(node.debugXMLChunk()))
-	node.getOrCreateNode("aaa", "bbb").SetAttr("aaa", "bbb")
+	node.GetOrCreateNode("aaa", "bbb").SetAttr("aaa", "bbb")
 	fmt.Println(string(node.debugXMLChunk()))
 	assert.Equal(t, 1, len(node.Nodes))
 	assert.Equal(t, 1, len(node.Nodes[0].Nodes))
@@ -1554,21 +1554,21 @@ func TestExtensionNodesAndAttrs(t *testing.T) {
 
 	var ext Extension
 	assert.Equal(t, 0, len(ext.Nodes))
-	ext.GetOrCreateNode("", "aaa").Data = "aaa data"
+	ext.GetOrCreateNode(NoNamespace, "aaa").Data = "aaa data"
 	assert.Equal(t, 1, len(ext.Nodes))
 	assert.Equal(t, 0, len(ext.Nodes[0].Attrs))
-	ext.GetOrCreateNode("", "aaa").SetAttr("aaa", "bbb")
+	ext.GetOrCreateNode(NoNamespace, "aaa").SetAttr("aaa", "bbb")
 	assert.Equal(t, 1, len(ext.Nodes[0].Attrs))
 	assert.Equal(t, "aaa", ext.Nodes[0].Attrs[0].Name.Local)
 	assert.Equal(t, "bbb", ext.Nodes[0].Attrs[0].Value)
 
 	fmt.Println(string(ext.debugXMLChunk()))
-	ext.GetOrCreateNode("", "aaa", "bbb").SetAttr("aaa", "bbb")
+	ext.GetOrCreateNode(NoNamespace, "aaa", "bbb").SetAttr("aaa", "bbb")
 	fmt.Println(string(ext.debugXMLChunk()))
 
 	{
 		fmt.Println("a", string(ext.debugXMLChunk()))
-		n1 := ext.GetOrCreateNode("", "aaa", "bbb")
+		n1 := ext.GetOrCreateNode(NoNamespace, "aaa", "bbb")
 		fmt.Println("b", string(ext.debugXMLChunk()))
 		n2 := &ext.Nodes[0].Nodes[0]
 		fmt.Println("c", string(ext.debugXMLChunk()))
@@ -1586,13 +1586,13 @@ func TestCreateExtensionWithoutNamespace(t *testing.T) {
 
 	var original GPX
 	fmt.Println("1:", string(original.Extensions.debugXMLChunk()))
-	original.Extensions.GetOrCreateNode("", "aaa", "bbb", "ccc").Data = "ccc data"
+	original.Extensions.GetOrCreateNode(NoNamespace, "aaa", "bbb", "ccc").Data = "ccc data"
 	fmt.Println("2:", string(original.Extensions.debugXMLChunk()))
 	assert.Equal(t, 1, len(original.Extensions.Nodes))
 	assert.Equal(t, "aaa", original.Extensions.Nodes[0].XMLName.Local)
 	assert.Equal(t, "bbb", original.Extensions.Nodes[0].Nodes[0].XMLName.Local)
 	assert.Equal(t, 0, len(original.Extensions.Nodes[0].Nodes[0].Attrs), "attrs=%#v", original.Extensions.Nodes[0].Nodes[0].Attrs)
-	original.Extensions.GetOrCreateNode("", "aaa", "bbb").SetAttr("key", "value")
+	original.Extensions.GetOrCreateNode(NoNamespace, "aaa", "bbb").SetAttr("key", "value")
 	fmt.Println("3:", string(original.Extensions.debugXMLChunk()))
 	assert.Equal(t, 1, len(original.Extensions.Nodes[0].Nodes[0].Attrs), "attrs=%#v", original.Extensions.Nodes[0].Nodes[0].Attrs)
 	if t.Failed() {
@@ -1605,7 +1605,7 @@ func TestCreateExtensionWithoutNamespace(t *testing.T) {
 	assert.Equal(t, "key", original.Extensions.Nodes[0].Nodes[0].Attrs[0].Name.Local)
 	assert.Equal(t, "value", original.Extensions.Nodes[0].Nodes[0].Attrs[0].Value)
 
-	val, found := original.Extensions.GetOrCreateNode("", "aaa", "bbb").GetAttr("key")
+	val, found := original.Extensions.GetOrCreateNode(NoNamespace, "aaa", "bbb").GetAttr("key")
 	assert.True(t, found)
 	assert.Equal(t, "value", val)
 
@@ -1676,18 +1676,19 @@ func TestCreateExtensionWithNamespace(t *testing.T) {
 
 	for n, g := range []GPX{original, *reparsed, *rereparsed} {
 		fmt.Printf("Test %d\n", n)
-		node, found := g.Extensions.GetNode("aaa")
+
+		node, found := g.Extensions.GetNode(AnyNamespace, "aaa")
 		assert.True(t, found)
 		assert.NotNil(t, node)
-		assert.Equal(t, "http://trla.baba.lan", node.SpaceNameURL())
 
+		node, found = g.Extensions.GetNode(NamespaceURL("http://trla.baba.lan"), "aaa")
+		assert.True(t, found)
+		assert.NotNil(t, node)
 		assert.Equal(t, "http://trla.baba.lan", node.SpaceNameURL())
 
 		node, found = node.GetNode("bbb")
 		assert.True(t, found)
 		assert.NotNil(t, node)
-
-		assert.Equal(t, "http://trla.baba.lan", node.SpaceNameURL())
 
 		assert.Equal(t, "http://trla.baba.lan", node.SpaceNameURL())
 

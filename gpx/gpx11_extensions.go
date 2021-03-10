@@ -80,7 +80,7 @@ func (n *ExtensionNode) GetNode(path0 string) (node *ExtensionNode, found bool) 
 	return
 }
 
-func (n *ExtensionNode) getOrCreateNode(path ...string) *ExtensionNode {
+func (n *ExtensionNode) GetOrCreateNode(path ...string) *ExtensionNode {
 	if len(path) == 0 {
 		return n
 	}
@@ -99,7 +99,7 @@ func (n *ExtensionNode) getOrCreateNode(path ...string) *ExtensionNode {
 		subNode = &(n.Nodes[len(n.Nodes)-1])
 	}
 
-	return subNode.getOrCreateNode(rest...)
+	return subNode.GetOrCreateNode(rest...)
 }
 
 func (n ExtensionNode) IsEmpty() bool {
@@ -166,11 +166,20 @@ func (ex Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return nil
 }
 
-func (ex *Extension) GetOrCreateNode(namespaceURL string, path ...string) *ExtensionNode {
+type NamespaceURL string
+
+const (
+	// NoNamespace is used for extension nodes without namespace
+	NoNamespace NamespaceURL = ""
+	// AnyNamespace is an invalid namespace used for searching for nodes regardless of namespace
+	AnyNamespace NamespaceURL = "-1"
+)
+
+func (ex *Extension) GetOrCreateNode(namespaceURL NamespaceURL, path ...string) *ExtensionNode {
 	// TODO: Check is len(nodes) == 0
 	var subNode *ExtensionNode
 	for n := range ex.Nodes {
-		if ex.Nodes[n].SpaceNameURL() == namespaceURL && ex.Nodes[n].LocalName() == path[0] {
+		if ex.Nodes[n].SpaceNameURL() == string(namespaceURL) && ex.Nodes[n].LocalName() == path[0] {
 			subNode = &ex.Nodes[n]
 			break
 		}
@@ -178,21 +187,23 @@ func (ex *Extension) GetOrCreateNode(namespaceURL string, path ...string) *Exten
 	if subNode == nil {
 		ex.Nodes = append(ex.Nodes, ExtensionNode{
 			XMLName: xml.Name{
-				Space: namespaceURL,
+				Space: string(namespaceURL),
 				Local: path[0],
 			},
 		})
 		subNode = &ex.Nodes[len(ex.Nodes)-1]
 	}
-	return subNode.getOrCreateNode(path[1:]...)
+	return subNode.GetOrCreateNode(path[1:]...)
 }
 
-func (ex *Extension) GetNode(path0 string) (node *ExtensionNode, found bool) {
+func (ex *Extension) GetNode(namespaceURL NamespaceURL, path0 string) (node *ExtensionNode, found bool) {
 	for subn := range ex.Nodes {
 		if ex.Nodes[subn].LocalName() == path0 {
-			node = &ex.Nodes[subn]
-			found = true
-			return
+			if ex.Nodes[subn].SpaceNameURL() == string(namespaceURL) || namespaceURL == AnyNamespace {
+				node = &ex.Nodes[subn]
+				found = true
+				return
+			}
 		}
 	}
 	return
