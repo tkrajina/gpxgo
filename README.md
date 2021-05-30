@@ -33,7 +33,9 @@ gpxgo is a golang library for parsing and manipulating GPX files. GPX (GPS eXcha
 
 ## GPX Compatibility
 
-Gpxgo can read/write both GPX 1.0 and GPX 1.1 files. The only not-yet-supported part of the GPX 1.1 specification are extensions.
+Gpxgo can read/write both GPX 1.0 and GPX 1.1 files.
+
+GPX extensions support is experimental from v1.1.0 on.
 
 ## gpxinfo
 
