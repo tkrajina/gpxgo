@@ -171,7 +171,7 @@ type NamespaceURL string
 const (
 	// NoNamespace is used for extension nodes without namespace
 	NoNamespace NamespaceURL = ""
-	// AnyNamespace is an invalid namespace used for searching for nodes regardless of namespace
+	// AnyNamespace is an invalid namespace used for searching for nodes by name (regardless of namespace)
 	AnyNamespace NamespaceURL = "-1"
 )
 
