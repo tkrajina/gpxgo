@@ -79,7 +79,7 @@ func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 	byts := buffer.Bytes()
 
 	for replKey, replVal := range replacemends {
-		byts = bytes.ReplaceAll(byts, []byte(replKey), []byte(replVal))
+		byts = bytes.Replace(byts, []byte(replKey), []byte(replVal), -1)
 	}
 
 	return byts, nil
