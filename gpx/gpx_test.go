@@ -1040,6 +1040,15 @@ func TestSimplifyForSingleSegmentAndVeryByMaxDistance(t *testing.T) {
 	assertTrue(t, fmt.Sprintf("maxDistance very big => only first and last points should be left %f!=%f", g.Length2D(), distanceBetweenFirstAndLast), cca(g.Length2D(), distanceBetweenFirstAndLast))
 }
 
+func TestParseAll(t *testing.T) {
+	t.Parallel()
+	for _, gpxFile := range loadTestGPXs() {
+		g, err := ParseFile(gpxFile)
+		assert.NotNil(t, g)
+		assert.Nil(t, err)
+	}
+}
+
 func TestSimplify(t *testing.T) {
 	t.Parallel()
 	for _, gpxFile := range loadTestGPXs() {
