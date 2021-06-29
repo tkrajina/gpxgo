@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+<gpx
+ version="1.0"
+ creator="OziExplorer Version 3954q - http://www.oziexplorer.com"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="http://www.topografix.com/GPX/1/0"
+ xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+<time>2013-07-29T21:43:01Z</time>
+<bounds minlat="44.252050" minlon="20.545637" maxlat="44.280432" maxlon="20.682845"/>
+<wpt lat="44.2805478" lon="20.5402796">
+ <time>2013-07-29T23:40:30.453Z</time>
+ <name>1</name>
+</wpt>
+<wpt lat="44.2742944" lon="20.5537630">
+ <time>2013-07-29T23:40:33.218Z</time>
+ <name>2</name>
+</wpt>
+<wpt lat="44.2682041" lon="20.5735475">
+ <time>2013-07-29T23:40:38.296Z</time>
+ <name>3</name>
+</wpt>
+<wpt lat="44.2631424" lon="20.5922124">
+ <time>2013-07-29T23:41:02.750Z</time>
+ <name>4</name>
+</wpt>
+<wpt lat="44.2605571" lon="20.5987511">
+ <time>2013-07-29T23:41:12.984Z</time>
+ <name>5</name>
+</wpt>
+<wpt lat="44.2580210" lon="20.6104750">
+ <time>2013-07-29T23:41:26.437Z</time>
+ <name>6</name>
+</wpt>
+<wpt lat="44.2562587" lon="20.6382348">
+ <time>2013-07-29T23:41:50.375Z</time>
+ <name>7</name>
+</wpt>
+<wpt lat="44.2521762" lon="20.6774742">
+ <time>2013-07-29T23:42:00.625Z</time>
+ <name>8</name>
+</wpt>
+</gpx>
