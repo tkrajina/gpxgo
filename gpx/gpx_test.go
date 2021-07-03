@@ -30,7 +30,11 @@ func min(x, y int) int {
 }
 
 func cca(x, y float64) bool {
-	return math.Abs(x-y) < 0.001
+	res := math.Abs(x-y) < 0.001
+	if !res {
+		fmt.Printf("%f not cca %f\n", x, y)
+	}
+	return res
 }
 
 func assertEquals(t *testing.T, var1 interface{}, var2 interface{}) {
@@ -1432,4 +1436,18 @@ ERRgpx>
 	if gpxDoc != nil {
 		t.Error("gpxDoc should be empty, found:", gpxDoc)
 	}
+}
+
+func TestAngle(t *testing.T) {
+	t.Parallel()
+
+	p := Point{Latitude: 45, Longitude: 13}
+	assert.Equal(t, 0.0, AngleFromNorth(p, p.Add(1, 0, 0), false))
+	assert.True(t, cca(35.2643, AngleFromNorth(p, p.Add(1, 1, 0), false)))
+	assert.Equal(t, 90.0, AngleFromNorth(p, p.Add(0, 1, 0), false))
+	assert.True(t, cca(180-35.2643, AngleFromNorth(p, p.Add(-1, 1, 0), false)))
+	assert.Equal(t, 180.0, AngleFromNorth(p, p.Add(-1, 0, 0), false))
+	assert.True(t, cca(180+35.2643, AngleFromNorth(p, p.Add(-1, -1, 0), false)))
+	assert.Equal(t, 360-90.0, AngleFromNorth(p, p.Add(0, -1, 0), false))
+	assert.True(t, cca(360-35.2643, AngleFromNorth(p, p.Add(1, -1, 0), false)))
 }

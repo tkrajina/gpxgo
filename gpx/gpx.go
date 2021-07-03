@@ -654,6 +654,17 @@ type Point struct {
 	Elevation NullableFloat64
 }
 
+func (pt Point) Add(latDelta, lonDelta, eleDelta float64) Point {
+	res := Point{
+		Latitude:  pt.Latitude + latDelta,
+		Longitude: pt.Longitude + lonDelta,
+	}
+	if res.Elevation.NotNull() {
+		res.Elevation.data += eleDelta
+	}
+	return res
+}
+
 //GetLatitude returns the latitude
 func (pt *Point) GetLatitude() float64 {
 	return pt.Latitude
