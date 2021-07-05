@@ -6,7 +6,6 @@
 package gpx
 
 import (
-	"fmt"
 	"math"
 	"sort"
 )
