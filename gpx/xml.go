@@ -23,6 +23,7 @@ const formattingTimelayout = "2006-01-02T15:04:05Z"
 var parsingTimelayouts = []string{
 	"2006-01-02T15:04:05.000Z",
 	formattingTimelayout,
+	"2006-01-02T15:04:05+00:00",
 	"2006-01-02T15:04:05",
 	"2006-01-02 15:04:05Z",
 	"2006-01-02 15:04:05",
