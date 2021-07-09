@@ -8,16 +8,21 @@ package gpx
 import (
 	"encoding/xml"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
 )
+
+func TestParseTime2(t *testing.T) {
+	tm, err := parseGPXTime("2021-06-19T17:28:22+00:00")
+	assert.Nil(t, err)
+	assert.Equal(t, "2021-06-19T17:28:22Z", tm.Format(time.RFC3339))
+}
 
 func TestParseTime(t *testing.T) {
 	time, err := parseGPXTime("")
-	if time != nil {
-		t.Errorf("Empty string should not return a nonnil time")
-	}
-	if err == nil {
-		t.Errorf("Empty string should result in error")
-	}
+	assert.NotNil(t, err)
+	assert.Nil(t, time)
 }
 
 type testXml struct {
