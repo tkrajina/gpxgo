@@ -97,7 +97,7 @@ func Length3D(locs []Point) float64 {
 func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 	lenArrs := len(speedsDistances)
 
-	if len(speedsDistances) < 20 {
+	if len(speedsDistances) < 3 {
 		//log.Println("Segment too small to compute speed, size: ", lenArrs)
 		return 0.0
 	}
@@ -129,6 +129,7 @@ func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 	}
 
 	speedsSorted := sort.Float64Slice(speeds)
+	sort.Sort(speedsSorted)
 
 	if len(speedsSorted) == 0 {
 		return 0

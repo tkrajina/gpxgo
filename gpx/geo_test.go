@@ -8,6 +8,8 @@ package gpx
 import (
 	"math"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestToRad(t *testing.T) {
@@ -27,4 +29,16 @@ func TestElevationAngle(t *testing.T) {
 	if elevAngleE != elevAngleA {
 		t.Errorf("Elevation angle expected: %f, actual: %f", elevAngleE, elevAngleA)
 	}
+}
+
+func TestMaxSpeed(t *testing.T) {
+	t.Parallel()
+
+	maxSpeed := CalcMaxSpeed([]SpeedsAndDistances{
+		{Speed: 5.0, Distance: 508.674260463},
+		{Speed: 4.0, Distance: 593.443625286},
+		{Speed: 6.0, Distance: 523.841129461},
+		{Speed: 1.0, Distance: 489.306355103},
+	})
+	assert.Equal(t, 6.0, maxSpeed)
 }
