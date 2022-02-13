@@ -9,7 +9,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -152,24 +152,31 @@ func ParseFile(fileName string) (*GPX, error) {
 
 	defer f.Close()
 
-	buf, err := ioutil.ReadAll(f)
-	if err != nil {
-		return nil, err
-	}
-
-	return ParseBytes(buf)
+	return Parse(f)
 }
 
 //ParseBytes parses GPX from bytes
 func ParseBytes(buf []byte) (*GPX, error) {
+	return Parse(bytes.NewBuffer(buf))
+}
 
+//ParseBytes parses GPX from bytes
+func Parse(inReader io.Reader) (*GPX, error) {
+	// at most 1000 bytes will make guessGPXVersion happy
+	buf := make([]byte, 1000)
+
+	n, err := inReader.Read(buf)
+	if err != nil {
+		return nil, err
+	}
+	buf = buf[:n]
 	version, err := guessGPXVersion(buf)
 	if err != nil {
 		// Unknown version, try with 1.1
 		version = "1.1"
 	}
 
-	reader := bytes.NewReader(buf)
+	reader := io.MultiReader(bytes.NewReader(buf), inReader)
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = charset.NewReaderLabel
 
