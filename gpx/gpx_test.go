@@ -6,6 +6,7 @@
 package gpx
 
 import (
+	"compress/gzip"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -1450,4 +1451,26 @@ func TestAngle(t *testing.T) {
 	assert.True(t, cca(180+35.2643, AngleFromNorth(p, p.Add(-1, -1, 0), false)))
 	assert.Equal(t, 360-90.0, AngleFromNorth(p, p.Add(0, -1, 0), false))
 	assert.True(t, cca(360-35.2643, AngleFromNorth(p, p.Add(1, -1, 0), false)))
+}
+
+func TestReadCompressed(t *testing.T) {
+	file, err := os.Open("../test_files/graphhopper.gpx.gz")
+	if err != nil {
+		t.Errorf("Error opening %v", err)
+	}
+	defer file.Close()
+	reader, err := gzip.NewReader(file)
+	if err != nil {
+		t.Errorf("Gzip error %v", err)
+	}
+	gpxDoc, err := Parse(reader)
+	if err != nil {
+		t.Errorf("Parse error %v", err)
+	}
+	if len(gpxDoc.Tracks) != 1 {
+		t.Errorf("Expected 1 track found %d", len(gpxDoc.Tracks))
+	}
+	if gpxDoc.Tracks[0].GetTrackPointsNo() != 171 {
+		t.Errorf("Expected 171 track points found %d", gpxDoc.Tracks[0].GetTrackPointsNo())
+	}
 }
