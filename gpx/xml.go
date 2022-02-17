@@ -157,10 +157,10 @@ func ParseFile(fileName string) (*GPX, error) {
 
 //ParseBytes parses GPX from bytes
 func ParseBytes(buf []byte) (*GPX, error) {
-	return Parse(bytes.NewBuffer(buf))
+	return Parse(bytes.NewReader(buf))
 }
 
-//ParseBytes parses GPX from bytes
+//Parse parses GPX from io.Reader
 func Parse(inReader io.Reader) (*GPX, error) {
 	// at most 1000 bytes will make guessGPXVersion happy
 	buf := make([]byte, 1000)
@@ -209,5 +209,5 @@ func Parse(inReader io.Reader) (*GPX, error) {
 
 //ParseString parses GPX from string
 func ParseString(str string) (*GPX, error) {
-	return ParseBytes([]byte(str))
+	return Parse(strings.NewReader(str))
 }
