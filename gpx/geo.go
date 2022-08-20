@@ -65,6 +65,76 @@ func HaversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	return d
 }
 
+const (
+	f             = 1 / 298.257223563
+	maxIterations = 130 // TODO
+	epsilon       = 0.01
+	a             = 6378137.0 // TODO: earthRadius
+	b             = 6356752.314245
+)
+
+func DistanceVincenty(p1 Point, p2 Point, withElevation bool) (float64, error) {
+	if p1.Latitude == p2.Latitude && p1.Longitude == p2.Longitude {
+		return 0, nil
+	}
+
+	U1 := math.Atan((1 - f) * math.Tan(ToRad(p1.Latitude)))
+	U2 := math.Atan((1 - f) * math.Tan(ToRad(p2.Latitude)))
+	L := ToRad(p2.Longitude - p1.Longitude)
+	sinU1 := math.Sin(U1)
+	cosU1 := math.Cos(U1)
+	sinU2 := math.Sin(U2)
+	cosU2 := math.Cos(U2)
+	lambda := L
+
+	result := math.NaN()
+
+	for i := 0; i < maxIterations; i++ {
+		curLambda := lambda
+		sinSigma := math.Sqrt(math.Pow(cosU2*math.Sin(lambda), 2) +
+			math.Pow(cosU1*sinU2-sinU1*cosU2*math.Cos(lambda), 2))
+		cosSigma := sinU1*sinU2 + cosU1*cosU2*math.Cos(lambda)
+		sigma := math.Atan2(sinSigma, cosSigma)
+		sinAlpha := (cosU1 * cosU2 * math.Sin(lambda)) / math.Sin(sigma)
+		cosSqrAlpha := 1 - math.Pow(sinAlpha, 2)
+		cos2sigmam := 0.0
+		if cosSqrAlpha != 0 {
+			cos2sigmam = math.Cos(sigma) - ((2 * sinU1 * sinU2) / cosSqrAlpha)
+		}
+		C := (f / 16) * cosSqrAlpha * (4 + f*(4-3*cosSqrAlpha))
+		lambda = L + (1-C)*f*sinAlpha*(sigma+C*sinSigma*(cos2sigmam+C*cosSigma*(-1+2*math.Pow(cos2sigmam, 2))))
+
+		if math.Abs(lambda-curLambda) < epsilon {
+			uSqr := cosSqrAlpha * ((math.Pow(a, 2) - math.Pow(b, 2)) / math.Pow(b, 2))
+			k1 := (math.Sqrt(1+uSqr) - 1) / (math.Sqrt(1+uSqr) + 1)
+			A := (1 + (math.Pow(k1, 2) / 4)) / (1 - k1)
+			B := k1 * (1 - (3*math.Pow(k1, 2))/8)
+
+			deltaSigma := B * sinSigma * (cos2sigmam + (B/4)*(cosSigma*(-1+2*math.Pow(cos2sigmam, 2))-
+				(B/6)*cos2sigmam*(-3+4*math.Pow(sinSigma, 2))*(-3+4*math.Pow(cos2sigmam, 2))))
+			s := b * A * (sigma - deltaSigma)
+			result = s
+
+			break
+		}
+	}
+
+	if math.IsNaN(result) {
+		return result, fmt.Errorf("failed to converge for %v and %v", p1, p2)
+	}
+
+	if !withElevation {
+		return result, nil
+	}
+
+	eleDiff := 0.0
+	if p1.Elevation.NotNull() && p2.Elevation.NotNull() {
+		eleDiff = p1.Elevation.Value() - p2.Elevation.Value()
+	}
+
+	return math.Sqrt(math.Pow(result, 2) + math.Pow(eleDiff, 2)), nil
+}
+
 func length(locs []Point, threeD bool) float64 {
 	var previousLoc Point
 	var res float64
