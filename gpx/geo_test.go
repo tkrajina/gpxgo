@@ -7,6 +7,7 @@ package gpx
 
 import (
 	"math"
+	"math/rand"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -41,4 +42,25 @@ func TestMaxSpeed(t *testing.T) {
 		{Speed: 1.0, Distance: 489.306355103},
 	})
 	assert.Equal(t, 6.0, maxSpeed)
+}
+
+func TestVincenty(t *testing.T) {
+	t.Parallel()
+
+	for i := 0; i < 100; i++ {
+		maxAway := 2.
+		lat1, lon1 := rand.Float64()*180-90, rand.Float64()*360-180
+		//lat2, lon2 := rand.Float64()*180-90, rand.Float64()*360-180
+		lat2, lon2 := lat1+(rand.Float64()-0.5)*maxAway, lon1+(rand.Float64()-0.5)*maxAway
+		p1 := Point{Latitude: lat1, Longitude: lon1}
+		p2 := Point{Latitude: lat2, Longitude: lon2}
+		distHaversine := HaversineDistance(lat1, lon1, lat2, lon2)
+		distVincenty, err := DistanceVincenty(p1, p2, false)
+		diff := math.Abs(distHaversine - distVincenty)
+		assert.Nil(t, err)
+		assert.True(t, diff < math.Max(distHaversine, distVincenty)*0.0001, "p1: %#v, p2: %#v, haversine: %f, vincenty: %f, diff: %f", p1, p2, distHaversine, distVincenty, diff)
+		if t.Failed() {
+			t.FailNow()
+		}
+	}
 }
