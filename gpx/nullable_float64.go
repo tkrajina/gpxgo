@@ -110,8 +110,5 @@ func (n NullableFloat64) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	if n.Null() {
 		return result, nil
 	}
-	return xml.Attr{
-			Name:  xml.Name{Local: name.Local},
-			Value: fmt.Sprintf("%g", n.Value())},
-		nil
+	return fixedPointFloat(n.Value()).MarshalXMLAttr(name)
 }
