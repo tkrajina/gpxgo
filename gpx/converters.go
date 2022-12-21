@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-//defaultCreator contains the original repo path
+// defaultCreator contains the original repo path
 const defaultCreator = "https://github.com/tkrajina/gpxgo"
 
 // ----------------------------------------------------------------------------------------------------
@@ -280,22 +280,22 @@ func convertPointFromGpx10(original *gpx10GpxPoint) *GPXPoint {
 	result.Type = original.Type
 	result.TypeOfGpsFix = original.Fix
 	if original.Sat != nil {
-		result.Satellites = *NewNullableInt(*original.Sat)
+		result.Satellites = NewNullableInt(*original.Sat)
 	}
 	if original.Hdop != nil {
-		result.HorizontalDilution = *NewNullableFloat64(*original.Hdop)
+		result.HorizontalDilution = NewNullableFloat(*original.Hdop)
 	}
 	if original.Vdop != nil {
-		result.VerticalDilution = *NewNullableFloat64(*original.Vdop)
+		result.VerticalDilution = NewNullableFloat(*original.Vdop)
 	}
 	if original.Pdop != nil {
-		result.PositionalDilution = *NewNullableFloat64(*original.Pdop)
+		result.PositionalDilution = NewNullableFloat(*original.Pdop)
 	}
 	if original.AgeOfDGpsData != nil {
-		result.AgeOfDGpsData = *NewNullableFloat64(*original.AgeOfDGpsData)
+		result.AgeOfDGpsData = NewNullableFloat(*original.AgeOfDGpsData)
 	}
 	if original.DGpsId != nil {
-		result.DGpsId = *NewNullableInt(*original.DGpsId)
+		result.DGpsId = NewNullableInt(*original.DGpsId)
 	}
 	return result
 }
@@ -713,22 +713,22 @@ func convertPointFromGpx11(original *gpx11GpxPoint) *GPXPoint {
 	result.TypeOfGpsFix = original.Fix
 	result.Extensions = original.Extensions
 	if original.Sat != nil {
-		result.Satellites = *NewNullableInt(*original.Sat)
+		result.Satellites = NewNullableInt(*original.Sat)
 	}
 	if original.Hdop != nil {
-		result.HorizontalDilution = *NewNullableFloat64(*original.Hdop)
+		result.HorizontalDilution = NewNullableFloat(*original.Hdop)
 	}
 	if original.Vdop != nil {
-		result.VerticalDilution = *NewNullableFloat64(*original.Vdop)
+		result.VerticalDilution = NewNullableFloat(*original.Vdop)
 	}
 	if original.Pdop != nil {
-		result.PositionalDilution = *NewNullableFloat64(*original.Pdop)
+		result.PositionalDilution = NewNullableFloat(*original.Pdop)
 	}
 	if original.AgeOfDGpsData != nil {
-		result.AgeOfDGpsData = *NewNullableFloat64(*original.AgeOfDGpsData)
+		result.AgeOfDGpsData = NewNullableFloat(*original.AgeOfDGpsData)
 	}
 	if original.DGpsId != nil {
-		result.DGpsId = *NewNullableInt(*original.DGpsId)
+		result.DGpsId = NewNullableInt(*original.DGpsId)
 	}
 	return result
 }

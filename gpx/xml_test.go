@@ -26,11 +26,11 @@ func TestParseTime(t *testing.T) {
 }
 
 type testXml struct {
-	XMLName   xml.Name        `xml:"gpx"`
-	Float     NullableFloat64 `xml:"float"`
-	Int       NullableInt     `xml:"int"`
-	FloatAttr NullableFloat64 `xml:"floatattr,attr"`
-	IntAttr   NullableInt     `xml:"intattr,attr"`
+	XMLName   xml.Name      `xml:"gpx"`
+	Float     NullableFloat `xml:"float"`
+	Int       NullableInt   `xml:"int"`
+	FloatAttr NullableFloat `xml:"floatattr,attr"`
+	IntAttr   NullableInt   `xml:"intattr,attr"`
 }
 
 func TestInvalidFloat(t *testing.T) {

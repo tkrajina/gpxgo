@@ -740,6 +740,29 @@ func TestUphillDownhill(t *testing.T) {
 	}
 }
 
+func TestToXmlEle(t *testing.T) {
+	var g GPX
+	g.Waypoints = append(g.Waypoints, GPXPoint{
+		Point: Point{
+			Latitude:  1,
+			Longitude: 2,
+			Elevation: NewNullableFloat(12.2),
+		},
+	})
+	xml, _ := g.ToXml(ToXmlParams{Version: "1.1", Indent: true})
+	xmlA := string(xml)
+	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
+<gpx  xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+	<metadata>
+		<author></author>
+	</metadata>
+	<wpt lat="1" lon="2">
+		<ele>12.2</ele>
+	</wpt>
+</gpx>`
+	assert.Equal(t, xmlA, xmlE)
+}
+
 func TestToXml(t *testing.T) {
 	t.Parallel()
 	g, _ := ParseFile("../test_files/file.gpx")
@@ -820,9 +843,9 @@ func TestNewXml(t *testing.T) {
 	gpxTrack := new(GPXTrack)
 
 	gpxSegment := GPXTrackSegment{}
-	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: *NewNullableFloat64(1234.0)}})
-	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: *NewNullableFloat64(1235.0)}})
-	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: *NewNullableFloat64(1236.0)}})
+	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1234, Longitude: 5.1234, Elevation: NewNullableFloat(1234.0)}})
+	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1233, Longitude: 5.1235, Elevation: NewNullableFloat(1235.0)}})
+	gpxSegment.Points = append(gpxSegment.Points, GPXPoint{Point: Point{Latitude: 2.1235, Longitude: 5.1236, Elevation: NewNullableFloat(1236.0)}})
 
 	gpxTrack.Segments = append(gpxTrack.Segments, gpxSegment)
 	gpx.Tracks = append(gpx.Tracks, *gpxTrack)
@@ -869,7 +892,7 @@ func TestAddElevation(t *testing.T) {
 	gpx := new(GPX)
 	gpx.AppendTrack(new(GPXTrack))
 	gpx.Tracks[0].AppendSegment(new(GPXTrackSegment))
-	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: *NewNullableFloat64(100)}})
+	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13, Elevation: NewNullableFloat(100)}})
 	gpx.Tracks[0].Segments[0].AppendPoint(&GPXPoint{Point: Point{Latitude: 12, Longitude: 13}})
 
 	gpx.AddElevation(10)
@@ -1254,7 +1277,7 @@ func getGpxWith3Extremes() GPX {
 		point := GPXPoint{}
 		point.Latitude = 45.0 + float64(i)*0.0001
 		point.Longitude = 13.0 + float64(i)*0.0001
-		point.Elevation = *NewNullableFloat64(100.0 + float64(i)*1.0)
+		point.Elevation = NewNullableFloat(100.0 + float64(i)*1.0)
 		gpxDoc.AppendPoint(&point)
 
 		// Two points to be removed later:
@@ -1262,7 +1285,7 @@ func getGpxWith3Extremes() GPX {
 			point := GPXPoint{}
 			point.Latitude = float64(i)
 			point.Longitude = float64(i)
-			point.Elevation = *NewNullableFloat64(2000.0)
+			point.Elevation = NewNullableFloat(2000.0)
 			gpxDoc.AppendPoint(&point)
 		}
 	}
