@@ -168,6 +168,10 @@ func (g *GPX) TimeBounds() TimeBounds {
 	return tbGpx
 }
 
+func (g GPX) WaypointBounds() GpxBounds {
+	return bounds(g.Waypoints)
+}
+
 // Bounds returns the bounds of all tracks in a Gpx.
 func (g *GPX) Bounds() GpxBounds {
 	minmax := getMaximalGpxBounds()
@@ -913,17 +917,7 @@ func (seg *GPXTrackSegment) TimeBounds() TimeBounds {
 
 // Bounds returns the bounds of a GPX segment.
 func (seg *GPXTrackSegment) Bounds() GpxBounds {
-	minmax := getMaximalGpxBounds()
-	for _, pt := range seg.Points {
-		minmax.MaxLatitude = math.Max(pt.Latitude, minmax.MaxLatitude)
-		minmax.MinLatitude = math.Min(pt.Latitude, minmax.MinLatitude)
-		minmax.MaxLongitude = math.Max(pt.Longitude, minmax.MaxLongitude)
-		minmax.MinLongitude = math.Min(pt.Longitude, minmax.MinLongitude)
-	}
-	if minmax == getMaximalGpxBounds() {
-		return GpxBounds{}
-	}
-	return minmax
+	return bounds(seg.Points)
 }
 
 // ElevationBounds returns the min and max elevation of the segment

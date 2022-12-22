@@ -392,3 +392,17 @@ func smoothVertical(originalPoints []GPXPoint) []GPXPoint {
 
 	return result
 }
+
+func bounds(pts []GPXPoint) GpxBounds {
+	minmax := getMaximalGpxBounds()
+	for _, pt := range pts {
+		minmax.MaxLatitude = math.Max(pt.Latitude, minmax.MaxLatitude)
+		minmax.MinLatitude = math.Min(pt.Latitude, minmax.MinLatitude)
+		minmax.MaxLongitude = math.Max(pt.Longitude, minmax.MaxLongitude)
+		minmax.MinLongitude = math.Min(pt.Longitude, minmax.MinLongitude)
+	}
+	if minmax == getMaximalGpxBounds() {
+		return GpxBounds{}
+	}
+	return minmax
+}
