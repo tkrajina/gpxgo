@@ -162,16 +162,17 @@ type gpx11Gpx struct {
 	AuthorName  string         `xml:"metadata>author>name,omitempty"`
 	AuthorEmail *gpx11GpxEmail `xml:"metadata>author>email,omitempty"`
 	// TODO: There can be more than one link?
-	AuthorLink *gpx11GpxLink      `xml:"metadata>author>link,omitempty"`
-	Copyright  *gpx11GpxCopyright `xml:"metadata>copyright,omitempty"`
-	Link       *gpx11GpxLink      `xml:"metadata>link,omitempty"`
-	Timestamp  string             `xml:"metadata>time,omitempty"`
-	Keywords   string             `xml:"metadata>keywords,omitempty"`
-	Extensions Extension          `xml:"metadata>extensions"`
-	Bounds     *gpx11GpxBounds    `xml:"bounds"`
-	Waypoints  []*gpx11GpxPoint   `xml:"wpt"`
-	Routes     []*gpx11GpxRte     `xml:"rte"`
-	Tracks     []*gpx11GpxTrk     `xml:"trk"`
+	AuthorLink         *gpx11GpxLink      `xml:"metadata>author>link,omitempty"`
+	Copyright          *gpx11GpxCopyright `xml:"metadata>copyright,omitempty"`
+	Link               *gpx11GpxLink      `xml:"metadata>link,omitempty"`
+	Timestamp          string             `xml:"metadata>time,omitempty"`
+	Keywords           string             `xml:"metadata>keywords,omitempty"`
+	MetadataExtensions Extension          `xml:"metadata>extensions"`
+	Bounds             *gpx11GpxBounds    `xml:"bounds"`
+	Waypoints          []*gpx11GpxPoint   `xml:"wpt"`
+	Routes             []*gpx11GpxRte     `xml:"rte"`
+	Tracks             []*gpx11GpxTrk     `xml:"trk"`
+	Extensions         Extension          `xml:"extensions"`
 }
 
 type gpx11GpxBounds struct {
