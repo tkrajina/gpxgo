@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-// fixedPointFloat forces XML attributes to be marshalled as a fixed point decimal with 10 decimal places.
-type fixedPointFloat float64
+// formattedFloat forces XML attributes to be marshalled as a fixed point decimal with 10 decimal places.
+type formattedFloat float64
 
-func (f fixedPointFloat) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+func (f formattedFloat) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return xml.Attr{
 		Name:  xml.Name{Local: name.Local},
 		Value: strings.TrimRight(fmt.Sprintf("%.10f", f), "0."),

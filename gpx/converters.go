@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-//defaultCreator contains the original repo path
+// defaultCreator contains the original repo path
 const defaultCreator = "https://github.com/tkrajina/gpxgo"
 
 // ----------------------------------------------------------------------------------------------------
@@ -217,8 +217,8 @@ func convertFromGpx10Models(gpx10Doc *gpx10Gpx) *GPX {
 
 func convertPointToGpx10(original *GPXPoint) *gpx10GpxPoint {
 	result := new(gpx10GpxPoint)
-	result.Lat = fixedPointFloat(original.Latitude)
-	result.Lon = fixedPointFloat(original.Longitude)
+	result.Lat = formattedFloat(original.Latitude)
+	result.Lon = formattedFloat(original.Longitude)
 	result.Ele = original.Elevation
 	result.Timestamp = formatGPXTime(&original.Timestamp)
 	result.MagVar = original.MagneticVariation
@@ -648,8 +648,8 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 
 func convertPointToGpx11(original *GPXPoint) *gpx11GpxPoint {
 	result := new(gpx11GpxPoint)
-	result.Lat = fixedPointFloat(original.Latitude)
-	result.Lon = fixedPointFloat(original.Longitude)
+	result.Lat = formattedFloat(original.Latitude)
+	result.Lon = formattedFloat(original.Longitude)
 	result.Ele = original.Elevation
 	result.Timestamp = formatGPXTime(&original.Timestamp)
 	result.MagVar = original.MagneticVariation

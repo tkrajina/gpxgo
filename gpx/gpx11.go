@@ -176,10 +176,10 @@ type gpx11Gpx struct {
 
 type gpx11GpxBounds struct {
 	//XMLName xml.Name `xml:"bounds"`
-	MinLat fixedPointFloat `xml:"minlat,attr"`
-	MaxLat fixedPointFloat `xml:"maxlat,attr"`
-	MinLon fixedPointFloat `xml:"minlon,attr"`
-	MaxLon fixedPointFloat `xml:"maxlon,attr"`
+	MinLat formattedFloat `xml:"minlat,attr"`
+	MaxLat formattedFloat `xml:"maxlat,attr"`
+	MinLon formattedFloat `xml:"minlon,attr"`
+	MaxLon formattedFloat `xml:"maxlon,attr"`
 }
 
 type gpx11GpxCopyright struct {
@@ -222,8 +222,8 @@ type gpx11GpxLink struct {
  * Common struct fields for all points
  */
 type gpx11GpxPoint struct {
-	Lat fixedPointFloat `xml:"lat,attr"`
-	Lon fixedPointFloat `xml:"lon,attr"`
+	Lat formattedFloat `xml:"lat,attr"`
+	Lon formattedFloat `xml:"lon,attr"`
 	// Position info
 	Ele         NullableFloat64 `xml:"ele,omitempty"`
 	Timestamp   string          `xml:"time,omitempty"`
