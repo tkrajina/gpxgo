@@ -12,41 +12,41 @@ import (
 	"strings"
 )
 
-//NullableFloat64 implements a nullable float64
+// NullableFloat64 implements a nullable float64
 type NullableFloat64 struct {
 	data    float64
 	notNull bool
 }
 
-//Null checks if value is null
+// Null checks if value is null
 func (n *NullableFloat64) Null() bool {
 	return !n.notNull
 }
 
-//NotNull checks if value is not null
+// NotNull checks if value is not null
 func (n *NullableFloat64) NotNull() bool {
 	return n.notNull
 }
 
-//Value returns the value
+// Value returns the value
 func (n *NullableFloat64) Value() float64 {
 	return n.data
 }
 
-//SetValue sets the value
+// SetValue sets the value
 func (n *NullableFloat64) SetValue(data float64) {
 	n.data = data
 	n.notNull = true
 }
 
-//SetNull sets the value to null
+// SetNull sets the value to null
 func (n *NullableFloat64) SetNull() {
 	var defaultValue float64
 	n.data = defaultValue
 	n.notNull = false
 }
 
-//NewNullableFloat64 creates a new NullableFloat64
+// NewNullableFloat64 creates a new NullableFloat64
 func NewNullableFloat64(data float64) *NullableFloat64 {
 	result := new(NullableFloat64)
 	result.data = data
@@ -54,7 +54,7 @@ func NewNullableFloat64(data float64) *NullableFloat64 {
 	return result
 }
 
-//UnmarshalXML implements xml unmarshalling
+// UnmarshalXML implements xml unmarshalling
 func (n *NullableFloat64) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	t, err := d.Token()
 	if err != nil {
@@ -74,7 +74,7 @@ func (n *NullableFloat64) UnmarshalXML(d *xml.Decoder, start xml.StartElement) e
 	return nil
 }
 
-//UnmarshalXMLAttr implements xml attribute unmarshalling
+// UnmarshalXMLAttr implements xml attribute unmarshalling
 func (n *NullableFloat64) UnmarshalXMLAttr(attr xml.Attr) error {
 	strData := strings.Trim(string(attr.Value), " ")
 	value, err := strconv.ParseFloat(strData, 64)
@@ -86,7 +86,7 @@ func (n *NullableFloat64) UnmarshalXMLAttr(attr xml.Attr) error {
 	return nil
 }
 
-//MarshalXML implements xml marshalling
+// MarshalXML implements xml marshalling
 func (n NullableFloat64) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	if n.Null() {
 		return nil
@@ -104,14 +104,11 @@ func (n NullableFloat64) MarshalXML(e *xml.Encoder, start xml.StartElement) erro
 	return nil
 }
 
-//MarshalXMLAttr implements xml attribute marshalling
+// MarshalXMLAttr implements xml attribute marshalling
 func (n NullableFloat64) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	var result xml.Attr
 	if n.Null() {
 		return result, nil
 	}
-	return xml.Attr{
-			Name:  xml.Name{Local: name.Local},
-			Value: fmt.Sprintf("%g", n.Value())},
-		nil
+	return formattedFloat(n.Value()).MarshalXMLAttr(name)
 }

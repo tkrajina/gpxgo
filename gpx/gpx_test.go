@@ -1474,3 +1474,41 @@ func TestReadCompressed(t *testing.T) {
 		t.Errorf("Expected 171 track points found %d", gpxDoc.Tracks[0].GetTrackPointsNo())
 	}
 }
+
+func TestWithExponent(t *testing.T) {
+	t.Parallel()
+	xml := `<gpx>
+<wpt lat="51.581485" lon="5.6e-05" />
+<trk>
+	<trkseg>
+		<trkpt lat="5.6e-05" lon="51.581485" />
+	</trkseg>
+</trk>
+</gpx>`
+
+	g, err := ParseString(xml)
+	assert.Nil(t, err)
+	assert.NotNil(t, g)
+
+	assert.Equal(t, g.Waypoints[0].Latitude, 51.581485)
+	assert.Equal(t, g.Waypoints[0].Longitude, 0.000056)
+
+	assert.Equal(t, g.Tracks[0].Segments[0].Points[0].Longitude, 51.581485)
+	assert.Equal(t, g.Tracks[0].Segments[0].Points[0].Latitude, 0.000056)
+
+	xml2, err := g.ToXml(ToXmlParams{Indent: true})
+	assert.Nil(t, err)
+
+	assertLinesEquals(t, string(xml2), `<?xml version="1.0" encoding="UTF-8"?>
+<gpx  xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+		<metadata>
+				<author></author>
+		</metadata>
+		<wpt lat="51.581485" lon="0.000056"></wpt>
+		<trk>
+				<trkseg>
+						<trkpt lat="0.000056" lon="51.581485"></trkpt>
+				</trkseg>
+		</trk>
+</gpx>`)
+}

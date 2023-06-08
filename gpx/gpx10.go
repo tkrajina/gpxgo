@@ -179,8 +179,8 @@ type gpx10GpxLink struct {
  * Common struct fields for all points
  */
 type gpx10GpxPoint struct {
-	Lat float64 `xml:"lat,attr"`
-	Lon float64 `xml:"lon,attr"`
+	Lat formattedFloat `xml:"lat,attr"`
+	Lon formattedFloat `xml:"lon,attr"`
 	// Position info
 	Ele         NullableFloat64 `xml:"ele,omitempty"`
 	Timestamp   string          `xml:"time,omitempty"`
