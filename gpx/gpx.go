@@ -85,10 +85,11 @@ type GPX struct {
 	Time             *time.Time
 	Keywords         string
 
-	Waypoints  []GPXPoint
-	Routes     []GPXRoute
-	Tracks     []GPXTrack
-	Extensions Extension
+	Waypoints          []GPXPoint
+	Routes             []GPXRoute
+	Tracks             []GPXTrack
+	Extensions         Extension
+	MetadataExtensions Extension
 }
 
 func (g *GPX) RegisterNamespace(ns, url string) {

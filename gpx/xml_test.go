@@ -7,6 +7,7 @@ package gpx
 
 import (
 	"encoding/xml"
+	"fmt"
 	"testing"
 	"time"
 
@@ -108,4 +109,47 @@ func testInt(xmlStr string, expectedInt int, expectedIntAttribute int, expectedX
 	if string(bytes) != expectedXml {
 		t.Error("Invalid marshalled xml:", string(bytes), "expected:", expectedXml)
 	}
+}
+
+func TestGuessVersion(t *testing.T) {
+	t.Parallel()
+
+	for _, testData := range []struct {
+		str       string
+		expected  string
+		shouldErr bool
+	}{
+		{"<gpx version='1.0'", "1.0", false},
+		{"<gpx version='1.0aaa'", "1.0", false},
+		{"<gpx version='aaaa1.0aaa'", "", true},
+		{"<gpx version='1.1'", "1.1", false},
+		{"<gpx version='1.7'", "", true},
+		{"<gpx version='1.7xxxyyy'", "", true},
+	} {
+		fmt.Println("testing", testData.str)
+		res, err := guessGPXVersion([]byte(testData.str))
+		fmt.Println("res=", res, "err=", err)
+		if testData.shouldErr {
+			assert.NotNil(t, err)
+		} else {
+			assert.Equal(t, res, testData.expected)
+		}
+		if t.Failed() {
+			t.FailNow()
+		}
+	}
+
+}
+
+func TestInvalidVersion(t *testing.T) {
+	t.Parallel()
+
+	g, err := ParseString(`<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<gpx xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns3="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:ns2="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:ns1="http://www.cluetrust.com/XML/GPXDATA/1/0" creator="Zepp App" version="7.7.5-play">
+</gpx>`)
+	assert.Nil(t, err)
+	assert.Equal(t, g.Version, "7.7.5-play")
+
+	_, err = g.ToXml(ToXmlParams{})
+	assert.Nil(t, err)
 }
