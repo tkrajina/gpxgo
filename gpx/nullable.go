@@ -6,6 +6,7 @@
 package gpx
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"strconv"
@@ -164,6 +165,28 @@ var _ xml.Marshaler = new(NullableInt)
 var _ xml.MarshalerAttr = new(NullableInt)
 var _ xml.Unmarshaler = new(NullableInt)
 var _ xml.UnmarshalerAttr = new(NullableInt)
+var _ json.Marshaler = NullableInt{}
+var _ json.Unmarshaler = new(NullableInt)
+
+func (n NullableInt) MarshalJSON() ([]byte, error) {
+	if n.Null() {
+		return nil, nil
+	}
+	return []byte(fmt.Sprintf("%dd", n.Value())), nil
+}
+
+func (n *NullableInt) UnmarshalJSON(byts []byte) error {
+	if len(byts) == 0 {
+		n.SetNull()
+		return nil
+	}
+	d, err := strconv.ParseInt(string(byts), 10, 64)
+	if err != nil {
+		return err
+	}
+	n.SetValue(int(d))
+	return nil
+}
 
 func (n *NullableInt) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	val, notNil, err := UnmarshalXML(d, start, int(0))
@@ -188,6 +211,28 @@ var _ xml.Marshaler = new(NullableFloat)
 var _ xml.MarshalerAttr = new(NullableFloat)
 var _ xml.Unmarshaler = new(NullableFloat)
 var _ xml.UnmarshalerAttr = new(NullableFloat)
+var _ json.Marshaler = NullableFloat{}
+var _ json.Unmarshaler = new(NullableFloat)
+
+func (n NullableFloat) MarshalJSON() ([]byte, error) {
+	if n.Null() {
+		return nil, nil
+	}
+	return []byte(fmt.Sprintf("%.10f", n.Value())), nil
+}
+
+func (n *NullableFloat) UnmarshalJSON(byts []byte) error {
+	if len(byts) == 0 {
+		n.SetNull()
+		return nil
+	}
+	f, err := strconv.ParseFloat(string(byts), 64)
+	if err != nil {
+		return err
+	}
+	n.SetValue(f)
+	return nil
+}
 
 func (n *NullableFloat) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	val, notNil, err := UnmarshalXML(d, start, float64(0))
