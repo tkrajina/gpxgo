@@ -411,6 +411,9 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 	gpx11Doc.Extensions = gpxDoc.Extensions
 	gpx11Doc.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 
+	gpx11Doc.MetadataExtensions = gpxDoc.MetadataExtensions
+	gpx11Doc.MetadataExtensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+
 	if len(gpxDoc.Creator) == 0 {
 		gpx11Doc.Creator = defaultCreator
 	} else {
@@ -542,6 +545,7 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 	gpxDoc.Description = gpx11Doc.Desc
 	gpxDoc.AuthorName = gpx11Doc.AuthorName
 	gpxDoc.Extensions = gpx11Doc.Extensions
+	gpxDoc.MetadataExtensions = gpx11Doc.MetadataExtensions
 
 	if gpx11Doc.AuthorEmail != nil {
 		gpxDoc.AuthorEmail = gpx11Doc.AuthorEmail.Id + "@" + gpx11Doc.AuthorEmail.Domain

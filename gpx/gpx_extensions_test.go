@@ -31,7 +31,7 @@ func TestReadExtension(t *testing.T) {
 		fmt.Printf("gpx #%d\n", n)
 
 		exts := []Extension{
-			g.Extensions,
+			g.MetadataExtensions,
 			g.Routes[0].Points[0].Extensions,
 			g.Waypoints[0].Extensions,
 			g.Tracks[0].Segments[0].Points[0].Extensions,
@@ -79,7 +79,7 @@ func TestExtensionWithoutNamespace(t *testing.T) {
 	assert.Nil(t, err)
 
 	for _, g := range []GPX{*original, *reparsed} {
-		ext := g.Extensions
+		ext := g.MetadataExtensions
 		assert.Equal(t, 2, len(ext.Nodes))
 		assert.Equal(t, "bbb", ext.Nodes[0].Data)
 		assert.Equal(t, 1, len(ext.Nodes[0].Attrs), "%#v", ext.Nodes[0].Attrs)
@@ -167,27 +167,27 @@ func TestCreateExtensionWithoutNamespace(t *testing.T) {
 	t.Parallel()
 
 	var original GPX
-	fmt.Println("1:", string(original.Extensions.debugXMLChunk()))
-	original.Extensions.GetOrCreateNode(NoNamespace, "aaa", "bbb", "ccc").Data = "ccc data"
-	fmt.Println("2:", string(original.Extensions.debugXMLChunk()))
-	assert.Equal(t, 1, len(original.Extensions.Nodes))
-	assert.Equal(t, "aaa", original.Extensions.Nodes[0].XMLName.Local)
-	assert.Equal(t, "bbb", original.Extensions.Nodes[0].Nodes[0].XMLName.Local)
-	assert.Equal(t, 0, len(original.Extensions.Nodes[0].Nodes[0].Attrs), "attrs=%#v", original.Extensions.Nodes[0].Nodes[0].Attrs)
-	original.Extensions.GetOrCreateNode(NoNamespace, "aaa", "bbb").SetAttr("key", "value")
-	fmt.Println("3:", string(original.Extensions.debugXMLChunk()))
-	assert.Equal(t, 1, len(original.Extensions.Nodes[0].Nodes[0].Attrs), "attrs=%#v", original.Extensions.Nodes[0].Nodes[0].Attrs)
+	fmt.Println("1:", string(original.MetadataExtensions.debugXMLChunk()))
+	original.MetadataExtensions.GetOrCreateNode(NoNamespace, "aaa", "bbb", "ccc").Data = "ccc data"
+	fmt.Println("2:", string(original.MetadataExtensions.debugXMLChunk()))
+	assert.Equal(t, 1, len(original.MetadataExtensions.Nodes))
+	assert.Equal(t, "aaa", original.MetadataExtensions.Nodes[0].XMLName.Local)
+	assert.Equal(t, "bbb", original.MetadataExtensions.Nodes[0].Nodes[0].XMLName.Local)
+	assert.Equal(t, 0, len(original.MetadataExtensions.Nodes[0].Nodes[0].Attrs), "attrs=%#v", original.MetadataExtensions.Nodes[0].Nodes[0].Attrs)
+	original.MetadataExtensions.GetOrCreateNode(NoNamespace, "aaa", "bbb").SetAttr("key", "value")
+	fmt.Println("3:", string(original.MetadataExtensions.debugXMLChunk()))
+	assert.Equal(t, 1, len(original.MetadataExtensions.Nodes[0].Nodes[0].Attrs), "attrs=%#v", original.MetadataExtensions.Nodes[0].Nodes[0].Attrs)
 	if t.Failed() {
 		t.FailNow()
 	}
 
-	assert.Equal(t, "aaa", original.Extensions.Nodes[0].XMLName.Local)
-	assert.Equal(t, "bbb", original.Extensions.Nodes[0].Nodes[0].XMLName.Local)
-	assert.Equal(t, 1, len(original.Extensions.Nodes[0].Nodes[0].Attrs), "attrs=%#v", original.Extensions.Nodes[0].Nodes[0].Attrs)
-	assert.Equal(t, "key", original.Extensions.Nodes[0].Nodes[0].Attrs[0].Name.Local)
-	assert.Equal(t, "value", original.Extensions.Nodes[0].Nodes[0].Attrs[0].Value)
+	assert.Equal(t, "aaa", original.MetadataExtensions.Nodes[0].XMLName.Local)
+	assert.Equal(t, "bbb", original.MetadataExtensions.Nodes[0].Nodes[0].XMLName.Local)
+	assert.Equal(t, 1, len(original.MetadataExtensions.Nodes[0].Nodes[0].Attrs), "attrs=%#v", original.MetadataExtensions.Nodes[0].Nodes[0].Attrs)
+	assert.Equal(t, "key", original.MetadataExtensions.Nodes[0].Nodes[0].Attrs[0].Name.Local)
+	assert.Equal(t, "value", original.MetadataExtensions.Nodes[0].Nodes[0].Attrs[0].Value)
 
-	val, found := original.Extensions.GetOrCreateNode(NoNamespace, "aaa", "bbb").GetAttr("key")
+	val, found := original.MetadataExtensions.GetOrCreateNode(NoNamespace, "aaa", "bbb").GetAttr("key")
 	assert.True(t, found)
 	assert.Equal(t, "value", val)
 
@@ -207,6 +207,85 @@ func TestCreateExtensionWithoutNamespace(t *testing.T) {
                                        <ccc>ccc data</ccc>
                                </bbb>
                        </aaa>
+               </extensions>
+       </metadata>
+</gpx>`
+		assertLinesEquals(t, expected, string(byts))
+	}
+}
+
+func TestCreateMetadataExtensionWithNamespace(t *testing.T) {
+	t.Parallel()
+
+	var original GPX
+	original.RegisterNamespace("ext", "http://trla.baba.lan")
+	original.MetadataExtensions.GetOrCreateNode("http://trla.baba.lan", "aaa", "bbb", "ccc").Data = "ccc data"
+
+	assert.Equal(t, "http://trla.baba.lan", original.Attrs.NamespaceAttributes["xmlns"]["ext"].Value)
+	assert.NotEmpty(t, original.Attrs.NamespaceAttributes["xmlns"]["ext"].replacement)
+
+	original.MetadataExtensions.GetOrCreateNode("http://trla.baba.lan", "aaa", "bbb").SetAttr("key", "value")
+	val, found := original.MetadataExtensions.GetOrCreateNode("http://trla.baba.lan", "aaa", "bbb").GetAttr("key")
+	assert.True(t, found)
+	assert.Equal(t, "value", val)
+
+	reparsed, err := reparse(original)
+	assert.Nil(t, err)
+
+	rereparsed, err := reparse(*reparsed)
+	assert.Nil(t, err)
+
+	fmt.Println(string(original.MetadataExtensions.debugXMLChunk()))
+	fmt.Println(string(reparsed.MetadataExtensions.debugXMLChunk()))
+	assert.Equal(t, original.MetadataExtensions.debugXMLChunk(), reparsed.MetadataExtensions.debugXMLChunk())
+	assert.Equal(t, original.MetadataExtensions, reparsed.MetadataExtensions)
+
+	assert.Equal(t, 1, len(original.Attrs.NamespaceAttributes))
+	assert.Equal(t, len(original.Attrs.NamespaceAttributes), len(reparsed.Attrs.NamespaceAttributes))
+	assert.Equal(t, original.Attrs.NamespaceAttributes["xmlns"]["ext"].Attr, reparsed.Attrs.NamespaceAttributes["xmlns"]["ext"].Attr)
+
+	assert.Equal(t, 1, len(reparsed.MetadataExtensions.Nodes))
+	assert.Equal(t, len(original.MetadataExtensions.Nodes), len(reparsed.MetadataExtensions.Nodes))
+	// assert.Equal(t, original.MetadataExtensions.XMLName, reparsed.MetadataExtensions.XMLName)
+	assert.Equal(t, original.MetadataExtensions.Nodes[0], reparsed.MetadataExtensions.Nodes[0])
+	// assert.Equal(t, original.MetadataExtensions.Attrs, reparsed.MetadataExtensions.Attrs)
+	// assert.Equal(t, original.MetadataExtensions.Data, reparsed.MetadataExtensions.Data)
+	assert.Equal(t, original.MetadataExtensions, reparsed.MetadataExtensions)
+
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	for n, g := range []GPX{original, *reparsed, *rereparsed} {
+		fmt.Printf("Test %d\n", n)
+
+		node, found := g.MetadataExtensions.GetNode(AnyNamespace, "aaa")
+		assert.True(t, found)
+		assert.NotNil(t, node)
+
+		node, found = g.MetadataExtensions.GetNode(NamespaceURL("http://trla.baba.lan"), "aaa")
+		assert.True(t, found)
+		assert.NotNil(t, node)
+		assert.Equal(t, "http://trla.baba.lan", node.SpaceNameURL())
+
+		node, found = node.GetNode("bbb")
+		assert.True(t, found)
+		assert.NotNil(t, node)
+
+		assert.Equal(t, "http://trla.baba.lan", node.SpaceNameURL())
+
+		byts, err := g.ToXml(ToXmlParams{Indent: true})
+		assert.Nil(t, err)
+		expected := `<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns:ext="http://trla.baba.lan" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+       <metadata>
+               <author></author>
+               <extensions>
+                       <ext:aaa>
+                               <ext:bbb ext:key="value">
+                                       <ext:ccc>ccc data</ext:ccc>
+                               </ext:bbb>
+                       </ext:aaa>
                </extensions>
        </metadata>
 </gpx>`
@@ -278,16 +357,16 @@ func TestCreateExtensionWithNamespace(t *testing.T) {
 		assert.Nil(t, err)
 		expected := `<?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns:ext="http://trla.baba.lan" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
-       <metadata>
-               <author></author>
-               <extensions>
-                       <ext:aaa>
-                               <ext:bbb ext:key="value">
-                                       <ext:ccc>ccc data</ext:ccc>
-                               </ext:bbb>
-                       </ext:aaa>
-               </extensions>
-       </metadata>
+		<metadata>
+  			<author></author>
+        </metadata>
+		<extensions>
+				<ext:aaa>
+						<ext:bbb ext:key="value">
+								<ext:ccc>ccc data</ext:ccc>
+						</ext:bbb>
+				</ext:aaa>
+		</extensions>
 </gpx>`
 		assertLinesEquals(t, expected, string(byts))
 	}
