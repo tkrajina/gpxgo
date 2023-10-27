@@ -141,7 +141,7 @@ func (ex Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	for _, node := range ex.Nodes {
 		prefix := ""
 		for _, v := range ex.globalNsAttrs {
-			if node.SpaceNameURL() == v.Value || node.SpaceNameURL() == v.Name.Local {
+			if node.SpaceNameURL() == v.AttrValue || node.SpaceNameURL() == v.AttrNameLocal {
 				prefix = v.replacement
 			}
 		}
