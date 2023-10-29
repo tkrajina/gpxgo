@@ -396,6 +396,45 @@ func (ga GPXAttributes) ToXMLAttrs() (namespacesReplacement string, replacements
 	return
 }
 
+func convertToGpx11Extension(ext Extension) gpx11Extension {
+	res := gpx11Extension{}
+	for _, n := range ext {
+		res.Nodes = append(res.Nodes, convertToGpx11ExtensionNode(n))
+	}
+	return res
+}
+func convertToGpx11ExtensionNode(n ExtensionNode) gpx11ExtensionNode {
+	node := gpx11ExtensionNode{
+		XMLName: n.XMLName,
+		Attrs:   n.Attrs,
+		Data:    n.Data,
+	}
+	for subn := range n.Nodes {
+		node.Nodes = append(node.Nodes, convertToGpx11ExtensionNode(n.Nodes[subn]))
+	}
+	return node
+}
+
+func convertFromGpx11Extension(ext gpx11Extension) Extension {
+	nodes := []ExtensionNode{}
+	for n := range ext.Nodes {
+		nodes = append(nodes, convertFromGpx11ExtensionNode(ext.Nodes[n]))
+	}
+	return Extension(nodes)
+}
+
+func convertFromGpx11ExtensionNode(n gpx11ExtensionNode) ExtensionNode {
+	res := ExtensionNode{
+		XMLName: n.XMLName,
+		Attrs:   n.Attrs,
+		Data:    n.Data,
+	}
+	for subn := range n.Nodes {
+		res.Nodes = append(res.Nodes, convertFromGpx11ExtensionNode(n.Nodes[subn]))
+	}
+	return res
+}
+
 func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 	namespacesReplacement, replacements := gpxDoc.Attrs.ToXMLAttrs()
 
@@ -408,10 +447,10 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 	gpx11Doc.XmlNsXsi = gpxDoc.XmlNsXsi
 	gpx11Doc.XmlSchemaLoc = gpxDoc.XmlSchemaLoc
 
-	gpx11Doc.Extensions = gpxDoc.Extensions
+	gpx11Doc.Extensions = convertToGpx11Extension(gpxDoc.Extensions)
 	gpx11Doc.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 
-	gpx11Doc.MetadataExtensions = gpxDoc.MetadataExtensions
+	gpx11Doc.MetadataExtensions = convertToGpx11Extension(gpxDoc.MetadataExtensions)
 	gpx11Doc.MetadataExtensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 
 	if len(gpxDoc.Creator) == 0 {
@@ -544,8 +583,8 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 	gpxDoc.Name = gpx11Doc.Name
 	gpxDoc.Description = gpx11Doc.Desc
 	gpxDoc.AuthorName = gpx11Doc.AuthorName
-	gpxDoc.Extensions = gpx11Doc.Extensions
-	gpxDoc.MetadataExtensions = gpx11Doc.MetadataExtensions
+	gpxDoc.Extensions = convertFromGpx11Extension(gpx11Doc.Extensions)
+	gpxDoc.MetadataExtensions = convertFromGpx11Extension(gpx11Doc.MetadataExtensions)
 
 	if gpx11Doc.AuthorEmail != nil {
 		gpxDoc.AuthorEmail = gpx11Doc.AuthorEmail.Id + "@" + gpx11Doc.AuthorEmail.Domain
@@ -603,7 +642,7 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 			r.Type = route.Type
 			// TODO
 			//r.RoutePoints = route.RoutePoints
-			r.Extensions = route.Extensions
+			r.Extensions = convertFromGpx11Extension(route.Extensions)
 
 			if route.Points != nil {
 				r.Points = make([]GPXPoint, len(route.Points))
@@ -626,14 +665,14 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 			gpxTrack.Source = track.Src
 			gpxTrack.Number = track.Number
 			gpxTrack.Type = track.Type
-			gpxTrack.Extensions = track.Extensions
+			gpxTrack.Extensions = convertFromGpx11Extension(track.Extensions)
 
 			if track.Segments != nil {
 				gpxTrack.Segments = make([]GPXTrackSegment, len(track.Segments))
-				gpxTrack.Extensions = track.Extensions
+				gpxTrack.Extensions = convertFromGpx11Extension(track.Extensions)
 				for segmentNo, segment := range track.Segments {
 					gpxSegment := GPXTrackSegment{}
-					gpxSegment.Extensions = segment.Extensions
+					gpxSegment.Extensions = convertFromGpx11Extension(segment.Extensions)
 					if segment.Points != nil {
 						gpxSegment.Points = make([]GPXPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
@@ -667,7 +706,7 @@ func convertPointToGpx11(original *GPXPoint) *gpx11GpxPoint {
 	result.Sym = original.Symbol
 	result.Type = original.Type
 	result.Fix = original.TypeOfGpsFix
-	result.Extensions = original.Extensions
+	result.Extensions = convertToGpx11Extension(original.Extensions)
 	if original.Satellites.NotNull() {
 		value := original.Satellites.Value()
 		result.Sat = &value
@@ -715,7 +754,7 @@ func convertPointFromGpx11(original *gpx11GpxPoint) *GPXPoint {
 	result.Symbol = original.Sym
 	result.Type = original.Type
 	result.TypeOfGpsFix = original.Fix
-	result.Extensions = original.Extensions
+	result.Extensions = convertFromGpx11Extension(original.Extensions)
 	if original.Sat != nil {
 		result.Satellites = NewNullableInt(*original.Sat)
 	}
