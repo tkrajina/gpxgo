@@ -102,17 +102,17 @@ func (ex *Extension) GetNode(namespaceURL NamespaceURL, path0 string) (node *Ext
 }
 
 type ExtensionNodeAttr struct {
-	NameSpace string
-	NameLocal string
-	Value     string
+	NameSpace string `json:"ns,omitempty"`
+	NameLocal string `json:"name,omitempty"`
+	Value     string `json:"val,omitempty"`
 }
 
 type ExtensionNode struct {
-	NameSpace string
-	NameLocal string
-	Attrs     []ExtensionNodeAttr
-	Data      string
-	Nodes     []ExtensionNode
+	NameSpace string              `json:"ns,omitempty"`
+	NameLocal string              `json:"name,omitempty"`
+	Attrs     []ExtensionNodeAttr `json:"attrs,omitempty"`
+	Data      string              `json:"data,omitempty"`
+	Nodes     []ExtensionNode     `json:"nodes,omitempty"`
 }
 
 func (n *ExtensionNode) GetAttr(key string) (value string, found bool) {
@@ -211,7 +211,7 @@ type GPX struct {
 	Waypoints          []GPXPoint `json:"-"` // TODO
 	Routes             []GPXRoute `json:"-"` // TODO
 	Tracks             []GPXTrack `json:"tracks"`
-	Extensions         Extension  `json:"-"` // TODO
+	Extensions         Extension  `json:"ext"`
 	MetadataExtensions Extension  `json:"-"` // TODO
 }
 
@@ -779,7 +779,7 @@ func (b *GpxBounds) String() string {
 type Point struct {
 	Latitude  float64       `json:"lat"`
 	Longitude float64       `json:"lon"`
-	Elevation NullableFloat `json:"ele"`
+	Elevation NullableFloat `json:"ele" ts_type:"number|undefined"`
 }
 
 func (pt Point) Add(latDelta, lonDelta, eleDelta float64) Point {
