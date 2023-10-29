@@ -42,7 +42,7 @@ func TestReadExtension(t *testing.T) {
 			assert.Equal(t, "bbb", ext[0].Data)
 			assert.Equal(t, 1, len(ext[0].Attrs), "%#v", ext[0].Attrs)
 			assert.Equal(t, "kkk", ext[0].GetAttrOrEmpty("jjj"))
-			assert.Equal(t, "aaa", ext[0].XMLName.Local)
+			assert.Equal(t, "aaa", ext[0].NameLocal)
 			//assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
 			assert.Equal(t, 1, len(ext[1].Nodes))
 			assert.Equal(t, 0, len(ext[1].Attrs))
@@ -84,7 +84,7 @@ func TestExtensionWithoutNamespace(t *testing.T) {
 		assert.Equal(t, "bbb", ext[0].Data)
 		assert.Equal(t, 1, len(ext[0].Attrs), "%#v", ext[0].Attrs)
 		assert.Equal(t, "kkk", ext[0].GetAttrOrEmpty("jjj"))
-		assert.Equal(t, "aaa", ext[0].XMLName.Local)
+		assert.Equal(t, "aaa", ext[0].NameLocal)
 		//assert.Equal(t, "gpx.py", ext.Nodes[0].SpaceName())
 		assert.Equal(t, 1, len(ext[1].Nodes))
 		assert.Equal(t, 0, len(ext[1].Attrs))
@@ -119,7 +119,7 @@ func TestNodesSubnodesAndAttrs(t *testing.T) {
 	node.GetOrCreateNode("aaa").SetAttr("aaa", "bbb")
 	// fmt.Println(string(node.debugXMLChunk()))
 	assert.Equal(t, 1, len(node.Nodes[0].Attrs))
-	assert.Equal(t, "aaa", node.Nodes[0].Attrs[0].Name.Local)
+	assert.Equal(t, "aaa", node.Nodes[0].Attrs[0].NameLocal)
 	assert.Equal(t, "bbb", node.Nodes[0].Attrs[0].Value)
 
 	// fmt.Println(string(node.debugXMLChunk()))
@@ -127,7 +127,7 @@ func TestNodesSubnodesAndAttrs(t *testing.T) {
 	// fmt.Println(string(node.debugXMLChunk()))
 	assert.Equal(t, 1, len(node.Nodes))
 	assert.Equal(t, 1, len(node.Nodes[0].Nodes))
-	assert.Equal(t, "aaa", node.Nodes[0].Nodes[0].Attrs[0].Name.Local)
+	assert.Equal(t, "aaa", node.Nodes[0].Nodes[0].Attrs[0].NameLocal)
 	assert.Equal(t, "bbb", node.Nodes[0].Nodes[0].Attrs[0].Value)
 }
 
@@ -141,7 +141,7 @@ func TestExtensionNodesAndAttrs(t *testing.T) {
 	assert.Equal(t, 0, len(ext[0].Attrs))
 	ext.GetOrCreateNode(NoNamespace, "aaa").SetAttr("aaa", "bbb")
 	assert.Equal(t, 1, len(ext[0].Attrs))
-	assert.Equal(t, "aaa", ext[0].Attrs[0].Name.Local)
+	assert.Equal(t, "aaa", ext[0].Attrs[0].NameLocal)
 	assert.Equal(t, "bbb", ext[0].Attrs[0].Value)
 
 	// fmt.Println(string(ext.debugXMLChunk()))
@@ -159,7 +159,7 @@ func TestExtensionNodesAndAttrs(t *testing.T) {
 
 	assert.Equal(t, 1, len(ext))
 	assert.Equal(t, 1, len(ext[0].Nodes))
-	assert.Equal(t, "aaa", ext[0].Nodes[0].Attrs[0].Name.Local)
+	assert.Equal(t, "aaa", ext[0].Nodes[0].Attrs[0].NameLocal)
 	assert.Equal(t, "bbb", ext[0].Nodes[0].Attrs[0].Value)
 }
 
@@ -171,8 +171,8 @@ func TestCreateExtensionWithoutNamespace(t *testing.T) {
 	original.MetadataExtensions.GetOrCreateNode(NoNamespace, "aaa", "bbb", "ccc").Data = "ccc data"
 	// fmt.Println("2:", string(original.MetadataExtensions.debugXMLChunk()))
 	assert.Equal(t, 1, len(original.MetadataExtensions))
-	assert.Equal(t, "aaa", original.MetadataExtensions[0].XMLName.Local)
-	assert.Equal(t, "bbb", original.MetadataExtensions[0].Nodes[0].XMLName.Local)
+	assert.Equal(t, "aaa", original.MetadataExtensions[0].NameLocal)
+	assert.Equal(t, "bbb", original.MetadataExtensions[0].Nodes[0].NameLocal)
 	assert.Equal(t, 0, len(original.MetadataExtensions[0].Nodes[0].Attrs), "attrs=%#v", original.MetadataExtensions[0].Nodes[0].Attrs)
 	original.MetadataExtensions.GetOrCreateNode(NoNamespace, "aaa", "bbb").SetAttr("key", "value")
 	// fmt.Println("3:", string(original.MetadataExtensions.debugXMLChunk()))
@@ -181,10 +181,10 @@ func TestCreateExtensionWithoutNamespace(t *testing.T) {
 		t.FailNow()
 	}
 
-	assert.Equal(t, "aaa", original.MetadataExtensions[0].XMLName.Local)
-	assert.Equal(t, "bbb", original.MetadataExtensions[0].Nodes[0].XMLName.Local)
+	assert.Equal(t, "aaa", original.MetadataExtensions[0].NameLocal)
+	assert.Equal(t, "bbb", original.MetadataExtensions[0].Nodes[0].NameLocal)
 	assert.Equal(t, 1, len(original.MetadataExtensions[0].Nodes[0].Attrs), "attrs=%#v", original.MetadataExtensions[0].Nodes[0].Attrs)
-	assert.Equal(t, "key", original.MetadataExtensions[0].Nodes[0].Attrs[0].Name.Local)
+	assert.Equal(t, "key", original.MetadataExtensions[0].Nodes[0].Attrs[0].NameLocal)
 	assert.Equal(t, "value", original.MetadataExtensions[0].Nodes[0].Attrs[0].Value)
 
 	val, found := original.MetadataExtensions.GetOrCreateNode(NoNamespace, "aaa", "bbb").GetAttr("key")
@@ -268,13 +268,13 @@ func TestCreateMetadataExtensionWithNamespace(t *testing.T) {
 		node, found = g.MetadataExtensions.GetNode(NamespaceURL("http://trla.baba.lan"), "aaa")
 		assert.True(t, found)
 		assert.NotNil(t, node)
-		assert.Equal(t, "http://trla.baba.lan", node.XMLName.Space)
+		assert.Equal(t, "http://trla.baba.lan", node.NameSpace)
 
 		node, found = node.GetNode("bbb")
 		assert.True(t, found)
 		assert.NotNil(t, node)
 
-		assert.Equal(t, "http://trla.baba.lan", node.XMLName.Space)
+		assert.Equal(t, "http://trla.baba.lan", node.NameSpace)
 
 		byts, err := g.ToXml(ToXmlParams{Indent: true})
 		assert.Nil(t, err)
@@ -349,13 +349,13 @@ func TestCreateExtensionWithNamespace(t *testing.T) {
 		node, found = g.Extensions.GetNode(NamespaceURL("http://trla.baba.lan"), "aaa")
 		assert.True(t, found)
 		assert.NotNil(t, node)
-		assert.Equal(t, "http://trla.baba.lan", node.XMLName.Space)
+		assert.Equal(t, "http://trla.baba.lan", node.NameSpace)
 
 		node, found = node.GetNode("bbb")
 		assert.True(t, found)
 		assert.NotNil(t, node)
 
-		assert.Equal(t, "http://trla.baba.lan", node.XMLName.Space)
+		assert.Equal(t, "http://trla.baba.lan", node.NameSpace)
 
 		byts, err := g.ToXml(ToXmlParams{Indent: true})
 		assert.Nil(t, err)

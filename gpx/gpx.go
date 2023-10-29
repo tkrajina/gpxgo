@@ -6,7 +6,6 @@
 package gpx
 
 import (
-	"encoding/xml"
 	"fmt"
 	"math"
 	"time"
@@ -74,17 +73,15 @@ func (ex *Extension) GetOrCreateNode(namespaceURL NamespaceURL, path ...string) 
 	// TODO: Check is len(nodes) == 0
 	var subNode *ExtensionNode
 	for n := range *ex {
-		if (*ex)[n].XMLName.Space == string(namespaceURL) && (*ex)[n].XMLName.Local == path[0] {
+		if (*ex)[n].NameSpace == string(namespaceURL) && (*ex)[n].NameLocal == path[0] {
 			subNode = &(*ex)[n]
 			break
 		}
 	}
 	if subNode == nil {
 		*ex = append(*ex, ExtensionNode{
-			XMLName: xml.Name{
-				Space: string(namespaceURL),
-				Local: path[0],
-			},
+			NameSpace: string(namespaceURL),
+			NameLocal: path[0],
 		})
 		subNode = &(*ex)[len(*ex)-1]
 	}
@@ -93,8 +90,8 @@ func (ex *Extension) GetOrCreateNode(namespaceURL NamespaceURL, path ...string) 
 
 func (ex *Extension) GetNode(namespaceURL NamespaceURL, path0 string) (node *ExtensionNode, found bool) {
 	for subn := range *ex {
-		if (*ex)[subn].XMLName.Local == path0 {
-			if (*ex)[subn].XMLName.Space == string(namespaceURL) || namespaceURL == AnyNamespace {
+		if (*ex)[subn].NameLocal == path0 {
+			if (*ex)[subn].NameSpace == string(namespaceURL) || namespaceURL == AnyNamespace {
 				node = &(*ex)[subn]
 				found = true
 				return
@@ -104,16 +101,23 @@ func (ex *Extension) GetNode(namespaceURL NamespaceURL, path0 string) (node *Ext
 	return
 }
 
+type ExtensionNodeAttr struct {
+	NameSpace string
+	NameLocal string
+	Value     string
+}
+
 type ExtensionNode struct {
-	XMLName xml.Name
-	Attrs   []xml.Attr      `xml:",any,attr"`
-	Data    string          `xml:",chardata"`
-	Nodes   []ExtensionNode `xml:",any"`
+	NameSpace string
+	NameLocal string
+	Attrs     []ExtensionNodeAttr
+	Data      string
+	Nodes     []ExtensionNode
 }
 
 func (n *ExtensionNode) GetAttr(key string) (value string, found bool) {
 	for i := range n.Attrs {
-		if n.Attrs[i].Name.Local == key {
+		if n.Attrs[i].NameLocal == key {
 			value = n.Attrs[i].Value
 			found = true
 			return
@@ -124,23 +128,21 @@ func (n *ExtensionNode) GetAttr(key string) (value string, found bool) {
 
 func (n *ExtensionNode) SetAttr(key, value string) {
 	for i := range n.Attrs {
-		if n.Attrs[i].Name.Local == key {
+		if n.Attrs[i].NameLocal == key {
 			n.Attrs[i].Value = value
 			return
 		}
 	}
-	n.Attrs = append(n.Attrs, xml.Attr{
-		Name: xml.Name{
-			Space: n.XMLName.Space,
-			Local: key,
-		},
-		Value: value,
+	n.Attrs = append(n.Attrs, ExtensionNodeAttr{
+		NameSpace: n.NameSpace,
+		NameLocal: key,
+		Value:     value,
 	})
 }
 
 func (n *ExtensionNode) GetNode(path0 string) (node *ExtensionNode, found bool) {
 	for subn := range n.Nodes {
-		if n.Nodes[subn].XMLName.Local == path0 {
+		if n.Nodes[subn].NameLocal == path0 {
 			node = &n.Nodes[subn]
 			found = true
 			return
@@ -159,11 +161,9 @@ func (n *ExtensionNode) GetOrCreateNode(path ...string) *ExtensionNode {
 	subNode, found := n.GetNode(path0)
 	if !found {
 		n.Nodes = append(n.Nodes, ExtensionNode{
-			XMLName: xml.Name{
-				Space: n.XMLName.Space,
-				Local: path0,
-			},
-			Attrs: nil,
+			NameSpace: n.NameSpace,
+			NameLocal: path0,
+			Attrs:     nil,
 		})
 		subNode = &(n.Nodes[len(n.Nodes)-1])
 	}

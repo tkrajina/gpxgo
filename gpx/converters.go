@@ -405,9 +405,20 @@ func convertToGpx11Extension(ext Extension) gpx11Extension {
 }
 func convertToGpx11ExtensionNode(n ExtensionNode) gpx11ExtensionNode {
 	node := gpx11ExtensionNode{
-		XMLName: n.XMLName,
-		Attrs:   n.Attrs,
-		Data:    n.Data,
+		XMLName: xml.Name{
+			Space: n.NameSpace,
+			Local: n.NameLocal,
+		},
+		Data: n.Data,
+	}
+	for _, attr := range n.Attrs {
+		node.Attrs = append(node.Attrs, xml.Attr{
+			Name: xml.Name{
+				Space: attr.NameSpace,
+				Local: attr.NameLocal,
+			},
+			Value: attr.Value,
+		})
 	}
 	for subn := range n.Nodes {
 		node.Nodes = append(node.Nodes, convertToGpx11ExtensionNode(n.Nodes[subn]))
@@ -425,9 +436,16 @@ func convertFromGpx11Extension(ext gpx11Extension) Extension {
 
 func convertFromGpx11ExtensionNode(n gpx11ExtensionNode) ExtensionNode {
 	res := ExtensionNode{
-		XMLName: n.XMLName,
-		Attrs:   n.Attrs,
-		Data:    n.Data,
+		NameSpace: n.XMLName.Space,
+		NameLocal: n.XMLName.Local,
+		Data:      n.Data,
+	}
+	for _, attr := range n.Attrs {
+		res.Attrs = append(res.Attrs, ExtensionNodeAttr{
+			NameSpace: attr.Name.Space,
+			NameLocal: attr.Name.Local,
+			Value:     attr.Value,
+		})
 	}
 	for subn := range n.Nodes {
 		res.Nodes = append(res.Nodes, convertFromGpx11ExtensionNode(n.Nodes[subn]))
