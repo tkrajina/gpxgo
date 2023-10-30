@@ -20,9 +20,11 @@ const defaultCreator = "https://github.com/tkrajina/gpxgo"
 // Gpx 1.0 Stuff
 // ----------------------------------------------------------------------------------------------------
 
-func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
+func convertToGpx10Models(gpxDoc *GPX) (*gpx10Gpx, map[string]string) {
 	gpx10Doc := &gpx10Gpx{}
 	//gpx10Doc.Attrs = namespacesMapToAttrs(gpxDoc.Namespaces)
+	namespacesReplacement, replacements := gpxDoc.Attrs.ToXMLAttrs()
+	gpx10Doc.Attrs = append(gpx10Doc.Attrs, xml.Attr{Name: xml.Name{Local: namespacesReplacement}, Value: ""})
 
 	//gpx10Doc.XMLNs = gpxDoc.XMLNs
 	gpx10Doc.XMLNs = "http://www.topografix.com/GPX/1/0"
@@ -120,7 +122,7 @@ func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 		}
 	}
 
-	return gpx10Doc
+	return gpx10Doc, replacements
 }
 
 func convertFromGpx10Models(gpx10Doc *gpx10Gpx) *GPX {

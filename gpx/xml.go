@@ -55,7 +55,7 @@ func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 	var replacemends map[string]string
 	var gpxDoc interface{}
 	if version == "1.0" {
-		gpxDoc = convertToGpx10Models(g)
+		gpxDoc, replacemends = convertToGpx10Models(g)
 	} else if version == "1.1" {
 		gpxDoc, replacemends = convertToGpx11Models(g)
 	} else {
