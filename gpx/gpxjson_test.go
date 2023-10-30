@@ -3,6 +3,8 @@ package gpx
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -145,12 +147,34 @@ func TestWithExtension(t *testing.T) {
 	testGPXJSON(t, *g)
 }
 
+func TestGPXJSONForAllTestFiles(t *testing.T) {
+	t.Parallel()
+
+	testFilesDir := "../test_files/"
+
+	list, err := os.ReadDir(testFilesDir)
+	assert.Nil(t, err, "%v", err)
+	for _, entry := range list {
+		if strings.HasSuffix(entry.Name(), ".gz") {
+			continue
+		}
+		fmt.Println("Testing", entry.Name())
+		g, err := ParseFile(testFilesDir + entry.Name())
+		assert.Nil(t, err)
+		testGPXJSON(t, *g)
+	}
+}
+
 func testGPXJSON(t *testing.T, g GPX) {
 
 	reparsedFromXML, err := reparse(g)
 	assert.Nil(t, err)
 
 	assert.Equal(t, cleanReparsed(g), cleanReparsed(*reparsedFromXML))
+
+	if t.Failed() {
+		t.FailNow()
+	}
 
 	jsn, err := json.MarshalIndent(g, "", "  ")
 	assert.Nil(t, err, "%#v", err)
@@ -161,6 +185,9 @@ func testGPXJSON(t *testing.T, g GPX) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, cleanReparsed(g), cleanReparsed(unmarshaled))
+	if t.Failed() {
+		t.FailNow()
+	}
 }
 
 func cleanReparsed(g GPX) GPX {
