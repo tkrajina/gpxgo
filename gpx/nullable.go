@@ -170,9 +170,9 @@ var _ json.Unmarshaler = new(NullableInt)
 
 func (n NullableInt) MarshalJSON() ([]byte, error) {
 	if n.Null() {
-		return nil, nil
+		return []byte("null"), nil
 	}
-	return []byte(fmt.Sprintf("%dd", n.Value())), nil
+	return []byte(fmt.Sprintf("%d", n.Value())), nil
 }
 
 func (n *NullableInt) UnmarshalJSON(byts []byte) error {
@@ -216,7 +216,7 @@ var _ json.Unmarshaler = new(NullableFloat)
 
 func (n NullableFloat) MarshalJSON() ([]byte, error) {
 	if n.Null() {
-		return nil, nil
+		return []byte("null"), nil
 	}
 	return []byte(fmt.Sprintf("%.10f", n.Value())), nil
 }

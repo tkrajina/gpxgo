@@ -182,10 +182,10 @@ type gpx10GpxPoint struct {
 	Lat formattedFloat `xml:"lat,attr"`
 	Lon formattedFloat `xml:"lon,attr"`
 	// Position info
-	Ele         NullableFloat `xml:"ele,omitempty"`
-	Timestamp   string        `xml:"time,omitempty"`
-	MagVar      string        `xml:"magvar,omitempty"`
-	GeoIdHeight string        `xml:"geoidheight,omitempty"`
+	Ele         *NilableFloat64 `xml:"ele,omitempty"`
+	Timestamp   string          `xml:"time,omitempty"`
+	MagVar      string          `xml:"magvar,omitempty"`
+	GeoIdHeight string          `xml:"geoidheight,omitempty"`
 	// Description info
 	Name  string         `xml:"name,omitempty"`
 	Cmt   string         `xml:"cmt,omitempty"`
@@ -195,13 +195,13 @@ type gpx10GpxPoint struct {
 	Sym   string         `xml:"sym,omitempty"`
 	Type  string         `xml:"type,omitempty"`
 	// Accuracy info
-	Fix           string   `xml:"fix,omitempty"`
-	Sat           *int     `xml:"sat,omitempty"`
-	Hdop          *float64 `xml:"hdop,omitempty"`
-	Vdop          *float64 `xml:"vdop,omitempty"`
-	Pdop          *float64 `xml:"pdop,omitempty"`
-	AgeOfDGpsData *float64 `xml:"ageofdgpsdata,omitempty"`
-	DGpsId        *int     `xml:"dgpsid,omitempty"`
+	Fix           string          `xml:"fix,omitempty"`
+	Sat           *int            `xml:"sat,omitempty"`
+	Hdop          *NilableFloat64 `xml:"hdop,omitempty"`
+	Vdop          *NilableFloat64 `xml:"vdop,omitempty"`
+	Pdop          *NilableFloat64 `xml:"pdop,omitempty"`
+	AgeOfDGpsData *NilableFloat64 `xml:"ageofdgpsdata,omitempty"`
+	DGpsId        *NilableInt     `xml:"dgpsid,omitempty"`
 
 	// Those two values are here for simplicity, but they are available only when this is part of a track segment (not route or waypoint)!
 	Course string `xml:"course,omitempty"`
@@ -235,7 +235,7 @@ type gpx10GpxTrk struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links    []Link   `xml:"link"`
-	Number   NullableInt       `xml:"number,omitempty"`
+	Number   *NilableInt       `xml:"number,omitempty"`
 	Type     string            `xml:"type,omitempty"`
 	Segments []*gpx10GpxTrkSeg `xml:"trkseg,omitempty"`
 }

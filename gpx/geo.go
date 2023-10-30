@@ -22,7 +22,7 @@ func ToRad(x float64) float64 {
 type Location interface {
 	GetLatitude() float64
 	GetLongitude() float64
-	GetElevation() NullableFloat
+	GetElevation() *NilableFloat64
 }
 
 // MovingData contains moving data
@@ -146,21 +146,21 @@ func CalcMaxSpeed(speedsDistances []SpeedsAndDistances) float64 {
 }
 
 // CalcUphillDownhill calculates uphill and downhill from given elevations
-func CalcUphillDownhill(elevations []NullableFloat) (float64, float64) {
+func CalcUphillDownhill(elevations []*NilableFloat64) (float64, float64) {
 	elevsLen := len(elevations)
 	if elevsLen == 0 {
 		return 0.0, 0.0
 	}
 
-	smoothElevations := make([]NullableFloat, elevsLen)
+	smoothElevations := make([]*NilableFloat64, elevsLen)
 
 	for i, elev := range elevations {
 		currEle := elev
 		if 0 < i && i < elevsLen-1 {
 			prevEle := elevations[i-1]
 			nextEle := elevations[i+1]
-			if prevEle.NotNull() && nextEle.NotNull() && elev.NotNull() {
-				currEle = NewNullableFloat(prevEle.Value()*0.3 + elev.Value()*0.4 + nextEle.Value()*0.3)
+			if prevEle.NotNil() && nextEle.NotNil() && elev.NotNil() {
+				currEle = NewNilableFloat64(prevEle.Value()*0.3 + elev.Value()*0.4 + nextEle.Value()*0.3)
 			}
 		}
 		smoothElevations[i] = currEle
@@ -170,7 +170,7 @@ func CalcUphillDownhill(elevations []NullableFloat) (float64, float64) {
 	var downhill float64
 
 	for i := 1; i < len(smoothElevations); i++ {
-		if smoothElevations[i].NotNull() && smoothElevations[i-1].NotNull() {
+		if smoothElevations[i].NotNil() && smoothElevations[i-1].NotNil() {
 			d := smoothElevations[i].Value() - smoothElevations[i-1].Value()
 			if d > 0.0 {
 				uphill += d
@@ -183,7 +183,7 @@ func CalcUphillDownhill(elevations []NullableFloat) (float64, float64) {
 	return uphill, downhill
 }
 
-func distance(lat1, lon1 float64, ele1 NullableFloat, lat2, lon2 float64, ele2 NullableFloat, threeD, haversine bool) float64 {
+func distance(lat1, lon1 float64, ele1 *NilableFloat64, lat2, lon2 float64, ele2 *NilableFloat64, threeD, haversine bool) float64 {
 	absLat := math.Abs(lat1 - lat2)
 	absLon := math.Abs(lon1 - lon2)
 	if haversine || absLat > 0.2 || absLon > 0.2 {
@@ -201,7 +201,7 @@ func distance(lat1, lon1 float64, ele1 NullableFloat, lat2, lon2 float64, ele2 N
 	}
 
 	eleDiff := 0.0
-	if ele1.NotNull() && ele2.NotNull() {
+	if ele1.NotNil() && ele2.NotNil() {
 		eleDiff = ele1.Value() - ele2.Value()
 	}
 
@@ -223,11 +223,11 @@ func distance(lat1, lon1 float64, ele1 NullableFloat, lat2, lon2 float64, ele2 N
 
 // Distance2D calculates the distance of 2 geo coordinates
 func Distance2D(lat1, lon1, lat2, lon2 float64, haversine bool) float64 {
-	return distance(lat1, lon1, NewNullableFloat(0), lat2, lon2, NewNullableFloat(0), false, haversine)
+	return distance(lat1, lon1, nil, lat2, lon2, nil, false, haversine)
 }
 
 // Distance3D calculates the distance of 2 geo coordinates including elevation distance
-func Distance3D(lat1, lon1 float64, ele1 NullableFloat, lat2, lon2 float64, ele2 NullableFloat, haversine bool) float64 {
+func Distance3D(lat1, lon1 float64, ele1 *NilableFloat64, lat2, lon2 float64, ele2 *NilableFloat64, haversine bool) float64 {
 	return distance(lat1, lon1, ele1, lat2, lon2, ele2, true, haversine)
 }
 
@@ -256,7 +256,7 @@ func AngleFromNorth(loc1, loc2 Point, radians bool) float64 {
 
 // ElevationAngle calculates the elevation angle (steepness) between to points
 func ElevationAngle(loc1, loc2 Point, radians bool) float64 {
-	if loc1.Elevation.Null() || loc2.Elevation.Null() {
+	if loc1.Elevation.Nil() || loc2.Elevation.Nil() {
 		return 0.0
 	}
 
@@ -383,8 +383,8 @@ func smoothVertical(originalPoints []GPXPoint) []GPXPoint {
 		if 1 <= pointNo && pointNo <= len(originalPoints)-2 {
 			previousPointElevation := originalPoints[pointNo-1].Elevation
 			nextPointElevation := originalPoints[pointNo+1].Elevation
-			if previousPointElevation.NotNull() && point.Elevation.NotNull() && nextPointElevation.NotNull() {
-				result[pointNo].Elevation = NewNullableFloat(previousPointElevation.Value()*0.4 + point.Elevation.Value()*0.2 + nextPointElevation.Value()*0.4)
+			if previousPointElevation.NotNil() && point.Elevation.NotNil() && nextPointElevation.NotNil() {
+				result[pointNo].Elevation = NewNilableFloat64(previousPointElevation.Value()*0.4 + point.Elevation.Value()*0.2 + nextPointElevation.Value()*0.4)
 				//log.Println("->%f", seg.Points[pointNo].Elevation.Value())
 			}
 		}

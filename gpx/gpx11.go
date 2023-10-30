@@ -167,12 +167,12 @@ type gpx11Gpx struct {
 	Link               *gpx11GpxLink      `xml:"metadata>link,omitempty"`
 	Timestamp          string             `xml:"metadata>time,omitempty"`
 	Keywords           string             `xml:"metadata>keywords,omitempty"`
-	MetadataExtensions gpx11Extension     `xml:"metadata>extensions"`
+	MetadataExtensions *gpx11Extension    `xml:"metadata>extensions"`
 	Bounds             *gpx11GpxBounds    `xml:"bounds"`
 	Waypoints          []*gpx11GpxPoint   `xml:"wpt"`
 	Routes             []*gpx11GpxRte     `xml:"rte"`
 	Tracks             []*gpx11GpxTrk     `xml:"trk"`
-	Extensions         gpx11Extension     `xml:"extensions"`
+	Extensions         *gpx11Extension    `xml:"extensions"`
 }
 
 type gpx11GpxBounds struct {
@@ -226,10 +226,10 @@ type gpx11GpxPoint struct {
 	Lat formattedFloat `xml:"lat,attr"`
 	Lon formattedFloat `xml:"lon,attr"`
 	// Position info
-	Ele         NullableFloat `xml:"ele,omitempty"`
-	Timestamp   string        `xml:"time,omitempty"`
-	MagVar      string        `xml:"magvar,omitempty"`
-	GeoIdHeight string        `xml:"geoidheight,omitempty"`
+	Ele         *NilableFloat64 `xml:"ele,omitempty"`
+	Timestamp   string          `xml:"time,omitempty"`
+	MagVar      string          `xml:"magvar,omitempty"`
+	GeoIdHeight string          `xml:"geoidheight,omitempty"`
 	// Description info
 	Name  string         `xml:"name,omitempty"`
 	Cmt   string         `xml:"cmt,omitempty"`
@@ -239,14 +239,14 @@ type gpx11GpxPoint struct {
 	Sym   string         `xml:"sym,omitempty"`
 	Type  string         `xml:"type,omitempty"`
 	// Accuracy info
-	Fix           string         `xml:"fix,omitempty"`
-	Sat           *int           `xml:"sat,omitempty"`
-	Hdop          *float64       `xml:"hdop,omitempty"`
-	Vdop          *float64       `xml:"vdop,omitempty"`
-	Pdop          *float64       `xml:"pdop,omitempty"`
-	AgeOfDGpsData *float64       `xml:"ageofdgpsdata,omitempty"`
-	DGpsId        *int           `xml:"dgpsid,omitempty"`
-	Extensions    gpx11Extension `xml:"extensions"`
+	Fix           string          `xml:"fix,omitempty"`
+	Sat           *int            `xml:"sat,omitempty"`
+	Hdop          *NilableFloat64 `xml:"hdop,omitempty"`
+	Vdop          *NilableFloat64 `xml:"vdop,omitempty"`
+	Pdop          *NilableFloat64 `xml:"pdop,omitempty"`
+	AgeOfDGpsData *NilableFloat64 `xml:"ageofdgpsdata,omitempty"`
+	DGpsId        *NilableInt     `xml:"dgpsid,omitempty"`
+	Extensions    *gpx11Extension `xml:"extensions"`
 }
 
 type gpx11GpxRte struct {
@@ -260,13 +260,13 @@ type gpx11GpxRte struct {
 	Number     NullableInt      `xml:"number,omitempty"`
 	Type       string           `xml:"type,omitempty"`
 	Points     []*gpx11GpxPoint `xml:"rtept"`
-	Extensions gpx11Extension   `xml:"extensions"`
+	Extensions *gpx11Extension  `xml:"extensions"`
 }
 
 type gpx11GpxTrkSeg struct {
 	XMLName    xml.Name         `xml:"trkseg"`
 	Points     []*gpx11GpxPoint `xml:"trkpt"`
-	Extensions gpx11Extension   `xml:"extensions"`
+	Extensions *gpx11Extension  `xml:"extensions"`
 }
 
 // Trk is a GPX track
@@ -278,8 +278,8 @@ type gpx11GpxTrk struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links    []Link   `xml:"link"`
-	Number     NullableInt       `xml:"number,omitempty"`
+	Number     *NilableInt       `xml:"number,omitempty"`
 	Type       string            `xml:"type,omitempty"`
 	Segments   []*gpx11GpxTrkSeg `xml:"trkseg,omitempty"`
-	Extensions gpx11Extension    `xml:"extensions"`
+	Extensions *gpx11Extension   `xml:"extensions"`
 }

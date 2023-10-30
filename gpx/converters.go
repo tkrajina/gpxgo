@@ -232,30 +232,15 @@ func convertPointToGpx10(original *GPXPoint) *gpx10GpxPoint {
 	result.Sym = original.Symbol
 	result.Type = original.Type
 	result.Fix = original.TypeOfGpsFix
-	if original.Satellites.NotNull() {
+	if original.Satellites.NotNil() {
 		value := original.Satellites.Value()
 		result.Sat = &value
 	}
-	if original.HorizontalDilution.NotNull() {
-		value := original.HorizontalDilution.Value()
-		result.Hdop = &value
-	}
-	if original.VerticalDilution.NotNull() {
-		value := original.VerticalDilution.Value()
-		result.Vdop = &value
-	}
-	if original.PositionalDilution.NotNull() {
-		value := original.PositionalDilution.Value()
-		result.Pdop = &value
-	}
-	if original.AgeOfDGpsData.NotNull() {
-		value := original.AgeOfDGpsData.Value()
-		result.AgeOfDGpsData = &value
-	}
-	if original.DGpsId.NotNull() {
-		value := original.DGpsId.Value()
-		result.DGpsId = &value
-	}
+	result.Hdop = original.HorizontalDilution
+	result.Vdop = original.VerticalDilution
+	result.Pdop = original.PositionalDilution
+	result.AgeOfDGpsData = original.AgeOfDGpsData
+	result.DGpsId = original.DGpsId
 	return result
 }
 
@@ -280,23 +265,13 @@ func convertPointFromGpx10(original *gpx10GpxPoint) *GPXPoint {
 	result.Type = original.Type
 	result.TypeOfGpsFix = original.Fix
 	if original.Sat != nil {
-		result.Satellites = NewNullableInt(*original.Sat)
+		result.Satellites = NewNilableint(*original.Sat)
 	}
-	if original.Hdop != nil {
-		result.HorizontalDilution = NewNullableFloat(*original.Hdop)
-	}
-	if original.Vdop != nil {
-		result.VerticalDilution = NewNullableFloat(*original.Vdop)
-	}
-	if original.Pdop != nil {
-		result.PositionalDilution = NewNullableFloat(*original.Pdop)
-	}
-	if original.AgeOfDGpsData != nil {
-		result.AgeOfDGpsData = NewNullableFloat(*original.AgeOfDGpsData)
-	}
-	if original.DGpsId != nil {
-		result.DGpsId = NewNullableInt(*original.DGpsId)
-	}
+	result.HorizontalDilution = original.Hdop
+	result.VerticalDilution = original.Vdop
+	result.PositionalDilution = original.Pdop
+	result.AgeOfDGpsData = original.AgeOfDGpsData
+	result.DGpsId = original.DGpsId
 	return result
 }
 
@@ -396,12 +371,15 @@ func (ga GPXAttributes) ToXMLAttrs() (namespacesReplacement string, replacements
 	return
 }
 
-func convertToGpx11Extension(ext Extension) gpx11Extension {
+func convertToGpx11Extension(ext Extension) *gpx11Extension {
+	if ext == nil {
+		return nil
+	}
 	res := gpx11Extension{}
 	for _, n := range ext {
 		res.Nodes = append(res.Nodes, convertToGpx11ExtensionNode(n))
 	}
-	return res
+	return &res
 }
 func convertToGpx11ExtensionNode(n ExtensionNode) gpx11ExtensionNode {
 	node := gpx11ExtensionNode{
@@ -426,7 +404,10 @@ func convertToGpx11ExtensionNode(n ExtensionNode) gpx11ExtensionNode {
 	return node
 }
 
-func convertFromGpx11Extension(ext gpx11Extension) Extension {
+func convertFromGpx11Extension(ext *gpx11Extension) Extension {
+	if ext == nil {
+		return nil
+	}
 	nodes := []ExtensionNode{}
 	for n := range ext.Nodes {
 		nodes = append(nodes, convertFromGpx11ExtensionNode(ext.Nodes[n]))
@@ -465,11 +446,17 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 	gpx11Doc.XmlNsXsi = gpxDoc.XmlNsXsi
 	gpx11Doc.XmlSchemaLoc = gpxDoc.XmlSchemaLoc
 
-	gpx11Doc.Extensions = convertToGpx11Extension(gpxDoc.Extensions)
-	gpx11Doc.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+	if len(gpxDoc.Extensions) > 0 {
+		gpx11Doc.Extensions = convertToGpx11Extension(gpxDoc.Extensions)
+		if gpxDoc.Attrs.NamespaceAttributes != nil {
+			gpx11Doc.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+		}
+	}
 
 	gpx11Doc.MetadataExtensions = convertToGpx11Extension(gpxDoc.MetadataExtensions)
-	gpx11Doc.MetadataExtensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+	if gpx11Doc.MetadataExtensions != nil {
+		gpx11Doc.MetadataExtensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+	}
 
 	if len(gpxDoc.Creator) == 0 {
 		gpx11Doc.Creator = defaultCreator
@@ -523,7 +510,9 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 		gpx11Doc.Waypoints = make([]*gpx11GpxPoint, len(gpxDoc.Waypoints))
 		for waypointNo, waypoint := range gpxDoc.Waypoints {
 			gpx11Doc.Waypoints[waypointNo] = convertPointToGpx11(&waypoint)
-			gpx11Doc.Waypoints[waypointNo].Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+			if gpxDoc.Attrs.NamespaceAttributes != nil && gpx11Doc.Waypoints[waypointNo].Extensions != nil {
+				gpx11Doc.Waypoints[waypointNo].Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+			}
 		}
 	}
 
@@ -539,7 +528,9 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 			//r.Links = route.Links
 			r.Number = route.Number
 			r.Type = route.Type
-			r.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+			if r.Extensions != nil {
+				r.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+			}
 
 			gpx11Doc.Routes[routeNo] = r
 
@@ -547,7 +538,9 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 				r.Points = make([]*gpx11GpxPoint, len(route.Points))
 				for pointNo, point := range route.Points {
 					r.Points[pointNo] = convertPointToGpx11(&point)
-					r.Points[pointNo].Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+					if r.Points[pointNo].Extensions != nil {
+						r.Points[pointNo].Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+					}
 				}
 			}
 		}
@@ -563,18 +556,26 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 			gpx11Track.Src = track.Source
 			gpx11Track.Number = track.Number
 			gpx11Track.Type = track.Type
-			gpx11Track.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+			if len(track.Extensions) > 0 {
+				if gpxDoc.Attrs.NamespaceAttributes != nil && gpx11Track.Extensions != nil {
+					gpx11Track.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+				}
+			}
 
 			if track.Segments != nil {
 				gpx11Track.Segments = make([]*gpx11GpxTrkSeg, len(track.Segments))
 				for segmentNo, segment := range track.Segments {
 					gpx11Segment := new(gpx11GpxTrkSeg)
-					gpx11Segment.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+					if gpx11Segment.Extensions != nil {
+						gpx11Segment.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+					}
 					if segment.Points != nil {
 						gpx11Segment.Points = make([]*gpx11GpxPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
 							gpx11Segment.Points[pointNo] = convertPointToGpx11(&point)
-							gpx11Segment.Points[pointNo].Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+							if gpx11Segment.Points[pointNo].Extensions != nil {
+								gpx11Segment.Points[pointNo].Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+							}
 						}
 					}
 					gpx11Track.Segments[segmentNo] = gpx11Segment
@@ -683,11 +684,15 @@ func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 			gpxTrack.Source = track.Src
 			gpxTrack.Number = track.Number
 			gpxTrack.Type = track.Type
-			gpxTrack.Extensions = convertFromGpx11Extension(track.Extensions)
+			if track.Extensions != nil {
+				gpxTrack.Extensions = convertFromGpx11Extension(track.Extensions)
+			}
 
 			if track.Segments != nil {
 				gpxTrack.Segments = make([]GPXTrackSegment, len(track.Segments))
-				gpxTrack.Extensions = convertFromGpx11Extension(track.Extensions)
+				if track.Extensions != nil {
+					gpxTrack.Extensions = convertFromGpx11Extension(track.Extensions)
+				}
 				for segmentNo, segment := range track.Segments {
 					gpxSegment := GPXTrackSegment{}
 					gpxSegment.Extensions = convertFromGpx11Extension(segment.Extensions)
@@ -725,30 +730,15 @@ func convertPointToGpx11(original *GPXPoint) *gpx11GpxPoint {
 	result.Type = original.Type
 	result.Fix = original.TypeOfGpsFix
 	result.Extensions = convertToGpx11Extension(original.Extensions)
-	if original.Satellites.NotNull() {
+	if original.Satellites.NotNil() {
 		value := original.Satellites.Value()
 		result.Sat = &value
 	}
-	if original.HorizontalDilution.NotNull() {
-		value := original.HorizontalDilution.Value()
-		result.Hdop = &value
-	}
-	if original.VerticalDilution.NotNull() {
-		value := original.VerticalDilution.Value()
-		result.Vdop = &value
-	}
-	if original.PositionalDilution.NotNull() {
-		value := original.PositionalDilution.Value()
-		result.Pdop = &value
-	}
-	if original.AgeOfDGpsData.NotNull() {
-		value := original.AgeOfDGpsData.Value()
-		result.AgeOfDGpsData = &value
-	}
-	if original.DGpsId.NotNull() {
-		value := original.DGpsId.Value()
-		result.DGpsId = &value
-	}
+	result.Hdop = original.HorizontalDilution
+	result.Vdop = original.VerticalDilution
+	result.Pdop = original.PositionalDilution
+	result.AgeOfDGpsData = original.AgeOfDGpsData
+	result.DGpsId = original.DGpsId
 	return result
 }
 
@@ -774,22 +764,12 @@ func convertPointFromGpx11(original *gpx11GpxPoint) *GPXPoint {
 	result.TypeOfGpsFix = original.Fix
 	result.Extensions = convertFromGpx11Extension(original.Extensions)
 	if original.Sat != nil {
-		result.Satellites = NewNullableInt(*original.Sat)
+		result.Satellites = NewNilableint(*original.Sat)
 	}
-	if original.Hdop != nil {
-		result.HorizontalDilution = NewNullableFloat(*original.Hdop)
-	}
-	if original.Vdop != nil {
-		result.VerticalDilution = NewNullableFloat(*original.Vdop)
-	}
-	if original.Pdop != nil {
-		result.PositionalDilution = NewNullableFloat(*original.Pdop)
-	}
-	if original.AgeOfDGpsData != nil {
-		result.AgeOfDGpsData = NewNullableFloat(*original.AgeOfDGpsData)
-	}
-	if original.DGpsId != nil {
-		result.DGpsId = NewNullableInt(*original.DGpsId)
-	}
+	result.HorizontalDilution = original.Hdop
+	result.VerticalDilution = original.Vdop
+	result.PositionalDilution = original.Pdop
+	result.AgeOfDGpsData = original.AgeOfDGpsData
+	result.DGpsId = original.DGpsId
 	return result
 }
