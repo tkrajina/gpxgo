@@ -74,7 +74,7 @@ func (ex gpx11Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) erro
 	for _, node := range ex.Nodes {
 		prefix := ""
 		for _, v := range ex.globalNsAttrs {
-			if node.SpaceNameURL() == v.AttrValue || node.SpaceNameURL() == v.AttrNameLocal {
+			if node.SpaceNameURL() == v.Value || node.SpaceNameURL() == v.Local {
 				prefix = v.replacement
 			}
 		}

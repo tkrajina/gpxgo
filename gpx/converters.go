@@ -305,15 +305,15 @@ func convertPointFromGpx10(original *gpx10GpxPoint) *GPXPoint {
 // ----------------------------------------------------------------------------------------------------
 
 type NamespaceAttribute struct {
-	AttrNameSpace string
-	AttrNameLocal string
-	AttrValue     string
-	replacement   string
+	Space       string `json:"space,omitempty"`
+	Local       string `json:"local,omitempty"`
+	Value       string `json:"value,omitempty"`
+	replacement string `json:"-"`
 }
 
 type GPXAttributes struct {
 	// NamespaceAttributes by namespace and local name
-	NamespaceAttributes map[string]map[string]NamespaceAttribute
+	NamespaceAttributes map[string]map[string]NamespaceAttribute `json:"nsattrs,omitempty"`
 }
 
 func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
@@ -335,10 +335,10 @@ func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
 			res[space] = map[string]NamespaceAttribute{}
 		}
 		res[space][attr.Name.Local] = NamespaceAttribute{
-			AttrNameSpace: attr.Name.Space,
-			AttrNameLocal: attr.Name.Local,
-			AttrValue:     attr.Value,
-			replacement:   strings.Replace(fmt.Sprint("xmlns_prefix_", rand.Float64()), ".", "", -1),
+			Space:       attr.Name.Space,
+			Local:       attr.Name.Local,
+			Value:       attr.Value,
+			replacement: strings.Replace(fmt.Sprint("xmlns_prefix_", rand.Float64()), ".", "", -1),
 		}
 	}
 	return GPXAttributes{
@@ -348,10 +348,10 @@ func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
 
 func (ga *GPXAttributes) RegisterNamespace(ns, url string) {
 	ga.GetNamespaceAttrs()[ns] = NamespaceAttribute{
-		AttrNameSpace: "xmlns",
-		AttrNameLocal: ns,
-		AttrValue:     url,
-		replacement:   strings.Replace(fmt.Sprint("xmlns_registered_prefix_", rand.Float64()), ".", "", -1),
+		Space:       "xmlns",
+		Local:       ns,
+		Value:       url,
+		replacement: strings.Replace(fmt.Sprint("xmlns_registered_prefix_", rand.Float64()), ".", "", -1),
 	}
 }
 
@@ -383,7 +383,7 @@ func (ga GPXAttributes) ToXMLAttrs() (namespacesReplacement string, replacements
 			} else {
 				key = space + ":" + local
 			}
-			attrsList = append(attrsList, fmt.Sprint(key, `="`, nsInfo.AttrValue, `"`))
+			attrsList = append(attrsList, fmt.Sprint(key, `="`, nsInfo.Value, `"`))
 			if space == "xmlns" {
 				replacements[nsInfo.replacement] = local + ":"
 			}

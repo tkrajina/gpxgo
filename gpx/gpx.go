@@ -184,35 +184,35 @@ func (n ExtensionNode) GetAttrOrEmpty(attr string) string {
 // GPX implements one or multiple GPS tracks that can be written to and parsed
 // from a gpx file
 type GPX struct {
-	XMLNs        string `json:"-"` // TODO
-	XmlNsXsi     string `json:"-"` // TODO
-	XmlSchemaLoc string `json:"-"` // TODO
+	XMLNs        string `json:"xmlns,omitempty"`
+	XmlNsXsi     string `json:"xmlnsxsi,omitempty"`
+	XmlSchemaLoc string `json:"xmlschemaloc,omitempty"` // TODO
 
-	Attrs GPXAttributes `json:"-"` // TODO
+	Attrs GPXAttributes `json:"attrs,omitempty"` // TODO
 
-	Version          string     `json:"-"` // TODO
-	Creator          string     `json:"-"` // TODO
-	Name             string     `json:"-"` // TODO
-	Description      string     `json:"-"` // TODO
-	AuthorName       string     `json:"-"` // TODO
-	AuthorEmail      string     `json:"-"` // TODO
-	AuthorLink       string     `json:"-"` // TODO
-	AuthorLinkText   string     `json:"-"` // TODO
-	AuthorLinkType   string     `json:"-"` // TODO
-	Copyright        string     `json:"-"` // TODO
-	CopyrightYear    string     `json:"-"` // TODO
-	CopyrightLicense string     `json:"-"` // TODO
-	Link             string     `json:"-"` // TODO
-	LinkText         string     `json:"-"` // TODO
-	LinkType         string     `json:"-"` // TODO
-	Time             *time.Time `json:"-"` // TODO
-	Keywords         string     `json:"-"` // TODO
+	Version          string     `json:"version,omitempty"`
+	Creator          string     `json:"creator,omitempty"`
+	Name             string     `json:"name,omitempty"`
+	Description      string     `json:"desc,omitempty"`
+	AuthorName       string     `json:"authorname,omitempty"`
+	AuthorEmail      string     `json:"authoremail,omitempty"`
+	AuthorLink       string     `json:"authorlink,omitempty"`
+	AuthorLinkText   string     `json:"authorlinktext,omitempty"`
+	AuthorLinkType   string     `json:"authorlinktype,omitempty"`
+	Copyright        string     `json:"copyright,omitempty"`
+	CopyrightYear    string     `json:"copyrightyear,omitempty"`
+	CopyrightLicense string     `json:"copyrightlicense,omitempty"`
+	Link             string     `json:"link,omitempty"`
+	LinkText         string     `json:"linktext,omitempty"`
+	LinkType         string     `json:"linktype,omitempty"`
+	Time             *time.Time `json:"time" ts_type:"string|undefined"`
+	Keywords         string     `json:"keywords,omitempty"`
 
-	Waypoints          []GPXPoint `json:"-"` // TODO
-	Routes             []GPXRoute `json:"-"` // TODO
-	Tracks             []GPXTrack `json:"tracks"`
-	Extensions         Extension  `json:"ext"`
-	MetadataExtensions Extension  `json:"-"` // TODO
+	Waypoints          []GPXPoint `json:"waypoints,omitempty"`
+	Routes             []GPXRoute `json:"routes,omitempty"`
+	Tracks             []GPXTrack `json:"tracks,omitempty"`
+	Extensions         Extension  `json:"ext,omitempty"`
+	MetadataExtensions Extension  `json:"metadataExt,omitempty"`
 }
 
 func (g *GPX) RegisterNamespace(ns, url string) {
@@ -870,30 +870,27 @@ type TrackPosition struct {
 // GPXPoint represents a point of the gpx file
 type GPXPoint struct {
 	Point
-	// TODO
-	Timestamp time.Time `json:"-"` // TODO
-	// TODO: Type
-	MagneticVariation string `json:"-"` // TODO
-	// TODO: Type
-	GeoidHeight string `json:"-"` // TODO
+	Timestamp         time.Time `json:"time,omitempty" ts_type:"string|undefined"`
+	MagneticVariation string    `json:"magvar,omitempty"`      // TODO enum?
+	GeoidHeight       string    `json:"geoidheight,omitempty"` // TODO
 	// Description info
-	Name        string `json:"-"` // TODO
-	Comment     string `json:"-"` // TODO
-	Description string `json:"-"` // TODO
-	Source      string `json:"-"` // TODO
+	Name        string `json:"name,omitempty"`
+	Comment     string `json:"cmt,omitempty"`
+	Description string `json:"desc,omitempty"`
+	Source      string `json:"src,omitempty"`
 	// TODO
 	// Links       []GpxLink
-	Symbol string `json:"-"` // TODO
-	Type   string `json:"-"` // TODO
+	Symbol string `json:"sym,omitempty"`
+	Type   string `json:"type,omitempty"`
 	// Accuracy info
-	TypeOfGpsFix       string        `json:"-"` // TODO
-	Satellites         NullableInt   `json:"-"` // TODO
-	HorizontalDilution NullableFloat `json:"-"` // TODO
-	VerticalDilution   NullableFloat `json:"-"` // TODO
-	PositionalDilution NullableFloat `json:"-"` // TODO
-	AgeOfDGpsData      NullableFloat `json:"-"` // TODO
-	DGpsId             NullableInt   `json:"-"` // TODO
-	Extensions         Extension     `json:"-"` // TODO
+	TypeOfGpsFix       string        `json:"fix,omitempty"`
+	Satellites         NullableInt   `json:"sat,omitempty"`
+	HorizontalDilution NullableFloat `json:"hdop,omitempty"`
+	VerticalDilution   NullableFloat `json:"vdop,omitempty"`
+	PositionalDilution NullableFloat `json:"pdop,omitempty"`
+	AgeOfDGpsData      NullableFloat `json:"ageofdgpsdata,omitempty"`
+	DGpsId             NullableInt   `json:"dgpsid,omitempty"`
+	Extensions         Extension     `json:"ext,omitempty"`
 }
 
 // SpeedBetween calculates the speed between two GpxWpts.
@@ -937,16 +934,16 @@ func (pt *GPXPoint) MaxDilutionOfPrecision() float64 {
 
 // GPXRoute implements a gpx route
 type GPXRoute struct {
-	Name        string `json:"-"` // TODO
-	Comment     string `json:"-"` // TODO
-	Description string `json:"-"` // TODO
-	Source      string `json:"-"` // TODO
+	Name        string `json:"name,omitempty"`
+	Comment     string `json:"cmt,omitempty"`
+	Description string `json:"desc,omitempty"`
+	Source      string `json:"src,omitempty"`
 	// TODO
 	//Links       []Link
-	Number     NullableInt `json:"-"` // TODO
-	Type       string      `json:"-"` // TODO
-	Points     []GPXPoint  `json:"-"` // TODO
-	Extensions Extension   `json:"-"` // TODO
+	Number     NullableInt `json:"number,omitempty"`
+	Type       string      `json:"type,omitempty"`
+	Points     []GPXPoint  `json:"pts,omitempty"`
+	Extensions Extension   `json:"ext,omitempty"`
 }
 
 // Length returns the length of a GPX route.
@@ -991,8 +988,8 @@ func (rte *GPXRoute) ExecuteOnPoints(executor func(*GPXPoint)) {
 
 // GPXTrackSegment represents a segment of a track
 type GPXTrackSegment struct {
-	Points     []GPXPoint `json:"points"`
-	Extensions Extension  `json:"-"` // TODO
+	Points     []GPXPoint `json:"points,omitempty"`
+	Extensions Extension  `json:"ext,omitempty"`
 }
 
 // Length2D returns the 2D length of a GPX segment.
@@ -1471,16 +1468,16 @@ func (seg *GPXTrackSegment) addMissingTimeInSegment(start, end int) {
 
 // GPXTrack implements a gpx track
 type GPXTrack struct {
-	Name        string `json:"-"` // TODO
-	Comment     string `json:"-"` // TODO
-	Description string `json:"-"` // TODO
-	Source      string `json:"-"` // TODO
+	Name        string `json:"name,omitempty"`
+	Comment     string `json:"cmt,omitempty"`
+	Description string `json:"desc,omitempty"`
+	Source      string `json:"src,omitempty"`
 	// TODO
 	//Links    []Link
-	Number     NullableInt       `json:"-"` // TODO
-	Type       string            `json:"-"` // TODO
+	Number     NullableInt       `json:"number,omitempty"`
+	Type       string            `json:"type,omitempty"`
 	Segments   []GPXTrackSegment `json:"segments"`
-	Extensions Extension         `json:"-"` // TODO
+	Extensions Extension         `json:"ext,omitempty"`
 }
 
 // Length2D returns the 2D length of a GPX track.
