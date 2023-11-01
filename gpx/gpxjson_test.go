@@ -252,7 +252,7 @@ func testGPXJSON(t *testing.T, g GPX) {
 	assert.Nil(t, err)
 
 	fmt.Println("reparsed:", jsonizeFormatted(reparsedFromXML))
-	assert.Equal(t, jsonizeFormatted(g), jsonizeFormatted(reparsedFromXML))
+	assert.Equal(t, jsonizeFormatted(cleanReparsed(g)), jsonizeFormatted(cleanReparsed(*reparsedFromXML)))
 	if t.Failed() {
 		t.FailNow()
 	}
@@ -262,7 +262,7 @@ func testGPXJSON(t *testing.T, g GPX) {
 		t.FailNow()
 	}
 
-	assert.Equal(t, g, *reparsedFromXML)
+	assert.Equal(t, cleanReparsed(g), cleanReparsed(*reparsedFromXML))
 
 	if t.Failed() {
 		t.FailNow()
@@ -286,6 +286,15 @@ func testGPXJSON(t *testing.T, g GPX) {
 
 func cleanReparsed(g GPX) GPX {
 	g.Attrs = cleanReparsedAttrs(g.Attrs)
+	if g.Creator == "" {
+		g.Creator = defaultCreator
+	}
+	if g.XMLNs == "" {
+		g.XMLNs = "http://www.topografix.com/GPX/1/1"
+	}
+	if g.Version == "" {
+		g.Version = "1.1"
+	}
 	return g
 }
 

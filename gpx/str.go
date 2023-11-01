@@ -10,5 +10,9 @@ func formatNumber(f float64) string {
 	if f == math.Round(f) {
 		return fmt.Sprintf("%d", int(f))
 	}
-	return strings.TrimRight(fmt.Sprintf("%.10f", f), "0")
+	res := fmt.Sprintf("%.10f", f)
+	if strings.Contains(res, ".") {
+		return strings.TrimRight(res, "0")
+	}
+	return res
 }

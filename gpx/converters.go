@@ -390,7 +390,7 @@ func convertToGpx11ExtensionNode(n ExtensionNode) gpx11ExtensionNode {
 			Space: n.NameSpace,
 			Local: n.NameLocal,
 		},
-		Data: n.Data,
+		Data: strings.TrimSpace(n.Data),
 	}
 	for _, attr := range n.Attrs {
 		node.Attrs = append(node.Attrs, xml.Attr{
@@ -422,7 +422,7 @@ func convertFromGpx11ExtensionNode(n gpx11ExtensionNode) ExtensionNode {
 	res := ExtensionNode{
 		NameSpace: n.XMLName.Space,
 		NameLocal: n.XMLName.Local,
-		Data:      n.Data,
+		Data:      strings.TrimSpace(n.Data),
 	}
 	for _, attr := range n.Attrs {
 		res.Attrs = append(res.Attrs, ExtensionNodeAttr{
