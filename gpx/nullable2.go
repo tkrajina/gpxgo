@@ -7,6 +7,7 @@ package gpx
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -34,6 +35,9 @@ func (f *NilableFloat64) Value() float64 {
 }
 
 var _ xml.Unmarshaler = new(NilableFloat64)
+var _ xml.UnmarshalerAttr = new(NilableFloat64)
+var _ xml.Marshaler = new(NilableFloat64)
+var _ xml.MarshalerAttr = new(NilableFloat64)
 
 func (f *NilableFloat64) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	t, err := d.Token()
@@ -52,6 +56,43 @@ func (f *NilableFloat64) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 	}
 	d.Skip()
 	return nil
+}
+
+func (n *NilableFloat64) UnmarshalXMLAttr(attr xml.Attr) error {
+	strData := strings.Trim(string(attr.Value), " ")
+	value, err := strconv.ParseFloat(strData, 64)
+	if err != nil {
+		n = nil
+		return err
+	}
+	*n = *NewNilableFloat64(value)
+	return nil
+}
+
+// MarshalXML implements xml marshalling
+func (n *NilableFloat64) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if n.Nil() {
+		return nil
+	}
+	xmlName := xml.Name{Local: start.Name.Local}
+	if err := e.EncodeToken(xml.StartElement{Name: xmlName}); err != nil {
+		return err
+	}
+	e.EncodeToken(xml.CharData([]byte(formatNumber(n.Value()))))
+	e.EncodeToken(xml.EndElement{Name: xmlName})
+	return nil
+}
+
+// MarshalXMLAttr implements xml attribute marshalling
+func (n *NilableFloat64) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+	var result xml.Attr
+	if n.Nil() {
+		return result, nil
+	}
+	return xml.Attr{
+		Name:  xml.Name{Local: name.Local},
+		Value: formatNumber(n.Value()),
+	}, nil
 }
 
 type NilableInt float64
@@ -77,6 +118,9 @@ func (f *NilableInt) Value() int {
 }
 
 var _ xml.Unmarshaler = new(NilableInt)
+var _ xml.UnmarshalerAttr = new(NilableInt)
+var _ xml.Marshaler = new(NilableInt)
+var _ xml.MarshalerAttr = new(NilableInt)
 
 func (f *NilableInt) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	t, err := d.Token()
@@ -86,13 +130,50 @@ func (f *NilableInt) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error 
 	}
 	if charData, ok := t.(xml.CharData); ok {
 		strData := strings.Trim(string(charData), " ")
-		value, err := strconv.ParseInt(strData, 10, 64)
+		value, err := strconv.ParseFloat(strData, 64)
 		if err != nil {
 			f = nil
-			return nil
+			return err
 		}
 		*f = *NewNilableint(int(value))
 	}
 	d.Skip()
 	return nil
+}
+
+func (n *NilableInt) UnmarshalXMLAttr(attr xml.Attr) error {
+	strData := strings.Trim(string(attr.Value), " ")
+	value, err := strconv.ParseFloat(strData, 64)
+	if err != nil {
+		n = nil
+		return err
+	}
+	*n = *NewNilableint(int(value))
+	return nil
+}
+
+// MarshalXML implements xml marshalling
+func (n *NilableInt) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if n.Nil() {
+		return nil
+	}
+	xmlName := xml.Name{Local: start.Name.Local}
+	if err := e.EncodeToken(xml.StartElement{Name: xmlName}); err != nil {
+		return err
+	}
+	e.EncodeToken(xml.CharData([]byte(fmt.Sprintf("%d", n.Value()))))
+	e.EncodeToken(xml.EndElement{Name: xmlName})
+	return nil
+}
+
+// MarshalXMLAttr implements xml attribute marshalling
+func (n *NilableInt) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+	var result xml.Attr
+	if n.Nil() {
+		return result, nil
+	}
+	return xml.Attr{
+			Name:  xml.Name{Local: name.Local},
+			Value: fmt.Sprintf("%d", n.Value())},
+		nil
 }
