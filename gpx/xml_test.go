@@ -27,18 +27,19 @@ func TestParseTime(t *testing.T) {
 }
 
 type testXml struct {
-	XMLName   xml.Name      `xml:"gpx"`
-	Float     NullableFloat `xml:"float"`
-	Int       NullableInt   `xml:"int"`
-	FloatAttr NullableFloat `xml:"floatattr,attr"`
-	IntAttr   NullableInt   `xml:"intattr,attr"`
+	XMLName   xml.Name        `xml:"gpx"`
+	Float     *NilableFloat64 `xml:"float"`
+	Int       *NilableInt     `xml:"int"`
+	FloatAttr *NilableFloat64 `xml:"floatattr,attr"`
+	IntAttr   *NilableInt     `xml:"intattr,attr"`
 }
 
 func TestInvalidFloat(t *testing.T) {
 	xmlStr := `<gpx floatattr="1"><float>...a</float></gpx>`
 	testXmlDoc := testXml{}
-	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
-	if testXmlDoc.Float.NotNull() {
+	err := xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
+	assert.NotNil(t, err)
+	if testXmlDoc.Float.Nil() {
 		t.Error("Float is invalid in ", xmlStr)
 	}
 }
@@ -61,10 +62,10 @@ func TestValidFloat3(t *testing.T) {
 func testFloat(xmlStr string, expectedFloat float64, expectedFloatAttribute float64, expectedXml string, t *testing.T) {
 	testXmlDoc := testXml{}
 	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
-	if testXmlDoc.Float.Null() || testXmlDoc.Float.Value() != expectedFloat {
+	if testXmlDoc.Float.Nil() || testXmlDoc.Float.Value() != expectedFloat {
 		t.Error("Float invalid ", xmlStr)
 	}
-	if testXmlDoc.FloatAttr.Null() || testXmlDoc.FloatAttr.Value() != expectedFloatAttribute {
+	if testXmlDoc.FloatAttr.Nil() || testXmlDoc.FloatAttr.Value() != expectedFloatAttribute {
 		t.Error("Float attribute invalid ", xmlStr)
 	}
 	bytes, err := xml.Marshal(testXmlDoc)
@@ -95,10 +96,10 @@ func TestValidInt3(t *testing.T) {
 func testInt(xmlStr string, expectedInt int, expectedIntAttribute int, expectedXml string, t *testing.T) {
 	testXmlDoc := testXml{}
 	xml.Unmarshal([]byte(xmlStr), &testXmlDoc)
-	if testXmlDoc.Int.Null() || testXmlDoc.Int.Value() != expectedInt {
+	if testXmlDoc.Int.Nil() || testXmlDoc.Int.Value() != expectedInt {
 		t.Error("Int invalid ", xmlStr)
 	}
-	if testXmlDoc.IntAttr.Null() || testXmlDoc.IntAttr.Value() != expectedIntAttribute {
+	if testXmlDoc.IntAttr.Nil() || testXmlDoc.IntAttr.Value() != expectedIntAttribute {
 		t.Error("Int attribute valid ", xmlStr)
 	}
 	bytes, err := xml.Marshal(testXmlDoc)
@@ -106,9 +107,7 @@ func testInt(xmlStr string, expectedInt int, expectedIntAttribute int, expectedX
 		t.Error("Error marshalling:", err.Error())
 	}
 
-	if string(bytes) != expectedXml {
-		t.Error("Invalid marshalled xml:", string(bytes), "expected:", expectedXml)
-	}
+	assert.Equal(t, string(bytes), expectedXml)
 }
 
 func TestGuessVersion(t *testing.T) {

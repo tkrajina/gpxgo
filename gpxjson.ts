@@ -1,4 +1,31 @@
 
+export class GPXTrackSegment {
+    points?: GPXPoint[];
+    ext?: ExtensionNode[];
+}
+export class GPXTrack {
+    name?: string;
+    cmt?: string;
+    desc?: string;
+    src?: string;
+    number?: number;
+    type?: string;
+    segments: GPXTrackSegment[];
+    ext?: ExtensionNode[];
+}
+export class NullableInt {
+
+}
+export class GPXRoute {
+    name?: string;
+    cmt?: string;
+    desc?: string;
+    src?: string;
+    number?: NullableInt;
+    type?: string;
+    pts?: GPXPoint[];
+    ext?: ExtensionNode[];
+}
 export class ExtensionNodeAttr {
     ns?: string;
     name?: string;
@@ -11,20 +38,27 @@ export class ExtensionNode {
     data?: string;
     nodes?: ExtensionNode[];
 }
-export class GPXTrackSegment {
-    points: GPXPoint[];
-}
-export class GPXTrack {
-    segments: GPXTrackSegment[];
-}
-export class GPXRoute {
-
-}
 export class GPXPoint {
     lat: number;
     lon: number;
-    ele: number|undefined;
-    ts: string|undefined;
+    ele?: number|undefined;
+    time?: string|undefined;
+    magvar?: string;
+    geoidheight?: string;
+    name?: string;
+    cmt?: string;
+    desc?: string;
+    src?: string;
+    sym?: string;
+    type?: string;
+    fix?: string;
+    sat?: number;
+    hdop?: number;
+    vdop?: number;
+    pdop?: number;
+    ageofdgpsdata?: number;
+    dgpsid?: number;
+    ext?: ExtensionNode[];
 }
 export class GPXAttributes {
     nsattrs?: {[key: string]: };
@@ -37,7 +71,7 @@ export class GPX {
     version?: string;
     creator?: string;
     name?: string;
-    description?: string;
+    desc?: string;
     authorname?: string;
     authoremail?: string;
     authorlink?: string;
@@ -52,8 +86,8 @@ export class GPX {
     time?: string|undefined;
     keywords?: string;
     waypoints?: GPXPoint[];
-    routes?: GPXRoute[];
-    tracks?: GPXTrack[];
+    rte?: GPXRoute[];
+    trk: GPXTrack[];
     ext?: ExtensionNode[];
     metadataExt?: ExtensionNode[];
 }

@@ -1,13 +1,16 @@
 package gpx
 
 import (
+	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"os"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/html/charset"
 )
 
 func TestJSONEmptyGPX(t *testing.T) {
@@ -147,6 +150,54 @@ func TestWithExtension(t *testing.T) {
 	testGPXJSON(t, *g)
 }
 
+func TestWithGPXAttrs(t *testing.T) {
+	t.Parallel()
+
+	xmlStr := `<?xml version="1.0" encoding="UTF-8"?>
+<gpx
+  version="1.0"
+  creator="GPSBabel - http://www.gpsbabel.org"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.topografix.com/GPX/1/0"
+  xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd"></gpx>`
+
+	{
+		g := &gpx10Gpx{}
+		decoder := xml.NewDecoder(bytes.NewBufferString(xmlStr))
+		decoder.CharsetReader = charset.NewReaderLabel
+		assert.Nil(t, decoder.Decode(&g))
+		fmt.Println(g.Attrs)
+	}
+
+	g, err := ParseString(xmlStr)
+	assert.NotNil(t, g)
+	assert.Nil(t, err)
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	testGPXJSON(t, *g)
+}
+
+func TestParseGPXAttrs(t *testing.T) {
+	t.Parallel()
+
+	xmlStr := `<?xml version="1.0" encoding="UTF-8"?>
+<gpx
+  version="1.0"
+  creator="GPSBabel - http://www.gpsbabel.org"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.topografix.com/GPX/1/0"
+  xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd"></gpx>`
+
+	g, err := ParseString(xmlStr)
+	assert.Nil(t, err)
+	assert.NotNil(t, g)
+
+	xml, _ := g.ToXml(ToXmlParams{})
+	fmt.Println("xml=", string(xml))
+}
+
 func TestGPXJSONForAllTestFiles(t *testing.T) {
 	t.Parallel()
 
@@ -166,11 +217,25 @@ func TestGPXJSONForAllTestFiles(t *testing.T) {
 }
 
 func testGPXJSON(t *testing.T, g GPX) {
+	byts, _ := g.ToXml(ToXmlParams{})
+	fmt.Println("1:", string(byts))
 
 	reparsedFromXML, err := reparse(g)
 	assert.Nil(t, err)
 
-	assert.Equal(t, cleanReparsed(g), cleanReparsed(*reparsedFromXML))
+	byts, _ = reparsedFromXML.ToXml(ToXmlParams{})
+	fmt.Println("2:", string(byts))
+
+	assert.Equal(t, g.Attrs, reparsedFromXML.Attrs)
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	fmt.Println(g.Attrs)
+	fmt.Println(reparsedFromXML.Attrs)
+	fmt.Println(g.Version, reparsedFromXML.Version)
+
+	assert.Equal(t, g, *reparsedFromXML)
 
 	if t.Failed() {
 		t.FailNow()
@@ -183,6 +248,9 @@ func testGPXJSON(t *testing.T, g GPX) {
 	var unmarshaled GPX
 	err = json.Unmarshal(jsn, &unmarshaled)
 	assert.Nil(t, err)
+
+	byts, _ = unmarshaled.ToXml(ToXmlParams{})
+	fmt.Println("3:", string(byts))
 
 	assert.Equal(t, cleanReparsed(g), cleanReparsed(unmarshaled))
 	if t.Failed() {

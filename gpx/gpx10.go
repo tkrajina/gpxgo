@@ -216,7 +216,7 @@ type gpx10GpxRte struct {
 	Src     string   `xml:"src,omitempty"`
 	// TODO
 	//Links       []Link   `xml:"link"`
-	Number NullableInt      `xml:"number,omitempty"`
+	Number *NilableInt      `xml:"number,omitempty"`
 	Type   string           `xml:"type,omitempty"`
 	Points []*gpx10GpxPoint `xml:"rtept"`
 }

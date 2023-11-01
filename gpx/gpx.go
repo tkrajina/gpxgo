@@ -940,7 +940,7 @@ type GPXRoute struct {
 	Source      string `json:"src,omitempty"`
 	// TODO
 	//Links       []Link
-	Number     NullableInt `json:"number,omitempty"`
+	Number     *NilableInt `json:"number,omitempty"`
 	Type       string      `json:"type,omitempty"`
 	Points     []GPXPoint  `json:"pts,omitempty"`
 	Extensions Extension   `json:"ext,omitempty"`
