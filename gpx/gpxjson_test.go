@@ -226,7 +226,7 @@ func testGPXJSON(t *testing.T, g GPX) {
 	byts, _ = reparsedFromXML.ToXml(ToXmlParams{})
 	fmt.Println("2:", string(byts))
 
-	assert.Equal(t, g.Attrs, reparsedFromXML.Attrs)
+	assert.Equal(t, cleanReparsedAttrs(g.Attrs), cleanReparsedAttrs(reparsedFromXML.Attrs))
 	if t.Failed() {
 		t.FailNow()
 	}
@@ -259,15 +259,20 @@ func testGPXJSON(t *testing.T, g GPX) {
 }
 
 func cleanReparsed(g GPX) GPX {
-	if len(g.Attrs.NamespaceAttributes) == 0 {
-		g.Attrs.NamespaceAttributes = nil
-		return g
+	g.Attrs = cleanReparsedAttrs(g.Attrs)
+	return g
+}
+
+func cleanReparsedAttrs(attrs GPXAttributes) GPXAttributes {
+	if len(attrs.NamespaceAttributes) == 0 {
+		attrs.NamespaceAttributes = nil
+		return attrs
 	}
-	for k, v := range g.Attrs.NamespaceAttributes {
+	for k, v := range attrs.NamespaceAttributes {
 		for k2, v2 := range v {
 			v2.replacement = ""
-			g.Attrs.NamespaceAttributes[k][k2] = v2
+			attrs.NamespaceAttributes[k][k2] = v2
 		}
 	}
-	return g
+	return attrs
 }
