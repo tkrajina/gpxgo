@@ -198,6 +198,35 @@ func TestParseGPXAttrs(t *testing.T) {
 	fmt.Println("xml=", string(xml))
 }
 
+func TestFileGPX(t *testing.T) {
+	t.Parallel()
+
+	g, err := ParseString(`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="eTrex 10" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">
+	  <trk>
+		<name>17-MRZ-12 16:44:12</name>
+		<extensions>
+		  <gpxx:TrackExtension>
+			<gpxx:DisplayColor>Cyan</gpxx:DisplayColor>
+		  </gpxx:TrackExtension>
+		</extensions>
+	  </trk>
+	</gpx>
+	`)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(g.Tracks[0].Extensions))
+
+	xml, _ := g.ToXml(ToXmlParams{})
+	g2, err := ParseBytes(xml)
+	assert.Nil(t, err)
+	assert.Equal(t, "1.1", g2.Version)
+	assert.Equal(t, 1, len(g2.Tracks[0].Extensions), jsonize(g2.Tracks[0].Extensions))
+
+	// assert.Nil(t, err)
+	// testGPXJSON(t, *g)
+}
+
 func TestGPXJSONForAllTestFiles(t *testing.T) {
 	t.Parallel()
 
@@ -217,23 +246,21 @@ func TestGPXJSONForAllTestFiles(t *testing.T) {
 }
 
 func testGPXJSON(t *testing.T, g GPX) {
-	byts, _ := g.ToXml(ToXmlParams{})
-	fmt.Println("1:", string(byts))
+	fmt.Println("gpx:", jsonizeFormatted(g))
 
 	reparsedFromXML, err := reparse(g)
 	assert.Nil(t, err)
 
-	byts, _ = reparsedFromXML.ToXml(ToXmlParams{})
-	fmt.Println("2:", string(byts))
+	fmt.Println("reparsed:", jsonizeFormatted(reparsedFromXML))
+	assert.Equal(t, jsonizeFormatted(g), jsonizeFormatted(reparsedFromXML))
+	if t.Failed() {
+		t.FailNow()
+	}
 
 	assert.Equal(t, cleanReparsedAttrs(g.Attrs), cleanReparsedAttrs(reparsedFromXML.Attrs))
 	if t.Failed() {
 		t.FailNow()
 	}
-
-	fmt.Println(g.Attrs)
-	fmt.Println(reparsedFromXML.Attrs)
-	fmt.Println(g.Version, reparsedFromXML.Version)
 
 	assert.Equal(t, g, *reparsedFromXML)
 
@@ -241,16 +268,15 @@ func testGPXJSON(t *testing.T, g GPX) {
 		t.FailNow()
 	}
 
-	jsn, err := json.MarshalIndent(g, "", "  ")
-	assert.Nil(t, err, "%#v", err)
-	fmt.Println(string(jsn))
-
 	var unmarshaled GPX
-	err = json.Unmarshal(jsn, &unmarshaled)
+	err = json.Unmarshal([]byte(jsonizeFormatted(reparsedFromXML)), &unmarshaled)
 	assert.Nil(t, err)
 
-	byts, _ = unmarshaled.ToXml(ToXmlParams{})
-	fmt.Println("3:", string(byts))
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	fmt.Println("unmarshalled from reparsed:", jsonizeFormatted(unmarshaled))
 
 	assert.Equal(t, cleanReparsed(g), cleanReparsed(unmarshaled))
 	if t.Failed() {
@@ -275,4 +301,14 @@ func cleanReparsedAttrs(attrs GPXAttributes) GPXAttributes {
 		}
 	}
 	return attrs
+}
+
+func jsonizeFormatted(a any) string {
+	jsn, _ := json.MarshalIndent(a, "", "  ")
+	return string(jsn)
+}
+
+func jsonize(a any) string {
+	jsn, _ := json.Marshal(a)
+	return string(jsn)
 }

@@ -771,7 +771,7 @@ func TestToXml(t *testing.T) {
 	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="eTrex 10">
 	<metadata>
-        <author></author>
+		<author></author>
 		<link href="http://www.garmin.com">
 			<text>Garmin International</text>
 		</link>
@@ -797,7 +797,7 @@ func TestToXml(t *testing.T) {
 				<time>2012-03-17T12:46:19Z</time>
 				<extensions>
 					<gpxtpx:TrackPointExtension>
-							<gpxtpx:cad>0</gpxtpx:cad>
+						<gpxtpx:cad>0</gpxtpx:cad>
 					</gpxtpx:TrackPointExtension>
 				</extensions>
 			</trkpt>
@@ -806,7 +806,7 @@ func TestToXml(t *testing.T) {
 				<time>2012-03-17T12:46:44Z</time>
 				<extensions>
 					<gpxtpx:TrackPointExtension>
-							<gpxtpx:cad>0</gpxtpx:cad>
+						<gpxtpx:cad>0</gpxtpx:cad>
 					</gpxtpx:TrackPointExtension>
 				</extensions>
 			</trkpt>
@@ -815,7 +815,7 @@ func TestToXml(t *testing.T) {
 				<time>2012-03-17T12:47:01Z</time>
 				<extensions>
 					<gpxtpx:TrackPointExtension>
-							<gpxtpx:cad>0</gpxtpx:cad>
+						<gpxtpx:cad>0</gpxtpx:cad>
 					</gpxtpx:TrackPointExtension>
 				</extensions>
 			</trkpt>
@@ -824,17 +824,22 @@ func TestToXml(t *testing.T) {
 				<time>2012-03-17T12:47:23Z</time>
 				<extensions>
 					<gpxtpx:TrackPointExtension>
-							<gpxtpx:cad>0</gpxtpx:cad>
+						<gpxtpx:cad>0</gpxtpx:cad>
 					</gpxtpx:TrackPointExtension>
 				</extensions>
 			</trkpt>
 		</trkseg>
+		<extensions>
+			<gpxx:TrackExtension>
+				<gpxx:DisplayColor>Cyan</gpxx:DisplayColor>
+			</gpxx:TrackExtension>
+		</extensions>
 	</trk>
 </gpx>`
 
 	fmt.Println(xmlA)
 
-	assertLinesEquals(t, xmlE, xmlA)
+	assert.Equal(t, xmlE, xmlA)
 }
 
 func TestNewXml(t *testing.T) {
