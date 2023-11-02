@@ -50,8 +50,7 @@ type gpx11Extension struct {
 	// Attrs   []xml.Attr `xml:",any,attr"`
 	Nodes []gpx11ExtensionNode `xml:",any"`
 
-	// Filled before deserializing:
-	globalNsAttrs map[string]NamespaceAttribute
+	gpx *GPX `xml:"-"`
 }
 
 var _ xml.Marshaler = gpx11Extension{}
@@ -73,7 +72,7 @@ func (ex gpx11Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) erro
 	tokens := []xml.Token{start}
 	for _, node := range ex.Nodes {
 		prefix := ""
-		for _, v := range ex.globalNsAttrs {
+		for _, v := range ex.gpx.Attrs.GetNamespaceAttrs() {
 			if node.SpaceNameURL() == v.Value || node.SpaceNameURL() == v.Local {
 				prefix = v.replacement
 			}

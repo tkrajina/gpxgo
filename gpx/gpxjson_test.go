@@ -248,10 +248,12 @@ func TestGPXJSONForAllTestFiles(t *testing.T) {
 func testGPXJSON(t *testing.T, g GPX) {
 	fmt.Println("gpx:", jsonizeFormatted(g))
 
+	fmt.Println("attrs1", jsonizeFormatted(g.Attrs))
+
 	reparsedFromXML, err := reparse(g)
 	assert.Nil(t, err)
 
-	fmt.Println("reparsed:", jsonizeFormatted(reparsedFromXML))
+	fmt.Println("reparsed:", jsonizeFormatted(reparsedFromXML.Attrs))
 	assert.Equal(t, jsonizeFormatted(cleanReparsed(g)), jsonizeFormatted(cleanReparsed(*reparsedFromXML)))
 	if t.Failed() {
 		t.FailNow()
@@ -271,6 +273,8 @@ func testGPXJSON(t *testing.T, g GPX) {
 	var unmarshaled GPX
 	err = json.Unmarshal([]byte(jsonizeFormatted(reparsedFromXML)), &unmarshaled)
 	assert.Nil(t, err)
+
+	fmt.Println("attrs unmarshalled", jsonizeFormatted(g.Attrs))
 
 	if t.Failed() {
 		t.FailNow()

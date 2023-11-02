@@ -377,8 +377,7 @@ func convertToGpx11Extension(ext Extension, gpxDoc GPX) *gpx11Extension {
 	if ext == nil {
 		return nil
 	}
-	res := gpx11Extension{}
-	res.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
+	res := gpx11Extension{gpx: &gpxDoc}
 	for _, n := range ext {
 		res.Nodes = append(res.Nodes, convertToGpx11ExtensionNode(n))
 	}
@@ -549,9 +548,7 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 				gpx11Track.Segments = make([]*gpx11GpxTrkSeg, len(track.Segments))
 				for segmentNo, segment := range track.Segments {
 					gpx11Segment := new(gpx11GpxTrkSeg)
-					if gpx11Segment.Extensions != nil {
-						gpx11Segment.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
-					}
+					gpx11Segment.Extensions = convertToGpx11Extension(segment.Extensions, *gpxDoc)
 					if segment.Points != nil {
 						gpx11Segment.Points = make([]*gpx11GpxPoint, len(segment.Points))
 						for pointNo, point := range segment.Points {
