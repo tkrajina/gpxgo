@@ -72,8 +72,12 @@ func (ex gpx11Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) erro
 	start = xml.StartElement{Name: xml.Name{Local: start.Name.Local}, Attr: nil}
 	tokens := []xml.Token{start}
 	for _, node := range ex.Nodes {
+		nsByURLs := ex.gpx.Attrs.GetNamespacesByURLs()
+		prefix := ""
 		fmt.Println("find prefix from ", node.XMLName.Space)
-		prefix := "find_prefix:"
+		if ns, found := nsByURLs[node.XMLName.Space]; found {
+			prefix = ns + ":"
+		}
 		tokens = append(tokens, node.toTokens(prefix)...)
 	}
 

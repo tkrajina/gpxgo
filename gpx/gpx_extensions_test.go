@@ -198,7 +198,7 @@ func TestCreateExtensionWithoutNamespace(t *testing.T) {
 		byts, err := g.ToXml(ToXmlParams{Indent: true})
 		assert.Nil(t, err)
 		expected := `<?xml version="1.0" encoding="UTF-8"?>
-<gpx  xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+<gpx version="1.1" creator="https://github.com/tkrajina/gpxgo" xmlns="http://www.topografix.com/GPX/1/1" >
        <metadata>
                <author></author>
                <extensions>
@@ -279,7 +279,7 @@ func TestCreateMetadataExtensionWithNamespace(t *testing.T) {
 		byts, err := g.ToXml(ToXmlParams{Indent: true})
 		assert.Nil(t, err)
 		expected := `<?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns:ext="http://trla.baba.lan" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+<gpx version="1.1" creator="https://github.com/tkrajina/gpxgo" xmlns="http://www.topografix.com/GPX/1/1" xmlns:ext="http://trla.baba.lan">
        <metadata>
                <author></author>
                <extensions>
@@ -360,7 +360,7 @@ func TestCreateExtensionWithNamespace(t *testing.T) {
 		byts, err := g.ToXml(ToXmlParams{Indent: true})
 		assert.Nil(t, err)
 		expected := `<?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns:ext="http://trla.baba.lan" xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+<gpx version="1.1" creator="https://github.com/tkrajina/gpxgo" xmlns="http://www.topografix.com/GPX/1/1" xmlns:ext="http://trla.baba.lan">
 		<metadata>
   			<author></author>
         </metadata>

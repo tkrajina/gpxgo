@@ -338,6 +338,18 @@ func (ga *GPXAttributes) RegisterNamespace(ns, url string) {
 	}
 }
 
+func (ga *GPXAttributes) GetNamespacesByURLs() map[string]string {
+	xmlns, found := ga.NamespaceAttributes["xmlns"]
+	if !found {
+		return nil
+	}
+	res := make(map[string]string)
+	for ns, value := range xmlns {
+		res[value.Value] = ns
+	}
+	return res
+}
+
 func (ga GPXAttributes) ToXMLAttrs() (namespacesReplacement string, replacements map[string]string) {
 	var keys []string
 	for k := range ga.NamespaceAttributes {
