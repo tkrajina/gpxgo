@@ -2,6 +2,7 @@ package gpx
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strings"
 )
 
@@ -53,7 +54,7 @@ type gpx11Extension struct {
 	gpx *GPX `xml:"-"`
 }
 
-var _ xml.Marshaler = gpx11Extension{}
+// var _ xml.Marshaler = gpx11Extension{}
 
 func (ex gpx11Extension) debugXMLChunk() []byte {
 	byts, err := xml.MarshalIndent(ex, "", "    ")
@@ -71,12 +72,8 @@ func (ex gpx11Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) erro
 	start = xml.StartElement{Name: xml.Name{Local: start.Name.Local}, Attr: nil}
 	tokens := []xml.Token{start}
 	for _, node := range ex.Nodes {
-		prefix := ""
-		for _, v := range ex.gpx.Attrs.GetNamespaceAttrs() {
-			if node.SpaceNameURL() == v.Value || node.SpaceNameURL() == v.Local {
-				prefix = v.replacement
-			}
-		}
+		fmt.Println("find prefix from ", node.XMLName.Space)
+		prefix := "find_prefix:"
 		tokens = append(tokens, node.toTokens(prefix)...)
 	}
 

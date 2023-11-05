@@ -324,22 +324,18 @@ func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
 }
 
 func (ga *GPXAttributes) RegisterNamespace(ns, url string) {
-	ga.GetNamespaceAttrs()[ns] = NamespaceAttribute{
-		Space:       "xmlns",
-		Local:       ns,
-		Value:       url,
-		replacement: strings.Replace(fmt.Sprint("xmlns_registered_prefix_", rand.Float64()), ".", "", -1),
-	}
-}
-
-func (ga *GPXAttributes) GetNamespaceAttrs() map[string]NamespaceAttribute {
 	if ga.NamespaceAttributes == nil {
 		ga.NamespaceAttributes = make(map[string]map[string]NamespaceAttribute)
 	}
 	if _, found := ga.NamespaceAttributes["xmlns"]; !found {
 		ga.NamespaceAttributes["xmlns"] = make(map[string]NamespaceAttribute)
 	}
-	return ga.NamespaceAttributes["xmlns"]
+	ga.NamespaceAttributes["xmlns"][ns] = NamespaceAttribute{
+		Space:       "xmlns",
+		Local:       ns,
+		Value:       url,
+		replacement: strings.Replace(fmt.Sprint("xmlns_registered_prefix_", rand.Float64()), ".", "", -1),
+	}
 }
 
 func (ga GPXAttributes) ToXMLAttrs() (namespacesReplacement string, replacements map[string]string) {

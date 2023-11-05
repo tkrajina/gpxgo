@@ -185,11 +185,10 @@ func (n ExtensionNode) GetAttrOrEmpty(attr string) string {
 // GPX implements one or multiple GPS tracks that can be written to and parsed
 // from a gpx file
 type GPX struct {
-	XMLNs        string `json:"xmlns,omitempty"`
-	XmlNsXsi     string `json:"xmlnsxsi,omitempty"`
-	XmlSchemaLoc string `json:"xmlschemaloc,omitempty"` // TODO
-
-	Attrs GPXAttributes `json:"attrs,omitempty"` // TODO
+	XMLNs        string        `json:"xmlns,omitempty"`
+	XmlNsXsi     string        `json:"xmlnsxsi,omitempty"`
+	XmlSchemaLoc string        `json:"xmlschemaloc,omitempty"` // TODO
+	Attrs        GPXAttributes `json:"attrs,omitempty"`
 
 	Version          string     `json:"version,omitempty"`
 	Creator          string     `json:"creator,omitempty"`
