@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/html/charset"
 )
@@ -285,6 +286,192 @@ func testGPXJSON(t *testing.T, g GPX) {
 	assert.Equal(t, cleanReparsed(g), cleanReparsed(unmarshaled))
 	if t.Failed() {
 		t.FailNow()
+	}
+}
+
+func TestUnmarshalGPXJSONWithNSAttrs(t *testing.T) {
+	t.Parallel()
+
+	var g GPX
+	assert.Nil(t, json.Unmarshal([]byte(`{
+		"xmlns": "http://www.topografix.com/GPX/1/1",
+		"attrs": {
+			"nsattrs": {
+				"xmlns": {
+					"gpxtpx": {
+						"space": "xmlns",
+						"local": "gpxtpx",
+						"value": "http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+					},
+					"xsi": {
+						"space": "xmlns",
+						"local": "xsi",
+						"value": "http://www.w3.org/2001/XMLSchema-instance"
+					}
+				},
+				"xsi": {
+					"schemaLocation": {
+						"space": "http://www.w3.org/2001/XMLSchema-instance",
+						"local": "schemaLocation",
+						"value": "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+					}
+				}
+			}
+		},
+		"waypoints": [
+			{
+				"lat": 37.778259,
+				"lon": -122.391386,
+				"ext": [
+					{
+						"ns": "http://www.garmin.com/xmlschemas/TrackPointExtension/v1",
+						"name": "TrackPointExtension",
+						"nodes": [
+							{
+								"ns": "http://www.garmin.com/xmlschemas/TrackPointExtension/v1",
+								"name": "hr",
+								"data": "171"
+							}
+						]
+					}
+				]
+			}
+		],
+		"trk": null
+	}`), &g))
+
+	assert.Equal(t, 1, len(g.Waypoints))
+	assert.Equal(t, 1, len(g.Waypoints[0].Extensions))
+	{
+		node, found := g.Waypoints[0].Extensions.GetNode(AnyNamespace, "TrackPointExtension")
+		assert.True(t, found)
+		hrNode, found := node.GetNode("hr")
+		assert.True(t, found)
+		assert.Equal(t, hrNode.Data, "171")
+	}
+	{
+		node, found := g.Waypoints[0].Extensions.GetNode(NamespaceURL("http://www.garmin.com/xmlschemas/TrackPointExtension/v1"), "TrackPointExtension")
+		assert.True(t, found)
+		hrNode, found := node.GetNode("hr")
+		assert.True(t, found)
+		assert.Equal(t, hrNode.Data, "171")
+	}
+	{
+		_, found := g.Waypoints[0].Extensions.GetNode(NamespaceURL("jkl"), "TrackPointExtension")
+		assert.False(t, found)
+	}
+
+	spew.Dump(g)
+
+	xml, err := g.ToXml(ToXmlParams{Indent: true})
+	assert.Nil(t, err)
+	assert.Equal(t, `<?xml version="1.0" encoding="UTF-8"?>
+<gpx
+version="1.1"
+creator="Runkeeper - http://www.runkeeper.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://www.topografix.com/GPX/1/1"
+xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1">
+	<wpt lat="37.778259000" lon="-122.391386000">
+		<ele>3.4</ele>
+		<time>2016-06-17T23:41:03Z</time>
+		<extensions>
+			<gpxtpx:TrackPointExtension>
+				<gpxtpx:hr>171</gpxtpx:hr>
+			</gpxtpx:TrackPointExtension>
+		</extensions>
+	</wpt>
+</gpx>`, string(xml))
+
+	if t.Failed() {
+		t.FailNow()
+	}
+}
+
+func TestUnmarshalGPXJSON(t *testing.T) {
+	t.Parallel()
+
+	var g GPX
+	assert.Nil(t, json.Unmarshal([]byte(`{
+		"xmlns": "http://www.topografix.com/GPX/1/1",
+		"attrs": {
+			"nsattrs": {
+				"xmlns": {
+					"gpxtpx": {
+						"space": "xmlns",
+						"local": "gpxtpx",
+						"value": "http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+					},
+					"xsi": {
+						"space": "xmlns",
+						"local": "xsi",
+						"value": "http://www.w3.org/2001/XMLSchema-instance"
+					}
+				},
+				"xsi": {
+					"schemaLocation": {
+						"space": "http://www.w3.org/2001/XMLSchema-instance",
+						"local": "schemaLocation",
+						"value": "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+					}
+				}
+			}
+		},
+		"version": "1.1",
+		"creator": "Runkeeper - http://www.runkeeper.com",
+		"time": null,
+		"waypoints": [
+			{
+				"lat": 37.778259,
+				"lon": -122.391386,
+				"ele": 3.4,
+				"time": "2016-06-17T23:41:03Z",
+				"ext": [
+					{
+						"ns": "http://www.garmin.com/xmlschemas/TrackPointExtension/v1",
+						"name": "TrackPointExtension",
+						"nodes": [
+							{
+								"ns": "http://www.garmin.com/xmlschemas/TrackPointExtension/v1",
+								"name": "hr",
+								"data": "171"
+							}
+						]
+					}
+				]
+			}
+		],
+		"trk": null
+	}`), &g))
+
+	xml, err := g.ToXml(ToXmlParams{Indent: true})
+	assert.Nil(t, err)
+	assert.Equal(t, ``, string(xml))
+
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	assert.Equal(t, 1, len(g.Waypoints))
+	assert.Equal(t, 1, len(g.Waypoints[0].Extensions))
+	{
+		node, found := g.Waypoints[0].Extensions.GetNode(AnyNamespace, "TrackPointExtension")
+		assert.True(t, found)
+		hrNode, found := node.GetNode("hr")
+		assert.True(t, found)
+		assert.Equal(t, hrNode.Data, "171")
+	}
+	{
+		node, found := g.Waypoints[0].Extensions.GetNode(NamespaceURL("http://www.garmin.com/xmlschemas/TrackPointExtension/v1"), "TrackPointExtension")
+		assert.True(t, found)
+		hrNode, found := node.GetNode("hr")
+		assert.True(t, found)
+		assert.Equal(t, hrNode.Data, "171")
+	}
+	{
+		_, found := g.Waypoints[0].Extensions.GetNode(NamespaceURL("jkl"), "TrackPointExtension")
+		assert.False(t, found)
 	}
 }
 
