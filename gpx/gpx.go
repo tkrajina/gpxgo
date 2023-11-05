@@ -6,6 +6,7 @@
 package gpx
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"time"
@@ -223,6 +224,17 @@ func (g *GPX) RegisterNamespace(ns, url string) {
 // Params are optional, you can set null to use GPXs Version and no indentation.
 func (g *GPX) ToXml(params ToXmlParams) ([]byte, error) {
 	return ToXml(g, params)
+}
+
+type ToJSONParams struct {
+	Indent bool
+}
+
+func (g *GPX) ToJSON(params ToJSONParams) ([]byte, error) {
+	if params.Indent {
+		return json.MarshalIndent(g, "", "\t")
+	}
+	return json.Marshal(g)
 }
 
 // GetGpxInfo pretty prints some basic information about this GPX, its track and segments

@@ -10,7 +10,7 @@ import (
 func TestReadExtension(t *testing.T) {
 	t.Parallel()
 
-	original, reparsed := loadAndReparseFile(t, "../test_files/gpx1.1_with_extensions.gpx")
+	original, reparsed, fromJSON := loadAndReparseFile(t, "../test_files/gpx1.1_with_extensions.gpx")
 
 	byts, err := reparsed.ToXml(ToXmlParams{Indent: true})
 	assert.Nil(t, err)
@@ -27,7 +27,7 @@ func TestReadExtension(t *testing.T) {
 	   </extensions>
 	*/
 
-	for n, g := range []GPX{*original, *reparsed} {
+	for n, g := range []GPX{*original, *reparsed, *fromJSON} {
 		fmt.Printf("gpx #%d\n", n)
 
 		exts := []Extension{
@@ -379,14 +379,22 @@ func TestCreateExtensionWithNamespace(t *testing.T) {
 func TestGarminExtensions(t *testing.T) {
 	t.Parallel()
 
-	original, reparsed := loadAndReparseFile(t, "../test_files/gpx_with_garmin_extension.gpx")
+	original, reparsed, fromJSON := loadAndReparseFile(t, "../test_files/gpx_with_garmin_extension.gpx")
 	if t.Failed() {
 		t.FailNow()
 	}
 
-	for n, g := range []GPX{*original, *reparsed} {
+	for n, g := range []GPX{*original, *reparsed, *fromJSON} {
 		fmt.Printf("Test %d\n", n)
+
 		xml, err := g.ToXml(ToXmlParams{})
+		assert.Nil(t, err)
+		fmt.Println("xml:\n", string(xml))
+
+		jsn, err := g.ToJSON(ToJSONParams{Indent: true})
+		assert.Nil(t, err)
+		fmt.Println("json:\n", string(jsn))
+
 		assert.Nil(t, err)
 		assert.Contains(t, string(xml), "<gpxtpx:TrackPointExtension>")
 		assert.Contains(t, string(xml), "<gpxtpx:hr>171</gpxtpx:hr>")

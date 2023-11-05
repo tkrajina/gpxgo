@@ -7,6 +7,7 @@ package gpx
 
 import (
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -124,7 +125,7 @@ func reparse(g GPX) (*GPX, error) {
 	return ParseBytes(xml)
 }
 
-func loadAndReparseFile(t *testing.T, fn string) (*GPX, *GPX) {
+func loadAndReparseFile(t *testing.T, fn string) (*GPX, *GPX, *GPX) {
 	original, err := ParseFile(fn)
 	assert.Nil(t, err)
 	assert.NotNil(t, original)
@@ -137,7 +138,16 @@ func loadAndReparseFile(t *testing.T, fn string) (*GPX, *GPX) {
 		t.FailNow()
 	}
 
-	return original, reparsed
+	byts, err := json.Marshal(reparsed)
+	assert.Nil(t, err)
+	if t.Failed() {
+		t.FailNow()
+	}
+
+	var fromGPXJSON GPX
+	assert.Nil(t, json.Unmarshal(byts, &fromGPXJSON))
+
+	return original, reparsed, &fromGPXJSON
 }
 
 func TestParseGPXTimes(t *testing.T) {

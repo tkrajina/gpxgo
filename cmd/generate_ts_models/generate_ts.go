@@ -23,6 +23,7 @@ func main() {
 		WithBackupDir("").
 		// WithPrefix("API_").
 		Add(gpx.GPX{}).
+		WithInterface(true).
 		WithConstructor(false).
 		WithCreateFromMethod(false)
 

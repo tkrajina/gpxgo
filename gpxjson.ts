@@ -1,9 +1,9 @@
 
-export class GPXTrackSegment {
+export interface GPXTrackSegment {
     points?: GPXPoint[];
     ext?: ExtensionNode[];
 }
-export class GPXTrack {
+export interface GPXTrack {
     name?: string;
     cmt?: string;
     desc?: string;
@@ -13,32 +13,29 @@ export class GPXTrack {
     segments: GPXTrackSegment[];
     ext?: ExtensionNode[];
 }
-export class NullableInt {
-
-}
-export class GPXRoute {
+export interface GPXRoute {
     name?: string;
     cmt?: string;
     desc?: string;
     src?: string;
-    number?: NullableInt;
+    number?: number;
     type?: string;
     pts?: GPXPoint[];
     ext?: ExtensionNode[];
 }
-export class ExtensionNodeAttr {
+export interface ExtensionNodeAttr {
     ns?: string;
     name?: string;
     val?: string;
 }
-export class ExtensionNode {
+export interface ExtensionNode {
     ns?: string;
     name?: string;
     attrs?: ExtensionNodeAttr[];
     data?: string;
     nodes?: ExtensionNode[];
 }
-export class GPXPoint {
+export interface GPXPoint {
     lat: number;
     lon: number;
     ele?: number|undefined;
@@ -60,10 +57,10 @@ export class GPXPoint {
     dgpsid?: number;
     ext?: ExtensionNode[];
 }
-export class GPXAttributes {
+export interface GPXAttributes {
     nsattrs?: {[key: string]: };
 }
-export class GPX {
+export interface GPX {
     xmlns?: string;
     xmlnsxsi?: string;
     xmlschemaloc?: string;
