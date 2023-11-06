@@ -1412,14 +1412,14 @@ func TestGpxWithoutGpxAttributes(t *testing.T) {
 		t.Error("Ops:", err.Error())
 		return
 	}
-	if gpxDoc.XMLNs != "" {
-		t.Error("Found gpxDoc.XMLNs:", gpxDoc.XMLNs)
+	if gpxDoc.Attrs.GetNamespacesByURLs()[""] != "" {
+		t.Error("Found gpxDoc.XMLNs:")
 	}
-	if gpxDoc.XmlNsXsi != "" {
-		t.Error("Found gpxDoc.XmlNsXsi:", gpxDoc.XmlNsXsi)
+	if gpxDoc.Attrs["aaa"]["bbb"] != "" {
+		t.Error("Found gpxDoc.XmlNsXsi:")
 	}
-	if gpxDoc.XmlSchemaLoc != "" {
-		t.Error("Found gpxDoc.XmlSchemaLoc:", gpxDoc.XmlSchemaLoc)
+	if gpxDoc.Attrs["bbb"]["ccc"] != "" {
+		t.Error("Found gpxDoc.XmlSchemaLoc:")
 	}
 
 	if _, err := gpxDoc.ToXml(ToXmlParams{}); err != nil {
@@ -1435,14 +1435,14 @@ func TestGpxWithoutXmlDeclaration(t *testing.T) {
 		t.Error("Ops:", err.Error())
 		return
 	}
-	if gpxDoc.XMLNs != "" {
-		t.Error("Found gpxDoc.XMLNs:", gpxDoc.XMLNs)
+	if gpxDoc.Attrs.GetNamespacesByURLs()[""] != "" {
+		t.Error("Found gpxDoc.XMLNs:")
 	}
-	if gpxDoc.XmlNsXsi != "" {
-		t.Error("Found gpxDoc.XmlNsXsi:", gpxDoc.XmlNsXsi)
+	if gpxDoc.Attrs["aaa"]["bbb"] != "" {
+		t.Error("Found gpxDoc.XmlNsXsi:")
 	}
-	if gpxDoc.XmlSchemaLoc != "" {
-		t.Error("Found gpxDoc.XmlSchemaLoc:", gpxDoc.XmlSchemaLoc)
+	if gpxDoc.Attrs["bbb"]["ccc"] != "" {
+		t.Error("Found gpxDoc.XmlSchemaLoc:")
 	}
 
 	if _, err := gpxDoc.ToXml(ToXmlParams{}); err != nil {

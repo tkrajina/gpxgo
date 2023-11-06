@@ -17,6 +17,17 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
+type XMLAttrs []xml.Attr
+
+func (xa *XMLAttrs) Update(space, local, value string) {
+	for n := range *xa {
+		if (space == "*" || (*xa)[n].Name.Space == space) && (*xa)[n].Name.Local == local {
+			(*xa)[n].Value = value
+		}
+	}
+	*xa = append(*xa, xml.Attr{Name: xml.Name{Space: space, Local: local}, Value: value})
+}
+
 const formattingTimelayout = "2006-01-02T15:04:05Z"
 
 // parsingTimelayouts defines a list of possible time formats
@@ -52,15 +63,14 @@ func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 	}
 	indentation := params.Indent
 
-	var replacemends map[string]string
 	var gpxDoc interface{}
 	if version == "1.0" {
-		gpxDoc, replacemends = convertToGpx10Models(g)
+		gpxDoc = convertToGpx10Models(g)
 	} else if version == "1.1" {
-		gpxDoc, replacemends = convertToGpx11Models(g)
+		gpxDoc = convertToGpx11Models(g)
 	} else {
 		g.Version = "1.1"
-		gpxDoc, replacemends = convertToGpx11Models(g)
+		gpxDoc = convertToGpx11Models(g)
 	}
 
 	var buffer bytes.Buffer
@@ -80,11 +90,6 @@ func ToXml(g *GPX, params ToXmlParams) ([]byte, error) {
 	}
 
 	byts := buffer.Bytes()
-
-	// for replKey, replVal := range replacemends {
-	// byts = bytes.Replace(byts, []byte(replKey), []byte(replVal), -1)
-	// }
-	_ = replacemends
 
 	return byts, nil
 }

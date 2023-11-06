@@ -149,13 +149,13 @@ gpx (gpxType)
 */
 
 type gpx11Gpx struct {
-	XMLName      xml.Name   `xml:"gpx"`
-	Version      string     `xml:"version,attr"`
-	Creator      string     `xml:"creator,attr"`
-	XMLNs        string     `xml:"xmlns,attr,omitempty"`
-	XmlNsXsi     string     `xml:"xmlns:xsi,attr,omitempty"`
-	XmlSchemaLoc string     `xml:"xsi:schemaLocation,attr,omitempty"`
-	Attrs        []xml.Attr `xml:",any,attr"`
+	XMLName      xml.Name  `xml:"gpx"`
+	Version      string    `xml:"version,attr"`
+	Creator      string    `xml:"creator,attr"`
+	XMLNs        string    `xml:"xmlns,attr,omitempty"`
+	XmlNsXsi     string    `xml:"xmlns:xsi,attr,omitempty"`
+	XmlSchemaLoc string    `xml:"xsi:schemaLocation,attr,omitempty"`
+	Attrs        *XMLAttrs `xml:",any,attr"`
 
 	Name        string         `xml:"metadata>name,omitempty"`
 	Desc        string         `xml:"metadata>desc,omitempty"`

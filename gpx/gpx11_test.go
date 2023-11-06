@@ -40,7 +40,7 @@ func TestJustGPX11(t *testing.T) {
 	fmt.Println(string(byts2))
 	fmt.Println("----------------------------------------------------------------------------------------------------")
 
-	for _, a := range g.Attrs {
+	for _, a := range *g.Attrs {
 		fmt.Printf("attr %s.%s: %s\n", a.Name.Space, a.Name.Local, a.Value)
 	}
 	fmt.Println("XMLNs=", g.XMLNs)

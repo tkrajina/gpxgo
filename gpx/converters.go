@@ -7,9 +7,6 @@ package gpx
 
 import (
 	"encoding/xml"
-	"fmt"
-	"math/rand"
-	"sort"
 	"strings"
 )
 
@@ -20,16 +17,13 @@ const defaultCreator = "https://github.com/tkrajina/gpxgo"
 // Gpx 1.0 Stuff
 // ----------------------------------------------------------------------------------------------------
 
-func convertToGpx10Models(gpxDoc *GPX) (*gpx10Gpx, map[string]string) {
+func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 	gpx10Doc := &gpx10Gpx{}
 	//gpx10Doc.Attrs = namespacesMapToAttrs(gpxDoc.Namespaces)
-	namespacesReplacement, replacements := gpxDoc.Attrs.ToXMLAttrs()
-	gpx10Doc.Attrs = append(gpx10Doc.Attrs, xml.Attr{Name: xml.Name{Local: namespacesReplacement}, Value: ""})
-
 	//gpx10Doc.XMLNs = gpxDoc.XMLNs
-	gpx10Doc.XMLNs = "http://www.topografix.com/GPX/1/0"
-	gpx10Doc.XmlNsXsi = gpxDoc.XmlNsXsi
-	gpx10Doc.XmlSchemaLoc = gpxDoc.XmlSchemaLoc
+	attrs := gpxDoc.Attrs.ToXMLAttrs()
+	gpx10Doc.Attrs = &attrs
+	gpx10Doc.Attrs.Update("", "xmlns", "http://www.topografix.com/GPX/1/0")
 
 	gpx10Doc.Version = "1.0"
 	if len(gpxDoc.Creator) == 0 {
@@ -122,16 +116,14 @@ func convertToGpx10Models(gpxDoc *GPX) (*gpx10Gpx, map[string]string) {
 		}
 	}
 
-	return gpx10Doc, replacements
+	return gpx10Doc
 }
 
 func convertFromGpx10Models(gpx10Doc *gpx10Gpx) *GPX {
 	gpxDoc := new(GPX)
-	gpxDoc.Attrs = NewGPXAttributes(gpx10Doc.Attrs)
-
-	gpxDoc.XMLNs = gpx10Doc.XMLNs
-	gpxDoc.XmlNsXsi = gpx10Doc.XmlNsXsi
-	gpxDoc.XmlSchemaLoc = gpx10Doc.XmlSchemaLoc
+	if gpx10Doc.Attrs != nil {
+		gpxDoc.Attrs = NewGPXAttributes(*gpx10Doc.Attrs)
+	}
 
 	gpxDoc.Creator = gpx10Doc.Creator
 	gpxDoc.Version = gpx10Doc.Version
@@ -288,97 +280,47 @@ type NamespaceAttribute struct {
 	replacement string `json:"-"`
 }
 
-type GPXAttributes struct {
-	// NamespaceAttributes by namespace and local name
-	NamespaceAttributes map[string]map[string]NamespaceAttribute `json:"nsattrs,omitempty"`
-}
+type GPXAttributes map[string]map[string]string
 
-func NewGPXAttributes(attrs []xml.Attr) GPXAttributes {
-	namespacesByUrls := map[string]string{}
-
+func NewGPXAttributes(attrs XMLAttrs) GPXAttributes {
+	res := GPXAttributes(make(map[string]map[string]string))
 	for _, attr := range attrs {
-		if attr.Name.Space == "xmlns" {
-			namespacesByUrls[attr.Value] = attr.Name.Local
-		}
+		res.Set(attr.Name.Space, attr.Name.Local, attr.Value)
 	}
-
-	res := map[string]map[string]NamespaceAttribute{}
-	for _, attr := range attrs {
-		space := attr.Name.Space
-		if ns, found := namespacesByUrls[attr.Name.Space]; found {
-			space = ns
-		}
-		if _, found := res[space]; !found {
-			res[space] = map[string]NamespaceAttribute{}
-		}
-		res[space][attr.Name.Local] = NamespaceAttribute{
-			Space:       attr.Name.Space,
-			Local:       attr.Name.Local,
-			Value:       attr.Value,
-			replacement: strings.Replace(fmt.Sprint("xmlns_prefix_", rand.Float64()), ".", "", -1),
-		}
-	}
-	return GPXAttributes{
-		NamespaceAttributes: res,
-	}
+	return GPXAttributes(res)
 }
 
-func (ga *GPXAttributes) RegisterNamespace(ns, url string) {
-	if ga.NamespaceAttributes == nil {
-		ga.NamespaceAttributes = make(map[string]map[string]NamespaceAttribute)
+func (ga GPXAttributes) Set(space, local, value string) {
+	if ga == nil {
+		res := GPXAttributes(make(map[string]map[string]string))
+		ga = res
 	}
-	if _, found := ga.NamespaceAttributes["xmlns"]; !found {
-		ga.NamespaceAttributes["xmlns"] = make(map[string]NamespaceAttribute)
+	if _, found := (ga)[space]; !found {
+		(ga)[space] = make(map[string]string)
 	}
-	ga.NamespaceAttributes["xmlns"][ns] = NamespaceAttribute{
-		Space:       "xmlns",
-		Local:       ns,
-		Value:       url,
-		replacement: strings.Replace(fmt.Sprint("xmlns_registered_prefix_", rand.Float64()), ".", "", -1),
-	}
+	(ga)[space][local] = value
 }
 
-func (ga *GPXAttributes) GetNamespacesByURLs() map[string]string {
-	xmlns, found := ga.NamespaceAttributes["xmlns"]
+func (ga GPXAttributes) RegisterNamespace(ns, url string) {
+	ga.Set("xmlns", ns, url)
+}
+
+func (ga GPXAttributes) GetNamespacesByURLs() map[string]string {
+	xmlns, found := ga["xmlns"]
 	if !found {
 		return nil
 	}
-	res := make(map[string]string)
-	for ns, value := range xmlns {
-		res[value.Value] = ns
-	}
-	return res
+	return xmlns
 }
 
-func (ga GPXAttributes) ToXMLAttrs() (namespacesReplacement string, replacements map[string]string) {
-	var keys []string
-	for k := range ga.NamespaceAttributes {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	replacements = map[string]string{}
-
-	var attrsList []string
-	for space := range ga.NamespaceAttributes {
-		for local, nsInfo := range ga.NamespaceAttributes[space] {
-			var key string
-			if space == "" {
-				key = local
-			} else {
-				key = space + ":" + local
-			}
-			attrsList = append(attrsList, fmt.Sprint(key, `="`, nsInfo.Value, `"`))
-			if space == "xmlns" {
-				replacements[nsInfo.replacement] = local + ":"
-			}
+func (ga GPXAttributes) ToXMLAttrs() XMLAttrs {
+	var attrs []xml.Attr
+	for space, entry := range ga {
+		for local, value := range entry {
+			attrs = append(attrs, xml.Attr{Name: xml.Name{Space: space, Local: local}, Value: value})
 		}
 	}
-
-	namespacesReplacement = strings.Replace(fmt.Sprint("xmlns_", rand.Float64()), ".", "", -1)
-	sort.Strings(attrsList)
-	replacements[namespacesReplacement+`=""`] = strings.Join(attrsList, " ")
-	return
+	return XMLAttrs(attrs)
 }
 
 func convertToGpx11Extension(ext Extension, gpxDoc GPX) *gpx11Extension {
@@ -444,17 +386,14 @@ func convertFromGpx11ExtensionNode(n gpx11ExtensionNode) ExtensionNode {
 	return res
 }
 
-func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
-	namespacesReplacement, replacements := gpxDoc.Attrs.ToXMLAttrs()
-
+func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 	gpx11Doc := &gpx11Gpx{}
-	gpx11Doc.Attrs = append(gpx11Doc.Attrs, xml.Attr{Name: xml.Name{Local: namespacesReplacement}, Value: ""})
 
 	gpx11Doc.Version = "1.1"
 
-	gpx11Doc.XMLNs = "http://www.topografix.com/GPX/1/1"
-	gpx11Doc.XmlNsXsi = gpxDoc.XmlNsXsi
-	gpx11Doc.XmlSchemaLoc = gpxDoc.XmlSchemaLoc
+	attrs := gpxDoc.Attrs.ToXMLAttrs()
+	gpx11Doc.Attrs = &attrs
+	gpx11Doc.Attrs.Update("", "xmlns", "http://www.topografix.com/GPX/1/1")
 
 	gpx11Doc.Extensions = convertToGpx11Extension(gpxDoc.Extensions, *gpxDoc)
 	gpx11Doc.MetadataExtensions = convertToGpx11Extension(gpxDoc.MetadataExtensions, *gpxDoc)
@@ -571,17 +510,15 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 		}
 	}
 
-	return gpx11Doc, replacements
+	return gpx11Doc
 }
 
 func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 	gpxDoc := new(GPX)
 
-	gpxDoc.Attrs = NewGPXAttributes(gpx11Doc.Attrs)
-
-	gpxDoc.XMLNs = gpx11Doc.XMLNs
-	gpxDoc.XmlNsXsi = gpx11Doc.XmlNsXsi
-	gpxDoc.XmlSchemaLoc = gpx11Doc.XmlSchemaLoc
+	if gpx11Doc.Attrs != nil {
+		gpxDoc.Attrs = NewGPXAttributes(*gpx11Doc.Attrs)
+	}
 
 	gpxDoc.Creator = gpx11Doc.Creator
 	gpxDoc.Version = gpx11Doc.Version

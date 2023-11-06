@@ -480,9 +480,6 @@ func cleanReparsed(g GPX) GPX {
 	if g.Creator == "" {
 		g.Creator = defaultCreator
 	}
-	if g.XMLNs == "" {
-		g.XMLNs = "http://www.topografix.com/GPX/1/1"
-	}
 	if g.Version == "" {
 		g.Version = "1.1"
 	}
@@ -490,16 +487,6 @@ func cleanReparsed(g GPX) GPX {
 }
 
 func cleanReparsedAttrs(attrs GPXAttributes) GPXAttributes {
-	if len(attrs.NamespaceAttributes) == 0 {
-		attrs.NamespaceAttributes = nil
-		return attrs
-	}
-	for k, v := range attrs.NamespaceAttributes {
-		for k2, v2 := range v {
-			v2.replacement = ""
-			attrs.NamespaceAttributes[k][k2] = v2
-		}
-	}
 	return attrs
 }
 
