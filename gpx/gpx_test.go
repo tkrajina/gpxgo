@@ -762,7 +762,7 @@ func TestToXmlEle(t *testing.T) {
 	xml, _ := g.ToXml(ToXmlParams{Version: "1.1", Indent: true})
 	xmlA := string(xml)
 	xmlE := `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="https://github.com/tkrajina/gpxgo" xmlns="http://www.topografix.com/GPX/1/1" >
+<gpx version="1.1" creator="https://github.com/tkrajina/gpxgo" xmlns="http://www.topografix.com/GPX/1/1">
 	<metadata>
 		<author></author>
 	</metadata>

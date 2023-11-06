@@ -7,6 +7,7 @@ package gpx
 
 import (
 	"encoding/xml"
+	"sort"
 	"strings"
 )
 
@@ -320,7 +321,9 @@ func (ga GPXAttributes) ToXMLAttrs() XMLAttrs {
 			attrs = append(attrs, xml.Attr{Name: xml.Name{Space: space, Local: local}, Value: value})
 		}
 	}
-	return XMLAttrs(attrs)
+	res := XMLAttrs(attrs)
+	sort.Sort(res)
+	return res
 }
 
 func convertToGpx11Extension(ext Extension, gpxDoc GPX) *gpx11Extension {

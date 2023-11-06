@@ -9,8 +9,10 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -18,6 +20,14 @@ import (
 )
 
 type XMLAttrs []xml.Attr
+
+var _ sort.Interface = XMLAttrs(nil)
+
+func (xa XMLAttrs) Len() int { return len(xa) }
+func (xa XMLAttrs) Less(i, j int) bool {
+	return fmt.Sprintf("%s:%s:%s", xa[i].Name.Space, xa[i].Name.Local, xa[i].Value) < fmt.Sprintf("%s:%s:%s", xa[j].Name.Space, xa[j].Name.Local, xa[j].Value)
+}
+func (xa XMLAttrs) Swap(i, j int) { xa[i], xa[j] = xa[j], xa[i] }
 
 func (xa *XMLAttrs) Update(space, local, value string) {
 	for n := range *xa {
