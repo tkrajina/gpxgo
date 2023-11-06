@@ -489,13 +489,3 @@ func cleanReparsed(g GPX) GPX {
 func cleanReparsedAttrs(attrs GPXAttributes) GPXAttributes {
 	return attrs
 }
-
-func jsonizeFormatted(a any) string {
-	jsn, _ := json.MarshalIndent(a, "", "  ")
-	return string(jsn)
-}
-
-func jsonize(a any) string {
-	jsn, _ := json.Marshal(a)
-	return string(jsn)
-}

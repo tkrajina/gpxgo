@@ -1537,8 +1537,8 @@ func TestWithExponent(t *testing.T) {
 	xml2, err := g.ToXml(ToXmlParams{Indent: true})
 	assert.Nil(t, err)
 
-	assertLinesEquals(t, string(xml2), `<?xml version="1.0" encoding="UTF-8"?>
-<gpx  xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="https://github.com/tkrajina/gpxgo">
+	assertLinesEquals(t, `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="https://github.com/tkrajina/gpxgo" xmlns="http://www.topografix.com/GPX/1/1">
 		<metadata>
 				<author></author>
 		</metadata>
@@ -1548,5 +1548,5 @@ func TestWithExponent(t *testing.T) {
 						<trkpt lat="0.000056" lon="51.581485"></trkpt>
 				</trkseg>
 		</trk>
-</gpx>`)
+</gpx>`, string(xml2))
 }

@@ -71,12 +71,14 @@ func (ex gpx11Extension) MarshalXML(e *xml.Encoder, start xml.StartElement) erro
 
 	start = xml.StartElement{Name: xml.Name{Local: start.Name.Local}, Attr: nil}
 	tokens := []xml.Token{start}
+	fmt.Printf("%#v\n", ex.gpx.Attrs.GetNamespacesByURLs())
 	for _, node := range ex.Nodes {
-		nsByURLs := ex.gpx.Attrs.GetNamespacesByURLs()
 		prefix := ""
-		fmt.Println("find prefix from ", node.XMLName.Space)
-		if ns, found := nsByURLs[node.XMLName.Space]; found {
-			prefix = ns + ":"
+		for ns, url := range ex.gpx.Attrs.GetNamespacesByURLs() {
+			if node.XMLName.Space == url {
+				prefix = ns + ":"
+				fmt.Println("find prefix from ", node.XMLName.Space, "->", ns)
+			}
 		}
 		tokens = append(tokens, node.toTokens(prefix)...)
 	}

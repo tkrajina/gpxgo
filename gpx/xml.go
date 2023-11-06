@@ -211,6 +211,7 @@ func Parse(inReader io.Reader) (*GPX, error) {
 		if err != nil {
 			return nil, err
 		}
+		debugJSONized("attrs after parsing", g.Attrs)
 		return convertFromGpx11Models(g), nil
 	default:
 		return nil, errors.New("Invalid version:" + version)

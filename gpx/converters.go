@@ -20,6 +20,10 @@ const defaultCreator = "https://github.com/tkrajina/gpxgo"
 
 func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 	gpx10Doc := &gpx10Gpx{}
+	defer func() {
+		debugJSONized("attrs before to-xml:", gpx10Doc.Attrs)
+	}()
+
 	//gpx10Doc.Attrs = namespacesMapToAttrs(gpxDoc.Namespaces)
 	//gpx10Doc.XMLNs = gpxDoc.XMLNs
 	attrs := gpxDoc.Attrs.ToXMLAttrs()
@@ -122,6 +126,9 @@ func convertToGpx10Models(gpxDoc *GPX) *gpx10Gpx {
 
 func convertFromGpx10Models(gpx10Doc *gpx10Gpx) *GPX {
 	gpxDoc := new(GPX)
+	defer func() {
+		debugJSONized("attrs after converting to gpx models", gpxDoc.Attrs)
+	}()
 	if gpx10Doc.Attrs != nil {
 		gpxDoc.Attrs = NewGPXAttributes(*gpx10Doc.Attrs)
 	}
@@ -391,6 +398,9 @@ func convertFromGpx11ExtensionNode(n gpx11ExtensionNode) ExtensionNode {
 
 func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 	gpx11Doc := &gpx11Gpx{}
+	defer func() {
+		debugJSONized("attrs before to-xml:", gpx11Doc.Attrs)
+	}()
 
 	gpx11Doc.Version = "1.1"
 
@@ -518,6 +528,9 @@ func convertToGpx11Models(gpxDoc *GPX) *gpx11Gpx {
 
 func convertFromGpx11Models(gpx11Doc *gpx11Gpx) *GPX {
 	gpxDoc := new(GPX)
+	defer func() {
+		debugJSONized("attrs after converting to gpx models", gpxDoc.Attrs)
+	}()
 
 	if gpx11Doc.Attrs != nil {
 		gpxDoc.Attrs = NewGPXAttributes(*gpx11Doc.Attrs)
