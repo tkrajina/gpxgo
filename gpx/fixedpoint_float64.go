@@ -12,6 +12,6 @@ type formattedFloat float64
 func (f formattedFloat) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return xml.Attr{
 		Name:  xml.Name{Local: name.Local},
-		Value: strings.TrimRight(fmt.Sprintf("%.10f", f), "0."),
+		Value: strings.TrimSuffix(fmt.Sprintf("%.10f", f), "0."),
 	}, nil
 }
