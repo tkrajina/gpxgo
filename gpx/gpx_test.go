@@ -1512,3 +1512,13 @@ func TestWithExponent(t *testing.T) {
 		</trk>
 </gpx>`)
 }
+
+func TestFormattingFloat(t *testing.T) {
+	t.Parallel()
+
+	var g GPX
+	g.Waypoints = append(g.Waypoints, GPXPoint{Point: Point{Latitude: 110}})
+	byts, _ := g.ToXml(ToXmlParams{})
+	print(string(byts))
+	assert.Contains(t, string(byts), `<wpt lat="110.0" lon="0.0">`)
+}
