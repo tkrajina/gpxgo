@@ -179,6 +179,7 @@ func Parse(inReader io.Reader) (*GPX, error) {
 
 	reader := io.MultiReader(bytes.NewReader(buf), inReader)
 	decoder := xml.NewDecoder(reader)
+	decoder.Strict = false
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	switch version {
