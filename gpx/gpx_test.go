@@ -6,7 +6,9 @@
 package gpx
 
 import (
+	"bytes"
 	"compress/gzip"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -16,6 +18,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/html/charset"
 )
 
 const (
@@ -1521,4 +1524,77 @@ func TestFormattingFloat(t *testing.T) {
 	byts, _ := g.ToXml(ToXmlParams{})
 	print(string(byts))
 	assert.Contains(t, string(byts), `<wpt lat="110.0" lon="0.0">`)
+}
+
+func TestStrictFalse(t *testing.T) {
+	t.Parallel()
+
+	byts := []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Chengdu Ledong Information & Technology Co., Ltd. ">
+	<metadata>
+		<name>Codoon_Sport_Record</name>
+		<desc>Codoon_Sport_2024-04-04 08:09:35</desc>
+		<author>
+			<name><![CDATA[咚友e0aRk5aXGb]]></name>
+		</author>
+		<time>2024-04-04T12:07:17Z</time>
+	</metadata>
+</xml>`)
+
+	{
+		reader := bytes.NewReader(byts)
+		decoder := xml.NewDecoder(reader)
+		decoder.CharsetReader = charset.NewReaderLabel
+
+		g, err := ParseDecoder(decoder, nil)
+		assert.NotNil(t, err)
+		assert.Nil(t, g)
+	}
+	{
+		reader := bytes.NewReader(byts)
+		decoder := xml.NewDecoder(reader)
+		decoder.Strict = false
+		decoder.CharsetReader = charset.NewReaderLabel
+
+		g, err := ParseDecoder(decoder, nil)
+		assert.Nil(t, err)
+		assert.NotNil(t, g)
+
+		assert.Equal(t, "Chengdu Ledong Information & Technology Co., Ltd. ", g.Creator)
+		assert.Equal(t, "Codoon_Sport_Record", g.Name)
+		assert.Equal(t, "1.1", g.Version)
+	}
+	{
+		byts := []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.0" creator="Chengdu Ledong Information & Technology Co., Ltd. ">
+</xml>`)
+		reader := bytes.NewReader(byts)
+		decoder := xml.NewDecoder(reader)
+		decoder.Strict = false
+		decoder.CharsetReader = charset.NewReaderLabel
+
+		g, err := ParseDecoder(decoder, nil)
+		assert.Nil(t, err)
+		assert.NotNil(t, g)
+
+		assert.Equal(t, "Chengdu Ledong Information & Technology Co., Ltd. ", g.Creator)
+		assert.Equal(t, "1.0", g.Version) // couldn't guess, because we gave initial bytes as nil
+	}
+	{
+		byts := []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.0" creator="Chengdu Ledong Information & Technology Co., Ltd. ">
+</xml>`)
+		reader := bytes.NewReader(byts)
+		decoder := xml.NewDecoder(reader)
+		decoder.Strict = false
+		decoder.CharsetReader = charset.NewReaderLabel
+
+		g, err := ParseDecoder(decoder, []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.0" creator="Chengdu Ledong`))
+		assert.Nil(t, err)
+		assert.NotNil(t, g)
+
+		assert.Equal(t, "Chengdu Ledong Information & Technology Co., Ltd. ", g.Creator)
+		assert.Equal(t, "1.0", g.Version) // couldn't guess, because we gave initial bytes as nil
+	}
 }
