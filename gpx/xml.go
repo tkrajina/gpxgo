@@ -161,6 +161,11 @@ func ParseBytes(buf []byte) (*GPX, error) {
 	return Parse(bytes.NewReader(buf))
 }
 
+// ParseDecoder parses a gpx from a predefined decoder.
+//
+// That way the decoder can have parameters you need, for example `decoder.Strict = false`
+//
+// `initialBytes` are used to "guess" the gpx version. It can be nil, but in that case the parses will assume the GPX version is 1.1
 func ParseDecoder(decoder *xml.Decoder, initialBytes []byte) (*GPX, error) {
 	version, err := guessGPXVersion(initialBytes)
 	if err != nil {
