@@ -153,3 +153,16 @@ func TestInvalidVersion(t *testing.T) {
 	_, err = g.ToXml(ToXmlParams{})
 	assert.Nil(t, err)
 }
+
+func Test(t *testing.T) {
+	t.Parallel()
+
+	{
+		tm := time.Date(2021, time.Month(6), 19, 17, 28, 22, 0, time.UTC)
+		assert.Equal(t, "2021-06-19T17:28:22Z", formatGPXTime(&tm))
+	}
+	{
+		tm := time.Date(2021, time.Month(6), 19, 17, 28, 22, 999999999, time.UTC)
+		assert.Equal(t, "2021-06-19T17:28:22.999Z", formatGPXTime(&tm))
+	}
+}

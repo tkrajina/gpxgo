@@ -18,10 +18,11 @@ import (
 )
 
 const formattingTimelayout = "2006-01-02T15:04:05Z"
+const formattingTimeLayoutWithMillis = "2006-01-02T15:04:05.000Z"
 
 // parsingTimelayouts defines a list of possible time formats
 var parsingTimelayouts = []string{
-	"2006-01-02T15:04:05.000Z",
+	formattingTimeLayoutWithMillis,
 	formattingTimelayout,
 	"2006-01-02T15:04:05+00:00",
 	"2006-01-02T15:04:05",
@@ -140,6 +141,9 @@ func formatGPXTime(time *time.Time) string {
 	if time.Year() <= 1 {
 		// Invalid date:
 		return ""
+	}
+	if time.Nanosecond() > 0 {
+		return time.Format(formattingTimeLayoutWithMillis)
 	}
 	return time.Format(formattingTimelayout)
 }
