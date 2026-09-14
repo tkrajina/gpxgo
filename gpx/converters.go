@@ -482,6 +482,7 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 			//r.Links = route.Links
 			r.Number = route.Number
 			r.Type = route.Type
+			r.Extensions = route.Extensions
 			r.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 
 			gpx11Doc.Routes[routeNo] = r
@@ -506,12 +507,14 @@ func convertToGpx11Models(gpxDoc *GPX) (*gpx11Gpx, map[string]string) {
 			gpx11Track.Src = track.Source
 			gpx11Track.Number = track.Number
 			gpx11Track.Type = track.Type
+			gpx11Track.Extensions = track.Extensions
 			gpx11Track.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 
 			if track.Segments != nil {
 				gpx11Track.Segments = make([]*gpx11GpxTrkSeg, len(track.Segments))
 				for segmentNo, segment := range track.Segments {
 					gpx11Segment := new(gpx11GpxTrkSeg)
+					gpx11Segment.Extensions = segment.Extensions
 					gpx11Segment.Extensions.globalNsAttrs = gpxDoc.Attrs.GetNamespaceAttrs()
 					if segment.Points != nil {
 						gpx11Segment.Points = make([]*gpx11GpxPoint, len(segment.Points))

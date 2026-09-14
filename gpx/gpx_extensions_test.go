@@ -2,6 +2,7 @@ package gpx
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -386,5 +387,86 @@ func TestGarminExtensions(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Contains(t, string(xml), "<gpxtpx:TrackPointExtension>")
 		assert.Contains(t, string(xml), "<gpxtpx:hr>171</gpxtpx:hr>")
+	}
+}
+
+func TestContainerExtensions(t *testing.T) {
+	t.Parallel()
+
+	const namespace = "https://example.com/gpx/extensions"
+	for _, withChildren := range []bool{false, true} {
+		for _, indent := range []bool{false, true} {
+			t.Run(fmt.Sprintf("children=%t/indent=%t", withChildren, indent), func(t *testing.T) {
+				original := &GPX{
+					Version: "1.1",
+					Routes:  []GPXRoute{{}},
+					Tracks:  []GPXTrack{{}},
+				}
+				original.RegisterNamespace("ext", namespace)
+				extensions := map[string]*Extension{
+					"route": &original.Routes[0].Extensions,
+					"track": &original.Tracks[0].Extensions,
+				}
+				if withChildren {
+					original.Routes[0].Points = []GPXPoint{{}}
+					original.Tracks[0].Segments = []GPXTrackSegment{{Points: []GPXPoint{{}}}}
+					extensions["routepoint"] = &original.Routes[0].Points[0].Extensions
+					extensions["segment"] = &original.Tracks[0].Segments[0].Extensions
+					extensions["trackpoint"] = &original.Tracks[0].Segments[0].Points[0].Extensions
+				}
+				for name, extension := range extensions {
+					node := extension.GetOrCreateNode(namespace, name, "value")
+					node.Data = name + " & data"
+					node.SetAttr("id", name)
+				}
+
+				data, err := original.ToXml(ToXmlParams{Version: "1.1", Indent: indent})
+				if !assert.NoError(t, err) {
+					return
+				}
+				reparsed, err := ParseBytes(data)
+				if !assert.NoError(t, err) {
+					return
+				}
+				if !assert.Len(t, reparsed.Routes, 1) || !assert.Len(t, reparsed.Tracks, 1) {
+					return
+				}
+				reparsedExtensions := map[string]*Extension{
+					"route": &reparsed.Routes[0].Extensions,
+					"track": &reparsed.Tracks[0].Extensions,
+				}
+				if withChildren {
+					if !assert.Len(t, reparsed.Routes[0].Points, 1) ||
+						!assert.Len(t, reparsed.Tracks[0].Segments, 1) ||
+						!assert.Len(t, reparsed.Tracks[0].Segments[0].Points, 1) {
+						return
+					}
+					reparsedExtensions["routepoint"] = &reparsed.Routes[0].Points[0].Extensions
+					reparsedExtensions["segment"] = &reparsed.Tracks[0].Segments[0].Extensions
+					reparsedExtensions["trackpoint"] = &reparsed.Tracks[0].Segments[0].Points[0].Extensions
+				}
+				for name, extension := range reparsedExtensions {
+					node, found := extension.GetNode(namespace, name)
+					if !assert.True(t, found, "%s extension lost after export", name) {
+						continue
+					}
+					assert.Len(t, extension.Nodes, 1)
+					value, found := node.GetNode("value")
+					if assert.True(t, found, "%s extension value lost after export", name) {
+						assert.Equal(t, namespace, value.SpaceNameURL())
+						assert.Equal(t, name+" & data", value.Data)
+						assert.Equal(t, name, value.GetAttrOrEmpty("id"))
+					}
+				}
+				if withChildren {
+					// GPX 1.1 puts route/track extensions before their children,
+					// and segment extensions after its track points.
+					xml := string(data)
+					assert.Less(t, strings.Index(xml, "<ext:route>"), strings.Index(xml, "<rtept "))
+					assert.Less(t, strings.Index(xml, "<ext:track>"), strings.Index(xml, "<trkseg>"))
+					assert.Greater(t, strings.Index(xml, "<ext:segment>"), strings.Index(xml, "</trkpt>"))
+				}
+			})
+		}
 	}
 }

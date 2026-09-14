@@ -259,8 +259,8 @@ type gpx11GpxRte struct {
 	//Links       []Link   `xml:"link"`
 	Number     NullableInt      `xml:"number,omitempty"`
 	Type       string           `xml:"type,omitempty"`
-	Points     []*gpx11GpxPoint `xml:"rtept"`
 	Extensions Extension        `xml:"extensions"`
+	Points     []*gpx11GpxPoint `xml:"rtept"`
 }
 
 type gpx11GpxTrkSeg struct {
@@ -280,6 +280,6 @@ type gpx11GpxTrk struct {
 	//Links    []Link   `xml:"link"`
 	Number     NullableInt       `xml:"number,omitempty"`
 	Type       string            `xml:"type,omitempty"`
-	Segments   []*gpx11GpxTrkSeg `xml:"trkseg,omitempty"`
 	Extensions Extension         `xml:"extensions"`
+	Segments   []*gpx11GpxTrkSeg `xml:"trkseg,omitempty"`
 }

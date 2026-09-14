@@ -771,6 +771,11 @@ func TestToXml(t *testing.T) {
 	</wpt>
 	<trk>
 		<name>17-MRZ-12 16:44:12</name>
+		<extensions>
+			<gpxx:TrackExtension>
+				<gpxx:DisplayColor>Cyan</gpxx:DisplayColor>
+			</gpxx:TrackExtension>
+		</extensions>
 		<trkseg>
 			<trkpt lat="52.5113534275" lon="13.4571944922">
 				<ele>59.26</ele>
