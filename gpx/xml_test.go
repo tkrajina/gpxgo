@@ -36,6 +36,46 @@ func TestParseTimeWithUTCoffset(t *testing.T) {
 	assert.True(t, tm.Equal(expected), "expected %v, got %v", expected, tm.UTC())
 }
 
+func TestParseTimeWithMillisec(t *testing.T) {
+	tm, err := parseGPXTime("2021-06-19T17:28:22.983")
+	assert.Nil(t, err)
+	if !assert.NotNil(t, tm) {
+		return
+	}
+	expected := time.Date(2021, 6, 19, 17, 28, 22, 983000000, time.UTC)
+	assert.True(t, tm.Equal(expected), "expected %v, got %v", expected, tm.UTC())
+}
+
+func TestParseTimeWithMillisecAndZulu(t *testing.T) {
+	tm, err := parseGPXTime("2021-06-19T17:28:22.983Z")
+	assert.Nil(t, err)
+	if !assert.NotNil(t, tm) {
+		return
+	}
+	expected := time.Date(2021, 6, 19, 17, 28, 22, 983000000, time.UTC)
+	assert.True(t, tm.Equal(expected), "expected %v, got %v", expected, tm.UTC())
+}
+
+func TestParseTimeWithMillisecAndUTCOffset(t *testing.T) {
+	tm, err := parseGPXTime("2021-06-19T17:28:22.983+00:00")
+	assert.Nil(t, err)
+	if !assert.NotNil(t, tm) {
+		return
+	}
+	expected := time.Date(2021, 6, 19, 17, 28, 22, 983000000, time.UTC)
+	assert.True(t, tm.Equal(expected), "expected %v, got %v", expected, tm.UTC())
+}
+
+func TestParseTimeWithMillisecAndPositiveOffset(t *testing.T) {
+	tm, err := parseGPXTime("2021-06-19T22:58:22.983+05:30")
+	assert.Nil(t, err)
+	if !assert.NotNil(t, tm) {
+		return
+	}
+	expected := time.Date(2021, 6, 19, 17, 28, 22, 983000000, time.UTC)
+	assert.True(t, tm.Equal(expected), "expected %v, got %v", expected, tm.UTC())
+}
+
 func TestParseTimeWithPositiveOffset(t *testing.T) {
 	tm, err := parseGPXTime("2021-06-19T22:58:22+05:30")
 	assert.Nil(t, err)
@@ -158,7 +198,6 @@ func TestGuessVersion(t *testing.T) {
 			t.FailNow()
 		}
 	}
-
 }
 
 func TestInvalidVersion(t *testing.T) {

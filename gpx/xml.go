@@ -118,10 +118,6 @@ func guessGPXVersion(bytes []byte) (string, error) {
 }
 
 func parseGPXTime(timestr string) (*time.Time, error) {
-	if strings.Contains(timestr, ".") {
-		// Probably seconds with milliseconds
-		timestr = strings.Split(timestr, ".")[0]
-	}
 	timestr = strings.Trim(timestr, " \t\n\r")
 	for _, timeLayout := range parsingTimelayouts {
 		t, err := time.Parse(timeLayout, timestr)
